@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 ''' Decifer Email Pattern '''
-def _decifer(results):
+def _decifer(domain, results):
     print "_decifer"
     patterns = pd.DataFrame()
     for person in results:
@@ -19,8 +19,9 @@ def _decifer(results):
         for pattern in _patterns():
             email = pattern.format(**variables)
             if person['email'].lower() == email.lower():
-                info = [pattern, domain, person['email'].lower(), 
-                        person['name'].title()]
+                info = [pattern.strip(), person['domain'].strip(), 
+                        person['email'].lower().strip(), 
+                        person['name'].title().strip()]
                 columns = ['pattern','domain','email','name']
                 patterns = patterns.append(dict(zip(columns, info)),ignore_index=True)
                 

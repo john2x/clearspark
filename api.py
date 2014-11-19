@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 from nameparser import HumanName
 from sources import prnewswire_google_search
 from sources import businesswire_google_search
+from sources import start_search
 import pandas as pd
 import json
 import email_patterns
@@ -36,24 +37,9 @@ def find_email_address():
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
     print pattern
-    pw = google.search('"{0}" site:prnewswire.com'.format(domain))
-    bw = google.search('"{0}" site:businesswire.com'.format(domain))
+    q.enqueue(start_search, domain)
 
-    job_queue_lol = domain+str(arrow.now().timestamp)
-    for link in pw.link: 
-        print "STARTED", pw.shape
-        job = q.enqueue(prnewswire_google_search, domain, link,
-                        job_queue_lol, timeout=3600)
-        job.meta['profile_id1'] = job_queue_lol
-        job.save()
-    for link in bw.link: 
-        print "BW STARTED", bw.shape
-        job = q.enqueue(businesswire_google_search, domain, link,
-                        job_queue_lol, timeout=3600)
-        job.meta['profile_id1'] = job_queue_lol
-        job.save()
-
-    if pattern == []:
+    if pattern['results'] == []:
       return {'queued': True}
     else:
       return pattern
