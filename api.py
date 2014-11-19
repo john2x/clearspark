@@ -90,7 +90,7 @@ def search():
 def test():
     return {"test": "lol"}
 
-@app.route('/hirefire/c15c66e82a043712ea5ed5f6f67835ec33c2da37/info', methods=['GET','OPTIONS','POST'])
+@app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def get_job_count():
     #return {"job count": len(q.jobs)}
