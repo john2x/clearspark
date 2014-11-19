@@ -8,6 +8,7 @@ import json
 
 ''' Decifer Email Pattern '''
 def _decifer(results):
+    print "_decifer"
     patterns = pd.DataFrame()
     for person in results:
         variables = {'first_name': person['name'].split(' ')[0],
@@ -27,6 +28,7 @@ def _decifer(results):
 
 ''' Give Scores To Multiple Patterns '''
 def _score(patterns):
+    print "_score"
     if patterns.shape[0] == 0:
         return patterns
     total = len(patterns.drop_duplicates().pattern)
@@ -43,17 +45,14 @@ def _persist(domain, upload):
     for index, row in upload.iterrows():
         r = parse.create('CompanyEmailPatternCrawl', row.to_dict()).json()
 
-    ''' If jobs are done and domain pattern is not found add update
-
-    if 
-        info = { 'domain':domain, 'company_email_pattern': [], }
-        r = parse.create('CompanyEmailPattern', info)
-    '''
+    if upload.shape[0] == 0:
+        return 0
     
     for domain in upload.domain.drop_duplicates():
         qry = json.dumps({'domain': domain})
         pattern = parse.get('CompanyEmailPattern',{'where':qry}).json()
-        crawls = parse.get('CompanyEmailPatternCrawl',{'where':qry,'order':'-createdAt'}).json()
+        qry = {'where':qry,'order':'-createdAt'}
+        crawls = parse.get('CompanyEmailPatternCrawl', qry).json()
         crawls = pd.DataFrame(crawls['results']).drop_duplicates('pattern')
         pointers = [parse._pointer('CompanyEmailPatternCrawl', objectId)
                     for objectId in crawls['objectId']]

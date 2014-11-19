@@ -21,8 +21,9 @@ from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
 
-def businesswire_google_search(domain, link, job_queue):
+def businesswire_google_search(domain, link, job_queue_lol):
     ''' BusinessWire '''
+    parse = Parse()
     r = requests.get(link)
     contact = BeautifulSoup(r.text).find('div',{'class':'bw-release-contact'})
     info = [person.split(',')
@@ -35,14 +36,16 @@ def businesswire_google_search(domain, link, job_queue):
     res = email_patterns._decifer(results)
     upload = email_patterns._score(res)
     email_patterns._persist(domain, upload)  
-    if _queue_is_done(job_queue):
+
+    if _queue_is_done(job_queue_lol):
         r = parse.get('CompanyEmailPattern', {'domain':domain}).json()
         if r['results'] == []:
             vals = {'domain':domain, 'company_email_pattern':[]}
             parse.create('CompanyEmailPattern', vals)
 
-def prnewswire_google_search(domain, link, job_queue):
+def prnewswire_google_search(domain, link, job_queue_lol):
     ''' PR Newswire '''
+    parse = Parse()
     r = requests.get(link)
     contact = BeautifulSoup(r.text)
     
@@ -57,15 +60,18 @@ def prnewswire_google_search(domain, link, job_queue):
     res = email_patterns._decifer(results)
     upload = email_patterns._score(res)
     email_patterns._persist(domain, upload)  
-    if _queue_is_done(job_queue):
+    if _queue_is_done(job_queue_lol):
         r = parse.get('CompanyEmailPattern', {'domain':domain}).json()
         if r['results'] == []:
             vals = {'domain':domain, 'company_email_pattern':[]}
             parse.create('CompanyEmailPattern', vals)
 
 def _queue_is_done(profile_id):
-    profile_jobs = [job.meta for job in q.jobs if 'profile' in job.meta.keys()]
-    last_one = [job for job in profile_jobs if job['profile'] == profile_id]
+    print len(q.jobs)
+    profile_jobs = [job.meta for job in q.jobs 
+                             if 'profile_id1' in job.meta.keys()]
+    last_one = [job for job in profile_jobs 
+                    if job['profile_id1'] == profile_id]
 
     print "NUMBER OF JOBS", last_one
     return len(last_one) == 0

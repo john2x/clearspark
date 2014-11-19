@@ -35,20 +35,22 @@ def find_email_address():
     qry = json.dumps({'domain': domain})
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
+    print pattern
     pw = google.search('"{0}" site:prnewswire.com'.format(domain))
     bw = google.search('"{0}" site:businesswire.com'.format(domain))
 
-    job_queue = domain+str(arrow.now().timestamp)
-    print "STARTED"
+    job_queue_lol = domain+str(arrow.now().timestamp)
     for link in pw.link: 
-        job = q.enqueue(prnewswire_google_search, domain, job_queue,
-                        link, timeout=3600)
-        job.meta['profile'] = job_queue
+        print "STARTED", pw.shape
+        job = q.enqueue(prnewswire_google_search, domain, link,
+                        job_queue_lol, timeout=3600)
+        job.meta['profile_id1'] = job_queue_lol
         job.save()
     for link in bw.link: 
-        job = q.enqueue(businesswire_google_search, domain, job_queue,
-                        link, timeout=3600)
-        job.meta['profile'] = job_queue
+        print "BW STARTED", bw.shape
+        job = q.enqueue(businesswire_google_search, domain, link,
+                        job_queue_lol, timeout=3600)
+        job.meta['profile_id1'] = job_queue_lol
         job.save()
 
     if pattern == []:
