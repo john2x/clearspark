@@ -15,10 +15,11 @@ def _decifer(results):
                      'first_initial': person['name'].split(' ')[0][0],
                      'last_initial': person['name'].split(' ')[-1][0],
                      'domain': person['domain']}
-        for pattern in email_patterns():
+        for pattern in _patterns():
             email = pattern.format(**variables)
             if person['email'].lower() == email.lower():
-                info = [pattern, domain, person['email'].lower(), person['name'].title()]
+                info = [pattern, domain, person['email'].lower(), 
+                        person['name'].title()]
                 columns = ['pattern','domain','email','name']
                 patterns = patterns.append(dict(zip(columns, info)),ignore_index=True)
                 
@@ -26,6 +27,8 @@ def _decifer(results):
 
 ''' Give Scores To Multiple Patterns '''
 def _score(patterns):
+    if patterns.shape[0] == 0:
+        return patterns
     total = len(patterns.drop_duplicates().pattern)
     values = patterns.drop_duplicates('name').pattern.value_counts()
     upload = patterns.drop_duplicates('name')
@@ -33,12 +36,21 @@ def _score(patterns):
     upload['score'] = [int(float(i)/total*100) for i in values]
     return upload
     
-def _persist(upload):
+def _persist(domain, upload):
     ''' Different Email Patterns '''
     parse = Parse()
     pointers = []
     for index, row in upload.iterrows():
         r = parse.create('CompanyEmailPatternCrawl', row.to_dict()).json()
+
+    if upload.shape[0] == 0:
+        info = { 'domain':domain, 'company_email_pattern': [], }
+        r = parse.create('CompanyEmailPattern', info)
+        return 0
+
+    if domain not in upload.domain:
+        info = { 'domain':domain, 'company_email_pattern': [], }
+        r = parse.create('CompanyEmailPattern', info)
     
     for domain in upload.domain.drop_duplicates():
         qry = json.dumps({'domain': domain})
@@ -58,3 +70,39 @@ def _persist(upload):
             print parse.get('CompanyEmailPattern/'+pattern['objectId']).json()
             r = parse.update('CompanyEmailPattern/'+pattern['objectId'],patterns)
             print r.json()
+
+def _patterns():
+    return ['{first_name}@{domain}', '{last_name}@{domain}',
+            '{first_initial}@{domain}', '{last_initial}@{domain}',
+            '{first_name}{last_name}@{domain}',
+            '{first_name}.{last_name}@{domain}',
+            '{first_initial}{last_name}@{domain}',
+            '{first_initial}.{last_name}@{domain}',
+            '{first_name}{last_initial}@{domain}',
+            '{first_name}.{last_initial}@{domain}',
+            '{first_initial}{last_initial}@{domain}',
+            '{first_initial}.{last_initial}@{domain}',
+            '{last_name}{first_name}@{domain}',
+            '{last_name}.{first_name}@{domain}',
+            '{last_name}{first_initial}@{domain}',
+            '{last_name}.{first_initial}@{domain}',
+            '{last_initial}{first_name}@{domain}',
+            '{last_initial}.{first_name}@{domain}',
+            '{last_initial}{first_initial}@{domain}',
+            '{last_initial}.{first_initial}@{domain}',
+            '{first_name}-{last_name}@{domain}',
+            '{first_initial}-{last_name}@{domain}',
+            '{first_name}-{last_initial}@{domain}',
+            '{first_initial}-{last_initial}@{domain}',
+            '{last_name}-{first_name}@{domain}',
+            '{last_name}-{first_initial}@{domain}',
+            '{last_initial}-{first_name}@{domain}',
+            '{last_initial}-{first_initial}@{domain}',
+            '{first_name}_{last_name}@{domain}',
+            '{first_initial}_{last_name}@{domain}',
+            '{first_name}_{last_initial}@{domain}',
+            '{first_initial}_{last_initial}@{domain}',
+            '{last_name}_{first_name}@{domain}',
+            '{last_name}_{first_initial}@{domain}',
+            '{last_initial}_{first_name}@{domain}',
+            '{last_initial}_{first_initial}@{domain}']
