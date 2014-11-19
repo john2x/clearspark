@@ -94,4 +94,7 @@ def test():
 @crossdomain(origin='*')
 def get_job_count():
     #return {"job count": len(q.jobs)}
-      return [{"name": "worker", "quantity" : len(q.jobs)}]
+     return [{"name": "worker", "quantity" : len(q.jobs)}]
+
+if __name__ == "__main__":
+    app.run(debug=True)

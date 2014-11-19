@@ -2,6 +2,7 @@ Flask==0.10.1
 stripe==1.19.1
 pusher==0.8
 rq-dashboard==0.3.4
+nameparser==0.3.3
 Flask-API==0.6.2
 pystache==0.5.4
 address==0.1.1
