@@ -5,6 +5,7 @@ import requests
 import json
 import tldextract
 from parse import Parse
+from crossdomain import crossdomain
 from google import Google
 import toofr
 import requests
@@ -81,7 +82,7 @@ def prnewswire_google_search(domain):
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def search(''):
+def search():
     # search google for business wire
     ''' '''
 
