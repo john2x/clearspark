@@ -17,40 +17,55 @@ import pandas as pd
 import json
 import email_patterns
 
-def businesswire_google_search(domain):
-    ''' BusinessWire '''
-    parse, google = Parse(), Google()
-    bw = google.search('"{0}" site:businesswire.com/news'.format(domain))
-    for link in bw.link:
-        r = requests.get(link)
-        contact = BeautifulSoup(r.text).find('div',{'class':'bw-release-contact'})
-        info = [person.split(',')
-                for person in str(contact).split('<br/>') 
-                if "mailto:" in person]
-        names = [" ".join(name[0].split()) for name in info]
-        emails = [BeautifulSoup(name[1]).text for name in info]
-        results = [{'name':name, 'email':email,'domain':domain} 
-                   for name, email in zip(names, emails)]
-        res = email_patterns._decifer(results)
-        upload = email_patterns._score(res)
-        email_patterns._persist(domain, upload)  
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
 
-def prnewswire_google_search(domain):
+def businesswire_google_search(domain, link, job_queue):
+    ''' BusinessWire '''
+    r = requests.get(link)
+    contact = BeautifulSoup(r.text).find('div',{'class':'bw-release-contact'})
+    info = [person.split(',')
+            for person in str(contact).split('<br/>') 
+            if "mailto:" in person]
+    names = [" ".join(name[0].split()) for name in info]
+    emails = [BeautifulSoup(name[1]).text for name in info]
+    results = [{'name':name, 'email':email,'domain':domain} 
+               for name, email in zip(names, emails)]
+    res = email_patterns._decifer(results)
+    upload = email_patterns._score(res)
+    email_patterns._persist(domain, upload)  
+    if _queue_is_done(job_queue):
+        r = parse.get('CompanyEmailPattern', {'domain':domain}).json()
+        if r['results'] == []:
+            vals = {'domain':domain, 'company_email_pattern':[]}
+            parse.create('CompanyEmailPattern', vals)
+
+def prnewswire_google_search(domain, link, job_queue):
     ''' PR Newswire '''
-    parse, google = Parse(), Google()
-    pw = google.search('"{0}" site:prnewswire.com/news'.format(domain))
-    for link in pw.link:
-        r = requests.get(link)
-        contact = BeautifulSoup(r.text)
-        
-        names, emails = [], []
-        for paragraph in contact.findAll('p',attrs={"itemprop" : "articleBody"}):
-            names = [name.text for name in paragraph.findAll('span', {'class':'xn-person'})]
-            emails = [email.text for email in paragraph.findAll('a') 
-                           if "mailto:" in email['href']]
-                           
-        results = [{'name':name, 'email':email, 'domain':domain} 
-                   for name, email in zip(names, emails)]
-        res = email_patterns._decifer(results)
-        upload = email_patterns._score(res)
-        email_patterns._persist(domain, upload)  
+    r = requests.get(link)
+    contact = BeautifulSoup(r.text)
+    
+    names, emails = [], []
+    for paragraph in contact.findAll('p',attrs={"itemprop" : "articleBody"}):
+        names = [name.text for name in paragraph.findAll('span', {'class':'xn-person'})]
+        emails = [email.text for email in paragraph.findAll('a') 
+                       if "mailto:" in email['href']]
+                       
+    results = [{'name':name, 'email':email, 'domain':domain} 
+               for name, email in zip(names, emails)]
+    res = email_patterns._decifer(results)
+    upload = email_patterns._score(res)
+    email_patterns._persist(domain, upload)  
+    if _queue_is_done(job_queue):
+        r = parse.get('CompanyEmailPattern', {'domain':domain}).json()
+        if r['results'] == []:
+            vals = {'domain':domain, 'company_email_pattern':[]}
+            parse.create('CompanyEmailPattern', vals)
+
+def _queue_is_done(profile_id):
+    profile_jobs = [job.meta for job in q.jobs if 'profile' in job.meta.keys()]
+    last_one = [job for job in profile_jobs if job['profile'] == profile_id]
+
+    print "NUMBER OF JOBS", last_one
+    return len(last_one) == 0

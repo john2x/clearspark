@@ -37,8 +37,18 @@ def find_email_address():
     pw = google.search('"{0}" site:prnewswire.com'.format(domain))
     bw = google.search('"{0}" site:businesswire.com'.format(domain))
 
-    for link in pw.link: q.enqueue(prnewswire_google_search, domain, timeout=3600)
-    for link in bw.link: q.enqueue(businesswire_google_search, domain, timeout=3600)
+    job_queue = domain+str(arrow.now().timestamp)
+    print "STARTED"
+    for link in pw.link: 
+        job = q.enqueue(prnewswire_google_search, domain, job_queue,
+                        link, timeout=3600)
+        job.meta['profile'] = job_queue
+        job.save()
+    for link in bw.link: 
+        job = q.enqueue(businesswire_google_search, domain, job_queue,
+                        link, timeout=3600)
+        job.meta['profile'] = job_queue
+        job.save()
 
     if pattern == []:
       return {'queued': True}

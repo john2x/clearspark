@@ -43,14 +43,12 @@ def _persist(domain, upload):
     for index, row in upload.iterrows():
         r = parse.create('CompanyEmailPatternCrawl', row.to_dict()).json()
 
-    if upload.shape[0] == 0:
-        info = { 'domain':domain, 'company_email_pattern': [], }
-        r = parse.create('CompanyEmailPattern', info)
-        return 0
+    ''' If jobs are done and domain pattern is not found add update
 
-    if domain not in upload.domain:
+    if 
         info = { 'domain':domain, 'company_email_pattern': [], }
         r = parse.create('CompanyEmailPattern', info)
+    '''
     
     for domain in upload.domain.drop_duplicates():
         qry = json.dumps({'domain': domain})
