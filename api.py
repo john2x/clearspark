@@ -83,4 +83,14 @@ def prnewswire_google_search(domain):
 @crossdomain(origin='*')
 def search(''):
     # search google for business wire
+    ''' '''
 
+@app.route('/', methods=['GET'])
+def test():
+    return {"test": "lol"}
+
+@app.route('/hirefire/c15c66e82a043712ea5ed5f6f67835ec33c2da37/info', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def get_job_count():
+    #return {"job count": len(q.jobs)}
+      return [{"name": "worker", "quantity" : len(q.jobs)}]
