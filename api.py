@@ -26,6 +26,11 @@ from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
+@app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def company_info():
+    ''' -- '''
+
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_email_address():

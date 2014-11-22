@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 class EmailGuess:
-    def streaming_search(domain):
+    def streaming_search(self, domain):
         google = Google()
         pw = google.search('"{0}" site:prnewswire.com'.format(domain))
         bw = google.search('"{0}" site:businesswire.com'.format(domain))
@@ -19,7 +19,7 @@ class EmailGuess:
         ''' enqueue and return values ''' 
         return pd.concat([pn_emails, bw_emails]).drop_duplicates('pattern')
 
-    def start_search(domain):
+    def start_search(self, domain):
         google = Google()
         pw = google.search('"{0}" site:prnewswire.com'.format(domain))
         bw = google.search('"{0}" site:businesswire.com'.format(domain))
@@ -40,7 +40,7 @@ class EmailGuess:
             job.save()
 
     ''' Give Scores To Multiple Patterns '''
-    def _score(patterns):
+    def _score(self, patterns):
         print "_score"
         if patterns.shape[0] == 0:
             return patterns
@@ -80,7 +80,7 @@ class EmailGuess:
                           for objectId in crawl_objectids]
         return crawl_pointers
     
-    def _persist_email_guess(domain, upload):
+    def _persist_email_guess(self, domain, upload):
         ''' Different Email Patterns '''
         if upload.shape[0] == 0: return 0
         for index, row in upload.iterrows():
@@ -99,7 +99,7 @@ class EmailGuess:
                 pattern = 'CompanyEmailPattern/'+pattern['results'][0]['objectId']
                 print Parse().update(pattern, patterns)
 
-    def _patterns():
+    def _patterns(self):
         return ['{first_name}@{domain}', '{last_name}@{domain}',
                 '{first_initial}@{domain}', '{last_initial}@{domain}',
                 '{first_name}{last_name}@{domain}',
