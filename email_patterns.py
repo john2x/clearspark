@@ -4,6 +4,7 @@ from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName
 import pandas as pd
+import arrow
 import json
 
 class EmailGuess:
