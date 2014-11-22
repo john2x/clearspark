@@ -32,12 +32,12 @@ class EmailGuess:
             job.meta['profile_id1'] = job_queue_lol
             job.save()
 
-    for link in bw.link: 
-        print "BW STARTED", bw.shape
-        job = q.enqueue(businesswire_google_search, domain, link,
-                        job_queue_lol, timeout=3600)
-        job.meta['profile_id1'] = job_queue_lol
-        job.save()
+        for link in bw.link: 
+            print "BW STARTED", bw.shape
+            job = q.enqueue(businesswire_google_search, domain, link,
+                            job_queue_lol, timeout=3600)
+            job.meta['profile_id1'] = job_queue_lol
+            job.save()
 
     ''' Give Scores To Multiple Patterns '''
     def _score(patterns):
@@ -71,7 +71,7 @@ class EmailGuess:
                     columns = ['pattern','domain','email','name']
                     patterns = patterns.append(dict(zip(columns, info)), 
                                                ignore_index=True)
-          return patterns
+        return patterns
 
     def _email_crawl_pointers(self, qry):
         crawls = pd.DataFrame(parse.get('CompanyEmailPatternCrawl', qry).json())

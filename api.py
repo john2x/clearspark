@@ -14,9 +14,9 @@ from parse import Parse
 from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName
-from sources import prnewswire_google_search
-from sources import businesswire_google_search
-from sources import start_search
+from sources import PRNewsWire
+from sources import BusinessWire
+from email_patterns import EmailGuess
 import pandas as pd
 import json
 import email_patterns
@@ -37,7 +37,7 @@ def find_email_address():
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
     print pattern
-    q.enqueue(start_search, domain)
+    q.enqueue(EmailGuess().start_search, domain)
 
     if pattern['results'] == []: return {'queued': True}
     else: return pattern
@@ -53,7 +53,7 @@ def search():
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
     print pattern
-    streaming_search()
+    EmailGuess().streaming_search(domain)
 
     if pattern['results'] == []: return {'queued': True}
     else: return pattern

@@ -25,7 +25,7 @@ q = Queue(connection=conn)
 
 class PRNewsWire:
     ''' '''
-    def _extract_contacts(self, html)
+    def _extract_contacts(self, html):
         contact = BeautifulSoup(r.text)
         names, emails = [], []
         for paragraph in contact.findAll('p',attrs={"itemprop" : "articleBody"}):
