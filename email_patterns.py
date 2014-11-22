@@ -3,9 +3,15 @@ from parse import Parse
 from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName
+from sources import PRNewsWire
+from sources import BusinessWire
 import pandas as pd
 import arrow
 import json
+
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
 
 class EmailGuess:
     def streaming_search(self, domain):
