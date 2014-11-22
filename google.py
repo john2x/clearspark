@@ -19,6 +19,19 @@ class Google:
           res.append(self._results_to_html(r.text))
       return res
 
+  def news_search(self, qry, pages=1):
+      res = pd.DataFrame()
+      for page in range(pages):
+          print page
+          args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
+          url = 'https://news.google.com/'+ args
+          cloak = "https://crawlera.p.mashape.com/fetch"
+          headers = {"X-Mashape-Key": 
+                     "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
+          r = requests.get(cloak, params={'url':url}, headers=headers)
+          res = res.append(self._results_html_to_df(r.text))
+      return res
+
   def search(self, qry, pages=1):
       res = pd.DataFrame()
       for page in range(pages):

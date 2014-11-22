@@ -39,16 +39,26 @@ def find_email_address():
     print pattern
     q.enqueue(start_search, domain)
 
-    if pattern['results'] == []:
-      return {'queued': True}
-    else:
-      return pattern
+    if pattern['results'] == []: return {'queued': True}
+    else: return pattern
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def search():
-    # search google for business wire
-    ''' '''
+    parse, google = Parse(), Google()
+    domain = tldextract.extract(request.args['domain'])
+    domain = "{}.{}".format(domain.domain, domain.tld)
+
+    qry = json.dumps({'domain': domain})
+    qry = {'where':qry, 'include':'company_email_pattern'}
+    pattern = parse.get('CompanyEmailPattern', qry).json()
+    print pattern
+    streaming_search()
+
+    if pattern['results'] == []: return {'queued': True}
+    else: return pattern
+
+#TODO - add webhook support
 
 @app.route('/', methods=['GET'])
 def test():
