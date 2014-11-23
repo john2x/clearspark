@@ -34,14 +34,15 @@ def company_info():
     parse = Parse()
     domain  = request.args
     company_name = request.args['company_name']
-    qry = {'company_name': company_name}
+    qry = {'search_queries': company_name}
     company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
     if company != []: return company
     company= Companies().search(company_name)
     # persist
     if str(company) == "not found": return {company_name: "Not Found."}
     else: 
-      print Parse().create('Company', company.ix[0].to_dict())
+      print "STARTED"
+      q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
       return company.ix[0].to_dict()
 
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])

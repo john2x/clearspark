@@ -39,3 +39,19 @@ class Parse:
                       data=json.dumps(data),
                       headers=self._master_headers)
     return r
+
+  ''' ClearSpark Specific Methods '''
+
+  def _add_company(self, company, company_qry):
+      ''' '''
+      print "ADD COMPANY"
+      r = self.create('Company', company).json()
+      if 'error' in r.keys():
+          print company['domain']
+          qry = json.dumps({"domain": company['domain']})
+          r = self.get('Company', {'where': qry}).json()['results'][0]
+          r = self.update('Company/'+r['objectId'], 
+                      {"search_queries":
+                      {"__op":"AddUnique","objects":[company_qry]}}).json()
+          print r
+          
