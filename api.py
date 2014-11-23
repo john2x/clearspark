@@ -27,7 +27,7 @@ from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
-@app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
+@app.route('/v1/companies/streaming/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_info():
     ''' Check If It Exists In Parse '''
@@ -44,6 +44,20 @@ def company_info():
       print "STARTED"
       q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
       return company.ix[0].to_dict()
+
+@app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def async_company_info():
+    ''' Check If It Exists In Parse '''
+    parse = Parse()
+    domain  = request.args
+    company_name = request.args['company_name']
+    qry = {'search_queries': company_name}
+    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
+    q.enqueue(Companies().async_search, company_name)
+    if company != []: return company
+    else: return {'queued': 'The search query has been queued. Please check back soon.'}
+    
 
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
