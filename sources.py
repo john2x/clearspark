@@ -66,7 +66,8 @@ class EmailGuess:
         upload['score'] = [int(float(i)/total*100) for i in values]
         return upload
 
-    def _add_email_variables(self, contact_df):
+    def _add_email_variables(self, contacts):
+        print contacts
         contacts['first_name'] = [name.split(' ')[0] for name in contacts.name]
         contacts['last_name'] = [name.split(' ')[-1] for name in contacts.name]
         contacts['first_initial'] = [name.split(' ')[0][0] for name in contacts.name]
@@ -76,9 +77,10 @@ class EmailGuess:
     def _find_email_pattern(self, domain, results):
         ''' Decifer Email Pattern '''
         patterns = pd.DataFrame()
-        for person in results:
+        results = self._add_email_variables(results)
+        for index, person in results.iterrows():
             for pattern in self._patterns():
-                email = pattern.format(**variables)
+                email = pattern.format(**person.to_dict())
                 if person['email'].lower() == email.lower():
                     info = [pattern.strip(), person['domain'].strip(), 
                             person['email'].lower().strip(), 
@@ -168,6 +170,8 @@ class PRNewsWire:
         ''' PR Newswire '''
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
+        if contacts.empty: return "no contacts found", link
+
         res         = EmailGuess()._find_email_pattern(domain, contacts)
         upload      = EmailGuess()._score(res)
         EmailGuess()._persist_email_guess(domain, upload)  
