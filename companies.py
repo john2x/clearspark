@@ -24,6 +24,11 @@ class Companies:
         technology = requests.get('https://builtwith.com/'+domain)
         return technology
 
+    def _traffic_analysis(self, domain):
+        ''' Compete.com, Alexa, SimilarWeb '''
+        traffic = requests.get('https://similarweb.com/'+domain)
+        return traffic
+
     def _hiring(self, company_name):
         ''' Indeed '''
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
@@ -35,16 +40,16 @@ class Companies:
 
     def _press(self, company_name):
         ''' Google News, PRNewsWire, BusinessWire '''
-        pw = Google().search("{0} site:prnewswire.com").format(company_name))
-        bw = Google().search("{0} site:businesswire.com").format(company_name))
-        gn = Google().news_search("{0}").format(company_name))
+        pw = Google().search("{0} site:prnewswire.com".format(company_name))
+        bw = Google().search("{0} site:businesswire.com".format(company_name))
+        gn = Google().news_search("{0}".format(company_name))
         # parse and return
         return  press
 
     def _social_profiles(self, domain):
         ''' Clearbit '''
-        fb = Google().search("{0} site:facebook.com/").format(domain))
-        tw = Google().search("{0} site:twitter.com/").format(domain))
+        fb = Google().search("{0} site:facebook.com/".format(domain))
+        tw = Google().search("{0} site:twitter.com/".format(domain))
         return social_profiles
 
     def _fundings(self, company_name):
@@ -63,7 +68,7 @@ class Companies:
 
     def _related(self, domain):
         ''' Competitors, Similar Companies '''
-        companies = Google().search("related:{0}").format(domain), 10)
+        companies = Google().search("related:{0}".format(domain), 10)
         # linkedin companies info 
         return related
 
@@ -76,12 +81,13 @@ class Companies:
 
     def _get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
+        print profile
         if profile is "not found":
             profile = Zoominfo().search(company_name)
         return profile
 
-    def search(company_name):
+    def search(self, company_name):
         profile = self._get_info(company_name)
         if profile is "not found": return "not found"
-        profile['pattern'] = self._email_pattern(profile['domain'])
+        #profile['pattern'] = self._email_pattern(profile['domain'])
         return profile

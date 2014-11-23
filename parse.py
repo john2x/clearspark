@@ -5,13 +5,13 @@ class Parse:
   def __init__(self):
     self._url = 'https://api.parse.com/1/classes/{0}'
     self._headers = {
-      "X-Parse-Application-Id": "N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ",
-      "X-Parse-REST-API-Key": "VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb",
+      "X-Parse-Application-Id": "aBbOmPBkUou54VeIrtHhIU7a6PQSKEkXLCjm6cJf",
+      "X-Parse-REST-API-Key": "VIC4qwcpgDtKp5HgDcC58b8mwqg0yS8wwrubTtUN",
       "Content-Type": "application/json"
     }
     self._master_headers = {
-      "X-Parse-Application-Id": "N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ",
-      "X-Parse-Master-Key": "RQgSIyw9rxC4xn4KlsIEYzDIpkxNIUlLz70akJcT",
+      "X-Parse-Application-Id": "aBbOmPBkUou54VeIrtHhIU7a6PQSKEkXLCjm6cJf",
+      "X-Parse-Master-Key": "2gWbC8qMhDwQyBLVoaIz1w7M5zI3zPgawDYE7oXL",
       "Content-Type": "application/json"
     }
 

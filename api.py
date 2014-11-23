@@ -17,6 +17,7 @@ from nameparser import HumanName
 from sources import PRNewsWire
 from sources import BusinessWire
 from email_patterns import EmailGuess
+from companies import Companies
 import pandas as pd
 import json
 import email_patterns
@@ -29,7 +30,19 @@ app = FlaskAPI(__name__)
 @app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_info():
-    ''' -- '''
+    ''' Check If It Exists In Parse '''
+    parse = Parse()
+    domain  = request.args
+    company_name = request.args['company_name']
+    qry = {'company_name': company_name}
+    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
+    if company != []: return company
+    company= Companies().search(company_name)
+    # persist
+    if str(company) == "not found": return {company_name: "Not Found."}
+    else: 
+      print Parse().create('Company', company.ix[0].to_dict())
+      return company.ix[0].to_dict()
 
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
