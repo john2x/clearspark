@@ -29,13 +29,14 @@ class EmailGuessHelper:
 
     def _add_email_variables(self, contacts):
         #print contacts
-        try:
-          contacts['first_name'] = [name.split(' ')[0] for name in contacts.name]
-        except:
-          print self._remove_non_ascii(contacts)
-        contacts['last_name'] = [name.split(' ')[-1] for name in contacts.name]
-        contacts['first_initial'] = [name.split(' ')[0][0] for name in contacts.name]
-        contacts['last_initial'] = [name.split(' ')[0][-1] for name in contacts.name]
+        contacts['first_name'] = [self._remove_non_ascii(name).strip().split(' ')[0] 
+                                    for name in contacts.name]
+        contacts['last_name'] = [self._remove_non_ascii(name).split(' ')[-1] 
+                                 for name in contacts.name]
+        contacts['first_initial'] = [self._remove_non_ascii(name).split(' ')[0][0] 
+                                     for name in contacts.name]
+        contacts['last_initial'] = [self._remove_non_ascii(name).split(' ')[0][-1] 
+                                    for name in contacts.name]
         return contacts
 
     def _find_email_pattern(self, domain, results):
