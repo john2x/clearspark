@@ -26,7 +26,10 @@ class EmailGuessHelper:
 
     def _add_email_variables(self, contacts):
         #print contacts
-        contacts['first_name'] = [name.split(' ')[0] for name in contacts.name]
+        try:
+          contacts['first_name'] = [name.split(' ')[0] for name in contacts.name]
+        except:
+          print contacts
         contacts['last_name'] = [name.split(' ')[-1] for name in contacts.name]
         contacts['first_initial'] = [name.split(' ')[0][0] for name in contacts.name]
         contacts['last_initial'] = [name.split(' ')[0][-1] for name in contacts.name]
