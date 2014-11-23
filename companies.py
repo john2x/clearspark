@@ -10,6 +10,7 @@ import json
 import re, string
 from address import AddressParser, Address
 import zoominfo
+from email_patterns import EmailGuess
 from zoominfo import Zoominfo
 import random
 import toofr
@@ -89,13 +90,13 @@ class Companies:
     def _async_get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
         print profile
-        if profile is "not found":
+        if str(profile) is "not found":
             profile = Zoominfo().search(company_name)
-        if profile != "not found" and 'domain' in profile.keys():
-            q.enqueue(EmailGuess().start_search, profile['domain'])
+        q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
+                  company_name, timeout=3600)
+        if str(profile) != "not found" and 'domain' in profile.keys():
+            q.enqueue(EmailGuess().start_search, profile.ix[0].to_dict()['domain'])
 
-        q.enqueue(Parse()._add_company, profile, company_name, 
-                  timeout=3600)
 
     def search(self, company_name):
         profile = self._get_info(company_name)

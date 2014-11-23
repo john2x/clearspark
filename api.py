@@ -49,9 +49,8 @@ def company_info():
 @crossdomain(origin='*')
 def async_company_info():
     ''' Check If It Exists In Parse '''
-    parse = Parse()
-    domain  = request.args
-    company_name = request.args['company_name']
+    print "started"
+    parse, company_name = Parse(), request.args['company_name']
     qry = {'search_queries': company_name}
     company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
     q.enqueue(Companies().async_search, company_name)
