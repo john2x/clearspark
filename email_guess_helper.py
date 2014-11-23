@@ -49,7 +49,9 @@ class EmailGuessHelper:
 
     def _email_crawl_pointers(self, qry):
         parse = Parse()
-        crawls = pd.DataFrame(parse.get('CompanyEmailPatternCrawl', qry).json()['results'])
+        results = parse.get('CompanyEmailPatternCrawl', qry).json()
+        results = results['results'] if "results" in results.keys() else results
+        crawls = pd.DataFrame(results)
         print crawls
         crawl_objectids = crawls['results'].drop_duplicates('pattern').objectId
         crawl_pointers = [parse._pointer('CompanyEmailPatternCrawl', objectId)

@@ -75,7 +75,7 @@ class BusinessWire:
     def _find_emails(self, domain, link, job_queue_lol):
         ''' BusinessWire '''
         print "BusinessWire"
-        parse, html = Parse(), requests.get(link).text
+        parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
