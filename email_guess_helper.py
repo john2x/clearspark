@@ -25,7 +25,7 @@ class EmailGuessHelper:
         return upload
 
     def _add_email_variables(self, contacts):
-        print contacts
+        #print contacts
         contacts['first_name'] = [name.split(' ')[0] for name in contacts.name]
         contacts['last_name'] = [name.split(' ')[-1] for name in contacts.name]
         contacts['first_initial'] = [name.split(' ')[0][0] for name in contacts.name]
@@ -49,7 +49,8 @@ class EmailGuessHelper:
 
     def _email_crawl_pointers(self, qry):
         parse = Parse()
-        crawls = pd.DataFrame(parse.get('CompanyEmailPatternCrawl', qry).json())
+        crawls = pd.DataFrame(parse.get('CompanyEmailPatternCrawl', qry).json()['results'])
+        print crawls
         crawl_objectids = crawls['results'].drop_duplicates('pattern').objectId
         crawl_pointers = [parse._pointer('CompanyEmailPatternCrawl', objectId)
                           for objectId in crawl_objectids]

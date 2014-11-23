@@ -46,8 +46,9 @@ class PRNewsWire:
             res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
             upload      = EmailGuessHelper()._score(res)
             EmailGuessHelper()._persist_email_guess(domain, upload)  
+        else:
+            print "no prospects found"
 
-        '''
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             r = parse.get('CompanyEmailPattern', {'where': json.dumps({"domain":domain})})
             if r.json()['results'] == []:
@@ -55,7 +56,6 @@ class PRNewsWire:
                 print r.json()
                 vals = {'domain':domain, 'company_email_pattern': []}
                 print parse.create('CompanyEmailPattern', vals)
-        '''
         #return upload
 
 class BusinessWire:
@@ -82,6 +82,8 @@ class BusinessWire:
             res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
             upload      = EmailGuessHelper()._score(res)
             EmailGuessHelper()._persist_email_guess(domain, upload)  
+        else:
+            print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             r = parse.get('CompanyEmailPattern', {'where': json.dumps({'domain':domain})})
