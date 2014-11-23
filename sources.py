@@ -77,7 +77,7 @@ class EmailGuess:
         ''' Decifer Email Pattern '''
         patterns = pd.DataFrame()
         for person in results:
-            for pattern in _patterns():
+            for pattern in self._patterns():
                 email = pattern.format(**variables)
                 if person['email'].lower() == email.lower():
                     info = [pattern.strip(), person['domain'].strip(), 
