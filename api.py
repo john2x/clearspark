@@ -45,7 +45,9 @@ def find_email_address():
     q.enqueue(EmailGuess().start_search, domain)
 
     if pattern['results'] == []: return {'queued': True}
-    else: return pattern
+    elif pattern['results'][0]['company_email_pattern'] == []: 
+        return {'Error': "Domain email pattern could not be found. Retrying. Please retry again soon."}
+    else: return pattern['results'][0]
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

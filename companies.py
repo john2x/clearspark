@@ -71,7 +71,7 @@ class Companies:
 
     def _email_pattern(self, domain):
         ''' ClearSpark '''
-        patterns = EmailGuess.streaming_search(domain)
+        patterns = EmailGuess().streaming_search(domain)
         return patterns
 
     def _get_info(self, company_name):

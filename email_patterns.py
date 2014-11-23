@@ -3,11 +3,11 @@ from parse import Parse
 from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName
-from sources import PRNewsWire
-from sources import BusinessWire
 import pandas as pd
 import arrow
 import json
+from sources import PRNewsWire
+from sources import BusinessWire
 
 from rq import Queue
 from worker import conn
@@ -22,7 +22,7 @@ class EmailGuess:
         for link in pw.link: 
             pn_emails = PRNewsWire()._find_emails(domain, link, False)
         for link in bw.link: 
-            bw_emails = BusinessWire(domain, link, False)
+            bw_emails = BusinessWire()._find_emails(domain, link, False)
         ''' enqueue and return values ''' 
         return pd.concat([pn_emails, bw_emails]).drop_duplicates('pattern')
 
@@ -34,14 +34,14 @@ class EmailGuess:
         job_queue_lol = domain+str(arrow.now().timestamp)
         for link in pw.link: 
             print "STARTED", pw.shape
-            job = q.enqueue(prnewswire_google_search, domain, link,
+            job = q.enqueue(PRNewsWire()._find_emails, domain, link,
                             job_queue_lol, timeout=3600)
             job.meta['profile_id1'] = job_queue_lol
             job.save()
 
         for link in bw.link: 
             print "BW STARTED", bw.shape
-            job = q.enqueue(businesswire_google_search, domain, link,
+            job = q.enqueue(BusinessWire._find_emails, domain, link,
                             job_queue_lol, timeout=3600)
             job.meta['profile_id1'] = job_queue_lol
             job.save()
