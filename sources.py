@@ -62,7 +62,7 @@ class BusinessWire:
     def _extract_contacts(self, html):
         contacts = BeautifulSoup(html)
         contacts = contacts.find('div',{'class':'bw-release-contact'})
-        if contacts == None: return 0
+        if contacts == None: return pd.DataFrame()
         contacts = str(contacts).split('<br/>or<br/>')
         for contact in contacts:
             info = str(contact).split('<br/>')[1:]

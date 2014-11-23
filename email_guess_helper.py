@@ -24,7 +24,7 @@ class EmailGuessHelper:
         upload['score'] = [int(float(i)/total*100) for i in values]
         return upload
 
-    def _remove_non_ascii(text):
+    def _remove_non_ascii(self, text):
           return ''.join(i for i in text if ord(i)<128)
 
     def _add_email_variables(self, contacts):
