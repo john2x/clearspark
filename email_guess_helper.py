@@ -56,7 +56,7 @@ class EmailGuessHelper:
         results = results['results'] if "results" in results.keys() else results
         crawls = pd.DataFrame(results)
         print crawls
-        crawl_objectids = crawls['results'].drop_duplicates('pattern').objectId
+        crawl_objectids = crawls.drop_duplicates('pattern').objectId
         crawl_pointers = [parse._pointer('CompanyEmailPatternCrawl', objectId)
                           for objectId in crawl_objectids]
         return crawl_pointers
