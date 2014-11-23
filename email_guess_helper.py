@@ -24,12 +24,15 @@ class EmailGuessHelper:
         upload['score'] = [int(float(i)/total*100) for i in values]
         return upload
 
+    def _remove_non_ascii(text):
+          return ''.join(i for i in text if ord(i)<128)
+
     def _add_email_variables(self, contacts):
         #print contacts
         try:
           contacts['first_name'] = [name.split(' ')[0] for name in contacts.name]
         except:
-          print contacts
+          print self._remove_non_ascii(contacts)
         contacts['last_name'] = [name.split(' ')[-1] for name in contacts.name]
         contacts['first_initial'] = [name.split(' ')[0][0] for name in contacts.name]
         contacts['last_initial'] = [name.split(' ')[0][-1] for name in contacts.name]
