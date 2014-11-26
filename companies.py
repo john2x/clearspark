@@ -100,7 +100,6 @@ class Companies:
                 q.enqueue(EmailGuess().start_search, profile.ix[0].to_dict()['domain'])
             '''
 
-
     def search(self, company_name):
         profile = self._get_info(company_name)
         if profile is "not found": return "not found"
