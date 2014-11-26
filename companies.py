@@ -83,8 +83,12 @@ class Companies:
     def _get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
         print profile
-        if profile is "not found":
+        if str(profile) is "not found":
             profile = Zoominfo().search(company_name)
+
+        if str(profile) != "not found":
+            q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
+                      company_name, timeout=3600)
         return profile
 
     def _async_get_info(self, company_name):
@@ -101,9 +105,11 @@ class Companies:
             '''
 
     def search(self, company_name):
+        print "Started", company_name
         profile = self._get_info(company_name)
         if profile is "not found": return "not found"
         #profile['pattern'] = self._email_pattern(profile['domain'])
+        print profile
         return profile
 
     def async_search(self, company_name):
