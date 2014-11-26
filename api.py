@@ -43,7 +43,7 @@ def company_info():
     else: 
       print "STARTED"
       q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
-      return company.ix[0].to_dict()
+      return company.ix[0].to_dict()[0]
 
 @app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
