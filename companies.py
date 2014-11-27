@@ -101,6 +101,7 @@ class Companies:
                       company_name, timeout=3600)
 
         if str(profile) != "not found" and update_object:
+            profile = profile.ix[0].to_dict()
             r = Parse().update('Prospect/'+update_object, profile).json()
             '''
             if 'domain' in profile.keys():
