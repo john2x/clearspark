@@ -103,7 +103,7 @@ class Companies:
         if str(profile) != "not found" and update_object:
             profile = profile.ix[0].to_dict()
             print profile
-            r = Parse().update('Prospect/'+update_object, profile).json()
+            r = Parse().update('Prospect/'+update_object, profile, True).json()
             print r
             '''
             if 'domain' in profile.keys():

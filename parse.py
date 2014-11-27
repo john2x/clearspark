@@ -14,6 +14,11 @@ class Parse:
       "X-Parse-Master-Key": "2gWbC8qMhDwQyBLVoaIz1w7M5zI3zPgawDYE7oXL",
       "Content-Type": "application/json"
     }
+    self._customero_headers = {
+      "X-Parse-Application-Id": "N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ",
+      "X-Parse-REST-API-Key": "VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb",
+      "Content-Type": "application/json"
+    }
 
   def _pointer(self, className, objectId):
     return {
@@ -34,10 +39,12 @@ class Parse:
                      headers=self._headers)
     return r
 
-  def update(self, className, data):
+  def update(self, className, data, customero=False):
+    headers = self_master_headers
+    headers = self._customero_headers if customero else headers
     r = requests.put(self._url.format(className),
                       data=json.dumps(data),
-                      headers=self._master_headers)
+                      headers=headers)
     return r
 
   ''' ClearSpark Specific Methods '''
