@@ -40,7 +40,7 @@ class Parse:
     return r
 
   def update(self, className, data, customero=False):
-    headers = self_master_headers
+    headers = self._master_headers
     headers = self._customero_headers if customero else headers
     r = requests.put(self._url.format(className),
                       data=json.dumps(data),
