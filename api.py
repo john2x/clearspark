@@ -57,6 +57,18 @@ def async_company_info():
     q.enqueue(Companies().async_search, company_name)
     if company != []: return company
     else: return {'queued': 'The search query has been queued. Please check back soon.'}
+
+@app.route('/v1/app/companies/info', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def app_company_info():
+    ''' Check If It Exists In Parse '''
+    print "started"
+    parse, company_name = Parse(), request.args['company_name']
+    qry = {'search_queries': company_name}
+    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
+    q.enqueue(Companies()._async_get_info, company_name, request.args['objectId'])
+    if company != []: return company
+    else: return {'queued': 'The search query has been queued. Please check back soon.'}
     
 
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])

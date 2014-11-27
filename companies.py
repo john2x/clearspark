@@ -91,7 +91,7 @@ class Companies:
                       company_name, timeout=3600)
         return profile
 
-    def _async_get_info(self, company_name):
+    def _async_get_info(self, company_name, update_object=False):
         profile = Linkedin()._company_profile(company_name)
         print profile
         if str(profile) is "not found":
@@ -99,6 +99,9 @@ class Companies:
         if str(profile) != "not found":
             q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
                       company_name, timeout=3600)
+
+        if update_object:
+            print Parse().update('Prospect/'+update_object, profile).json()
             '''
             if 'domain' in profile.keys():
                 q.enqueue(EmailGuess().start_search, profile.ix[0].to_dict()['domain'])
