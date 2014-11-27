@@ -67,10 +67,10 @@ def app_company_info():
     qry = {'search_queries': company_name}
     company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
     q.enqueue(Companies()._async_get_info, company_name, request.args['objectId'])
+    q.enqueue(EmailGuess().start_search, domain)
     if company != []: return company
     else: return {'queued': 'The search query has been queued. Please check back soon.'}
     
-
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_email_address():
