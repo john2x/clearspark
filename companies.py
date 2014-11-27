@@ -100,8 +100,8 @@ class Companies:
             q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
                       company_name, timeout=3600)
 
-        if update_object:
-            print Parse().update('Prospect/'+update_object, profile).json()
+        if str(profile) != "not found" and update_object:
+            r = Parse().update('Prospect/'+update_object, profile).json()
             '''
             if 'domain' in profile.keys():
                 q.enqueue(EmailGuess().start_search, profile.ix[0].to_dict()['domain'])
