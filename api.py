@@ -58,7 +58,7 @@ def app_company_info():
     
 @app.route('/v1/companies/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def app_company_info():
+def app_company_info_webhook():
     company = check_if_company_exists_in_db(request.args)
     q.enqueue(Companies()._get_info_webhook, company_name, request.args['objectId'])
     if company != []: return company
