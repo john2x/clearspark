@@ -92,6 +92,8 @@ def search():
 @app.route('/v1/email/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_email_address_webhook():
+    domain = request.args['domain']
+    objectId = request.args['objectId']
     pattern = check_if_email_pattern_exists(request.args)
     q.enqueue(EmailGuess().search_webhook, domain, objectId)
 
