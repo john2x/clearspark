@@ -134,6 +134,7 @@ class BusinessWire:
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             print "FINAL CONTACT", contact
+            # update prospect with actual email
             print Parse().update('Prospect/'+objectId, contact).json()
 
 
