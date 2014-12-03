@@ -76,6 +76,7 @@ class PRNewsWire:
             print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
+            print "Final Contact", contact
             print Parse().update('Prospect/'+objectId, contact).json()
 
 class BusinessWire:
@@ -132,6 +133,7 @@ class BusinessWire:
             print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
+            print "FINAL CONTACT", contact
             print Parse().update('Prospect/'+objectId, contact).json()
 
 
