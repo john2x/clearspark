@@ -5,7 +5,7 @@ import requests
 import json
 import tldextract
 from parse import Parse
-import logger
+import logging
 from crossdomain import crossdomain
 from google import Google
 import toofr
