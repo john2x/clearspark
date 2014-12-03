@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 from email_guess_helper import EmailGuessHelper
 from nameparser import HumanName
 import pandas as pd
-from elasticsearch import ElasticSearch
+from elasticsearch import Elasticsearch
 from datetime import datetime
 import json
 
