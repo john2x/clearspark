@@ -72,13 +72,13 @@ class PRNewsWire:
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
             if not contacts.empty:
-                contact     = contacts.ix[0].to_dict()
+                contact     = contacts.ix[contacts.index[0]].to_dict()
         else:
             print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             print "Final Contact", contact
-            print Parse().update('Prospect/'+objectId, contact).json()
+            print Parse().update('Prospect/'+objectId, contact, True).json()
 
 class BusinessWire:
     def _extract_contacts(self, html):
@@ -129,7 +129,7 @@ class BusinessWire:
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
             if not contacts.empty:
-                contact     = contacts.ix[0].to_dict()
+                contact     = contacts.ix[contacts.index[0]].to_dict()
             #EmailGuessHelper()._persist_email_guess(domain, upload)  
         else:
             print "no prospects found"
@@ -137,7 +137,7 @@ class BusinessWire:
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             print "FINAL CONTACT", contact
             # update prospect with actual email
-            print Parse().update('Prospect/'+objectId, contact).json()
+            print Parse().update('Prospect/'+objectId, contact, True).json()
 
 
 class QueueHelper:
