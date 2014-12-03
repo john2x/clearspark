@@ -1,0 +1,3 @@
+
+class ValidateEmail:
+    def start():

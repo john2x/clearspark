@@ -31,7 +31,6 @@ class EmailGuess:
         google = Google()
         pw = google.search('"{0}" site:prnewswire.com'.format(domain))
         bw = google.search('"{0}" site:businesswire.com'.format(domain))
-
         job_queue_lol = domain+str(arrow.now().timestamp)
         if not pw.empty:
             for link in pw.link: 
@@ -50,3 +49,24 @@ class EmailGuess:
                 job.save()
         print len(q.jobs)
               
+    def search_webhook(self, domain, objectId):
+        google = Google()
+        pw = google.search('"{0}" site:prnewswire.com'.format(domain))
+        bw = google.search('"{0}" site:businesswire.com'.format(domain))
+        job_queue_lol = objectId+str(arrow.now().timestamp)
+        if not pw.empty:
+            for link in pw.link: 
+                print "PW STARTED", pw.shape, link
+                job = q.enqueue(PRNewsWire()._email_webhook, domain, link,
+                                job_queue_lol, objectId, timeout=3600)
+                job.meta['profile_id1'] = job_queue_lol
+                job.save()
+        print len(q.jobs)
+        if not bw.empty:
+            for link in bw.link: 
+                print "BW STARTED", bw.shape, link
+                job = q.enqueue(BusinessWire()._email_webhook, domain, link,
+                                job_queue_lol, objectId, timeout=3600)
+                job.meta['profile_id1'] = job_queue_lol
+                job.save()
+        print len(q.jobs)

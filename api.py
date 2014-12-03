@@ -27,61 +27,54 @@ from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
+
 @app.route('/v1/companies/streaming/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def company_info():
-    ''' Check If It Exists In Parse '''
-    parse = Parse()
-    domain  = request.args
-    company_name = request.args['company_name']
-    qry = {'search_queries': company_name}
-    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
-    print 'company results', company
+def company_streaming_info():
+    company = check_if_company_exists_in_db(request.args)
     if company != []: return company
-    company= Companies().search(company_name)
-    # persist
+    company= Companies()._get_info(company_name)
     if str(company) == "not found": return {company_name: "Not Found."}
     else: 
-      print "STARTED"
-      q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
-      return company.ix[0].to_dict()
+        q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
+        return company.ix[0].to_dict()
 
 @app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def async_company_info():
-    ''' Check If It Exists In Parse '''
+def company_info():
     print "started"
-    parse, company_name = Parse(), request.args['company_name']
-    qry = {'search_queries': company_name}
-    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
-    q.enqueue(Companies().async_search, company_name)
+    company = check_if_company_exists_in_db(request.args)
+    q.enqueue(Companies()._async_get_info, company_name)
     if company != []: return company
     else: return {'queued': 'The search query has been queued. Please check back soon.'}
 
 @app.route('/v1/app/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def app_company_info():
-    ''' Check If It Exists In Parse '''
-    print "started"
-    parse, company_name = Parse(), request.args['company_name']
-    qry = {'search_queries': company_name}
-    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
+    company = check_if_company_exists_in_db(request.args)
     q.enqueue(Companies()._async_get_info, company_name, request.args['objectId'])
-    q.enqueue(EmailGuess().start_search, domain)
     if company != []: return company
     else: return {'queued': 'The search query has been queued. Please check back soon.'}
     
+@app.route('/v1/companies/webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def app_company_info():
+    company = check_if_company_exists_in_db(request.args)
+    q.enqueue(Companies()._get_info_webhook, company_name, request.args['objectId'])
+    if company != []: return company
+    else: return {'queued': 'The search query has been queued. Please check back soon.'}
+
+
+'''  **************************
+
+     Second Thing - ClearSpark 
+     
+**************************  '''
+
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_email_address():
-    parse, google = Parse(), Google()
-    domain = tldextract.extract(request.args['domain'])
-    domain = "{}.{}".format(domain.domain, domain.tld)
-
-    qry = json.dumps({'domain': domain})
-    qry = {'where':qry, 'include':'company_email_pattern'}
-    pattern = parse.get('CompanyEmailPattern', qry).json()
-    print pattern
+    pattern = check_if_email_pattern_exists(request.args)
     q.enqueue(EmailGuess().start_search, domain)
 
     if pattern['results'] == []: return {'queued': True}
@@ -92,24 +85,10 @@ def find_email_address():
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def search():
-    parse, google = Parse(), Google()
-    domain = tldextract.extract(request.args['domain'])
-    domain = "{}.{}".format(domain.domain, domain.tld)
-
-    qry = json.dumps({'domain': domain})
-    qry = {'where':qry, 'include':'company_email_pattern'}
-    pattern = parse.get('CompanyEmailPattern', qry).json()
-    print pattern
+    pattern = check_if_email_pattern_exists(request.args)
     EmailGuess().streaming_search(domain)
-
     if pattern['results'] == []: return {'queued': True}
     else: return pattern
-
-#TODO - add webhook support
-
-@app.route('/', methods=['GET'])
-def test():
-    return {"test": "lol"}
 
 @app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
@@ -119,3 +98,18 @@ def get_job_count():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+def check_if_company_exists_in_db(args):
+    parse, company_name = Parse(), args['company_name']
+    qry = {'search_queries': company_name}
+    company = Parse().get('Company', {'where': json.dumps(qry)}).json()['results']
+    return company
+
+def check_if_email_pattern_exists(args):
+    parse, google = Parse(), Google()
+    domain = tldextract.extract(args['domain'])
+    domain = "{}.{}".format(domain.domain, domain.tld)
+
+    qry = json.dumps({'domain': domain})
+    qry = {'where':qry, 'include':'company_email_pattern'}
+    pattern = parse.get('CompanyEmailPattern', qry).json()

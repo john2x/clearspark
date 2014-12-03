@@ -109,16 +109,17 @@ class Companies:
             r = Parse().update('Prospect/'+update_object, profile, True).json()
             print r
 
-    def search(self, company_name):
-        print "Started", company_name
-        profile = self._get_info(company_name)
-        if profile is "not found": return "not found"
-        #profile['pattern'] = self._email_pattern(profile['domain'])
+    def _get_info_webhook(self, company_name, objectId):
+        ''' 
+          1. Queue Services 
+          2. When Queue is finished update object
+        '''
+        profile = Linkedin()._company_profile(company_name)
         print profile
-        return profile
+        if str(profile) is "not found":
+            profile = Zoominfo().search(company_name)
 
-    def async_search(self, company_name):
-        profile = self._async_get_info(company_name)
-        if profile is "not found": return "not found"
-        # persist
+        if str(profile) != "not found":
+            q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
+                      company_name, timeout=3600)
         return profile

@@ -50,13 +50,34 @@ class PRNewsWire:
             print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            r = parse.get('CompanyEmailPattern', {'where': json.dumps({"domain":domain})})
+            r = parse.get('CompanyEmailPattern', 
+                          {'where': json.dumps({"domain":domain})})
             if r.json()['results'] == []:
                 print "what is being printed?", domain, 'PRNewsWire'
                 print r.json()
                 vals = {'domain':domain, 'company_email_pattern': []}
                 print parse.create('CompanyEmailPattern', vals)
         #return upload
+
+    def _email_webhook(self, domain, link, job_queue_lol, objectId):
+        ''' PR Newswire '''
+        print "PRNewsWire"
+        parse, html = Parse(), requests.get(link).text
+        contacts    = self._extract_contacts(html)
+        if not contacts.empty: 
+            contacts    = EmailGuessHelper()._add_email_variables(html)
+            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            contacts    = EmailGuessHelper()._score(res)
+            contacts    = contacts[contacts.domain == domain]
+            contacts    = contacts.drop_duplicates('domain')
+            #EmailGuessHelper()._persist_email_guess(domain, upload)  
+        else:
+            print "no prospects found"
+
+        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
+            contacts    = contacts.ix[0].to_dict()
+            r = Parse().update('Prospect/'+objectId, contacts) 
+            print r.json()
 
 class BusinessWire:
     def _extract_contacts(self, html):
@@ -93,6 +114,26 @@ class BusinessWire:
                 vals = {'domain':domain, 'company_email_pattern':"not found"}
                 print parse.create('CompanyEmailPattern', vals)
         return upload
+
+    def _email_webhook(self, domain, link, job_queue_lol, objectId):
+        ''' BusinessWire '''
+        print "BusinessWire"
+        parse, html, upload = Parse(), requests.get(link).text, ""
+        contacts    = BusinessWire()._extract_contacts(html)
+        if not contacts.empty: 
+            contacts    = EmailGuessHelper()._add_email_variables(contacts)
+            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            contacts    = EmailGuessHelper()._score(res)
+            contacts    = contacts[contacts.domain == domain]
+            contacts    = contacts.drop_duplicates('domain')
+            #EmailGuessHelper()._persist_email_guess(domain, upload)  
+        else:
+            print "no prospects found"
+
+        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
+            contacts    = contacts.ix[0].to_dict()
+            r = Parse().update('Prospect/'+objectId, contacts) 
+            print r.json()
 
 
 class QueueHelper:
