@@ -5,6 +5,7 @@ import requests
 import json
 import tldextract
 from parse import Parse
+import logger
 from crossdomain import crossdomain
 from google import Google
 import toofr
@@ -16,11 +17,16 @@ from bs4 import BeautifulSoup
 from email_guess_helper import EmailGuessHelper
 from nameparser import HumanName
 import pandas as pd
+from elasticsearch import ElasticSearch
+from datetime import datetime
 import json
 
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class PRNewsWire:
     ''' '''
@@ -67,7 +73,8 @@ class PRNewsWire:
         contact = {}
         if not contacts.empty: 
             contacts    = contacts[contacts.domain == domain]
-            print contacts
+            logger.info(contacts)
+
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(html)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
@@ -79,6 +86,7 @@ class PRNewsWire:
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             print "Final Contact", contact
+            logger.info(contact)
             print Parse().update('Prospect/'+objectId, contact, True).json()
 
 class BusinessWire:
@@ -135,9 +143,11 @@ class BusinessWire:
             #EmailGuessHelper()._persist_email_guess(domain, upload)  
         else:
             print "no prospects found"
+            logger.info("no prospects found")
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
             print "FINAL CONTACT", contact
+            logger.info(contact)
             # update prospect with actual email
             print Parse().update('Prospect/'+objectId, contact, True).json()
 
