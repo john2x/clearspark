@@ -94,7 +94,8 @@ class BusinessWire:
         return pd.DataFrame(contacts)
 
     def _find_emails(self, domain, link, job_queue_lol):
-        ''' BusinessWire ''' print "BusinessWire"
+        ''' BusinessWire ''' 
+        print "BusinessWire"
         parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
         if not contacts.empty: 
