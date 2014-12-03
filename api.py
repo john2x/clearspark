@@ -112,8 +112,12 @@ def get_job_count():
     #return {"job count": len(q.jobs)}
      return [{"name": "worker", "quantity" : len(q.jobs)}]
 
+@app.route('/', methods=['GET'])
+def test():
+    return {"test": "lol"}
+
 if __name__ == "__main__":
-    app.run(debug=True, port=6000)
+    app.run(debug=True, port=3000)
 
 def check_if_company_exists_in_db(args):
     parse, company_name = Parse(), args['company_name']
