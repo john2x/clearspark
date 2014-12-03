@@ -68,7 +68,7 @@ class PRNewsWire:
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(html)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(res)
+            contacts    = EmailGuessHelper()._score(contacts)
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
             contact     = contacts.ix[0].to_dict()
@@ -94,8 +94,7 @@ class BusinessWire:
         return pd.DataFrame(contacts)
 
     def _find_emails(self, domain, link, job_queue_lol):
-        ''' BusinessWire '''
-        print "BusinessWire"
+        ''' BusinessWire ''' print "BusinessWire"
         parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
         if not contacts.empty: 
@@ -124,7 +123,7 @@ class BusinessWire:
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(res)
+            contacts    = EmailGuessHelper()._score(contacts)
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
             contact     = contacts.ix[0].to_dict()
