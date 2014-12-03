@@ -64,7 +64,6 @@ def app_company_info():
     if company != []: return company
     else: return {'queued': 'The search query has been queued. Please check back soon.'}
 
-
 '''  **************************
 
      Second Thing - ClearSpark 
@@ -89,6 +88,17 @@ def search():
     EmailGuess().streaming_search(domain)
     if pattern['results'] == []: return {'queued': True}
     else: return pattern
+
+@app.route('/v1/email/webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def find_email_address():
+    pattern = check_if_email_pattern_exists(request.args)
+    q.enqueue(EmailGuess().search_webhook, domain, objectId)
+
+    if pattern['results'] == []: return {'queued': True}
+    elif pattern['results'][0]['company_email_pattern'] == []: 
+        return {'Error': "Domain email pattern could not be found. Retrying. Please retry again soon."}
+    else: return pattern['results'][0]
 
 @app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

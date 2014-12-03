@@ -62,6 +62,7 @@ class EmailGuess:
                 job.meta['profile_id1'] = job_queue_lol
                 job.save()
         print len(q.jobs)
+
         if not bw.empty:
             for link in bw.link: 
                 print "BW STARTED", bw.shape, link
