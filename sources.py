@@ -67,6 +67,7 @@ class PRNewsWire:
         contact = {}
         if not contacts.empty: 
             contacts    = contacts[contacts.domain == domain]
+            print contacts
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(html)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
@@ -124,6 +125,7 @@ class BusinessWire:
         contact = {}
         if not contacts.empty: 
             contacts    = contacts[contacts.domain == domain]
+            print contacts
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
