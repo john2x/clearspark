@@ -64,20 +64,19 @@ class PRNewsWire:
         print "PRNewsWire"
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
+        contact = {}
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(html)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(res)
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
-            #EmailGuessHelper()._persist_email_guess(domain, upload)  
+            contact     = contacts.ix[0].to_dict()
         else:
             print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            contacts    = contacts.ix[0].to_dict()
-            r = Parse().update('Prospect/'+objectId, contacts) 
-            print r.json()
+            print Parse().update('Prospect/'+objectId, contact).json()
 
 class BusinessWire:
     def _extract_contacts(self, html):
@@ -120,20 +119,20 @@ class BusinessWire:
         print "BusinessWire"
         parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
+        contact = {}
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(res)
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
+            contact     = contacts.ix[0].to_dict()
             #EmailGuessHelper()._persist_email_guess(domain, upload)  
         else:
             print "no prospects found"
 
         if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            contacts    = contacts.ix[0].to_dict()
-            r = Parse().update('Prospect/'+objectId, contacts) 
-            print r.json()
+            print Parse().update('Prospect/'+objectId, contact).json()
 
 
 class QueueHelper:

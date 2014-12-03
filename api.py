@@ -78,7 +78,7 @@ def find_email_address():
 
     if pattern['results'] == []: return {'queued': True}
     elif pattern['results'][0]['company_email_pattern'] == []: 
-        return {'Error': "Domain email pattern could not be found. Retrying. Please retry again soon."}
+        return {'Error': "Domain email could not be found. Retrying."}
     else: return pattern['results'][0]
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
@@ -91,13 +91,14 @@ def search():
 
 @app.route('/v1/email/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def find_email_address():
+def find_email_address_webhook():
     pattern = check_if_email_pattern_exists(request.args)
     q.enqueue(EmailGuess().search_webhook, domain, objectId)
 
+    ''' What Should Be Returned '''
     if pattern['results'] == []: return {'queued': True}
     elif pattern['results'][0]['company_email_pattern'] == []: 
-        return {'Error': "Domain email pattern could not be found. Retrying. Please retry again soon."}
+        return {'Error': "Domain email could not be found. Retrying."}
     else: return pattern['results'][0]
 
 @app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])

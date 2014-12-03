@@ -63,6 +63,11 @@ class EmailGuessHelper:
         crawl_pointers = [parse._pointer('CompanyEmailPatternCrawl', objectId)
                           for objectId in crawl_objectids]
         return crawl_pointers
+
+    def _update_prospect_with_email(self, contact, objectId):
+        print Parse().update('Prospect/'+objectId, contact).json()
+        print r.json()
+        ''' '''
     
     def _persist_email_guess(self, domain, upload):
         ''' Different Email Patterns '''
