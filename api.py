@@ -94,7 +94,8 @@ def search():
 def find_email_address_webhook():
     domain = request.args['domain']
     objectId = request.args['objectId']
-    pattern = check_if_email_pattern_exists(request.args)
+    print request.args
+    #pattern = check_if_email_pattern_exists(request.args)
     q.enqueue(EmailGuess().search_webhook, domain, objectId)
 
     ''' What Should Be Returned '''
@@ -110,7 +111,7 @@ def get_job_count():
      return [{"name": "worker", "quantity" : len(q.jobs)}]
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=6000)
 
 def check_if_company_exists_in_db(args):
     parse, company_name = Parse(), args['company_name']
