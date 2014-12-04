@@ -68,7 +68,8 @@ class Zoominfo:
                       employee_count, description]
             values = [val.text if val else "" for val in values]
 
-            the_info = the_info.append(dict(zip(columns,values)), ignore_index=True)
+            the_info = dict(zip(columns,values))
+            print the_info
             the_info['domain'] = "{}.{}".format(tldextract.extract(the_info['website']).domain, tldextract.extract(the_info['website']).tld)
 
         # Add Check for websiteUrl must be a proper domain
