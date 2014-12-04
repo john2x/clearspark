@@ -54,7 +54,7 @@ class Zoominfo:
             co = result.find('td',{'class':'name'})
             if co == None: continue
             name = co.find('a')
-            website = co.findAll('a')[-1]
+            website = co.findAll('a')[-1] if len(co.findAll('a') != 1 else ""
             domain = co.findAll('a')[-1]
             location = co.find('span',{'class':'companyAddress'})
             revenue = co.find('span',{'class':'revenueText'})
