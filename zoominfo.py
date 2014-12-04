@@ -33,7 +33,7 @@ class Zoominfo:
         browser = self._browser()
         self._fill_variables()
 
-    def _fill_variables(self, name):
+    def _fill_variables(self, name, industry=False, locale=False):
         browser = self._browser()
         if name: browser.find_by_name('companyName').first.fill(name)
         if industry: browser.find_by_name('industryKeywords').first.fill(industry)
