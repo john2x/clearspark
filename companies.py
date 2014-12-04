@@ -82,44 +82,19 @@ class Companies:
 
     def _get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
-        print profile
-        if str(profile) is "not found":
-            profile = Zoominfo().search(company_name)
+        if type(profile) is str: profile = Zoominfo().search(company_name)
+        print Parse()._add_company(profile.ix[0].to_dict(), company_name)
 
-        if str(profile) != "not found":
-            q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
-                      company_name, timeout=3600)
         return profile
 
     def _async_get_info(self, company_name, update_object=False):
-        profile = Linkedin()._company_profile(company_name)
-        print profile
-        if str(profile) is "not found":
-            profile = Zoominfo().search(company_name)
-        if str(profile) != "not found":
-            q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
-                      company_name, timeout=3600)
-            
-        if 'domain' in profile.keys() and str(profile) != "not found":
-            q.enqueue(EmailGuess().start_search, profile.ix[0].to_dict()['domain'])
-
-        if str(profile) != "not found" and update_object:
-            profile = profile.ix[0].to_dict()
-            print profile
-            r = Parse().update('Prospect/'+update_object, profile, True).json()
-            print r
+        profile = self._get_info(company_name)
+        Parse().update('Prospect/'+str(update_object), profile, True).json()
+        q.enqueue(EmailGuess().start_search, profile['domain'])
 
     def _get_info_webhook(self, company_name, objectId):
-        ''' 
-          1. Queue Services 
-          2. When Queue is finished update object
-        '''
-        profile = Linkedin()._company_profile(company_name)
-        print profile
-        if str(profile) is "not found":
-            profile = Zoominfo().search(company_name)
+        profile = self._get_info(company_name)
+        result = Parse().update('Prospect/'+objectId, profile).json()
+        logger.info(profile+" "+result)
 
-        if str(profile) != "not found":
-            q.enqueue(Parse()._add_company, profile.ix[0].to_dict(), 
-                      company_name, timeout=3600)
         return profile

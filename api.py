@@ -34,7 +34,8 @@ def company_streaming_info():
     company = check_if_company_exists_in_db(request.args)
     if company != []: return company
     company= Companies()._get_info(company_name)
-    if str(company) == "not found": return {company_name: "Not Found."}
+    if str(company) == "not found": return 
+        {company_name: "Not Found."}
     else: 
         q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
         return company.ix[0].to_dict()
@@ -42,82 +43,58 @@ def company_streaming_info():
 @app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_info():
-    print "started"
-    company = check_if_company_exists_in_db(request.args)
     q.enqueue(Companies()._async_get_info, company_name)
-    if company != []: return company
-    else: return {'queued': 'The search query has been queued. Please check back soon.'}
+    company = check_if_company_exists_in_db(request.args)
+    return company if company else {'': 'Your query has been queued.'}
 
 @app.route('/v1/app/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def app_company_info():
-    company = check_if_company_exists_in_db(request.args)
     q.enqueue(Companies()._async_get_info, company_name, request.args['objectId'])
-    if company != []: return company
-    else: return {'queued': 'The search query has been queued. Please check back soon.'}
+    company = check_if_company_exists_in_db(request.args)
+    return company if company else {'': 'Your query has been queued.'}
     
 @app.route('/v1/companies/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def app_company_info_webhook():
     company = check_if_company_exists_in_db(request.args)
     q.enqueue(Companies()._get_info_webhook, company_name, request.args['objectId'])
-    if company != []: return company
-    else: return {'queued': 'The search query has been queued. Please check back soon.'}
+    return company if company else {'': 'Your query has been queued.'}
 
 '''  **************************
 
-     Second Thing - ClearSpark 
+     Second Thing - EmailGuess
      
 **************************  '''
 
 @app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_email_address():
-    pattern = check_if_email_pattern_exists(request.args)
     q.enqueue(EmailGuess().start_search, domain)
+    pattern = check_if_email_pattern_exists(request.args)
 
-    if pattern['results'] == []: return {'queued': True}
-    elif pattern['results'][0]['company_email_pattern'] == []: 
+    if pattern['results'] == []: 
+        return {'queued': True}
+    elif pattern['results'][0]['company_email_pattern']:
         return {'Error': "Domain email could not be found. Retrying."}
-    else: return pattern['results'][0]
+    else: 
+        return pattern['results'][0]
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def search():
     pattern = check_if_email_pattern_exists(request.args)
     EmailGuess().streaming_search(domain)
-    if pattern['results'] == []: return {'queued': True}
-    else: return pattern
+    return {'queued':True} if pattern['results'] else pattern
 
-@app.route('/v1/email/webhook', methods=['GET','OPTIONS','POST'])
+@app.route('/v1/emails/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_email_address_webhook():
     domain = request.args['domain']
     objectId = request.args['objectId']
-    print request.args
-    #pattern = check_if_email_pattern_exists(request.args)
     q.enqueue(EmailGuess().search_webhook, domain, objectId)
-
-    ''' What Should Be Returned 
-    if pattern['results'] == []: return {'queued': True}
-    elif pattern['results'][0]['company_email_pattern'] == []: 
-        return {'Error': "Domain email could not be found. Retrying."}
-    else: return pattern['results'][0]
-    '''
+    #pattern = check_if_email_pattern_exists(request.args)
     return {'started': True}
-
-@app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def get_job_count():
-    #return {"job count": len(q.jobs)}
-     return [{"name": "worker", "quantity" : len(q.jobs)}]
-
-@app.route('/', methods=['GET'])
-def test():
-    return {"test": "lol"}
-
-if __name__ == "__main__":
-    app.run(debug=True, port=3000)
 
 def check_if_company_exists_in_db(args):
     parse, company_name = Parse(), args['company_name']
@@ -133,3 +110,17 @@ def check_if_email_pattern_exists(args):
     qry = json.dumps({'domain': domain})
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
+
+
+@app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def get_job_count():
+    #return {"job count": len(q.jobs)}
+     return [{"name": "worker", "quantity" : len(q.jobs)}]
+
+@app.route('/', methods=['GET'])
+def test():
+    return {"test": "lol"}
+
+if __name__ == "__main__":
+    app.run(debug=True, port=3000)

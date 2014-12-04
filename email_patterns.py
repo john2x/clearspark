@@ -16,9 +16,8 @@ q = Queue(connection=conn)
 
 class EmailGuess:
     def streaming_search(self, domain):
-        google = Google()
-        pw = google.search('"{0}" site:prnewswire.com'.format(domain))
-        bw = google.search('"{0}" site:businesswire.com'.format(domain))
+        pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
+        bw = Google().search('"{0}" site:businesswire.com'.format(domain))
 
         for link in pw.link: 
             pn_emails = PRNewsWire()._find_emails(domain, link, False)
@@ -28,9 +27,8 @@ class EmailGuess:
         return pd.concat([pn_emails, bw_emails]).drop_duplicates('pattern')
 
     def start_search(self, domain):
-        google = Google()
-        pw = google.search('"{0}" site:prnewswire.com'.format(domain))
-        bw = google.search('"{0}" site:businesswire.com'.format(domain))
+        pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
+        bw = Google().search('"{0}" site:businesswire.com'.format(domain))
         job_queue_lol = domain+str(arrow.now().timestamp)
         if not pw.empty:
             for link in pw.link: 
@@ -50,10 +48,10 @@ class EmailGuess:
         print len(q.jobs)
               
     def search_webhook(self, domain, objectId):
-        google = Google()
-        pw = google.search('"{0}" site:prnewswire.com'.format(domain))
-        bw = google.search('"{0}" site:businesswire.com'.format(domain))
+        pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
+        bw = Google().search('"{0}" site:businesswire.com'.format(domain))
         job_queue_lol = objectId+str(arrow.now().timestamp)
+
         if not pw.empty:
             for link in pw.link: 
                 print "PW STARTED", pw.shape, link

@@ -39,7 +39,7 @@ class Linkedin:
         url = self._linkedin_profile_from_name(company_name)
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
-        return info
+        return info if type(info) is str else info.ix[0].to_dict()
 
     def _create_linkedin_directory_urls_from_name(self, name):
         ''' name '''
@@ -140,7 +140,6 @@ class Linkedin:
                 company_size = int(c.find('a',{'class':'employee-count'}).text)
                 company_size = int_to_linkedin_company_size_string(company_size)
                 company_info['company_size'] = company_size
-            # domain
             website = company_info['website'].ix[0]
             domain = "{}.{}".format(tldextract.extract(website).domain, 
                                     tldextract.extract(website).tld)
