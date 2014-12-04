@@ -19,6 +19,8 @@ import toofr
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Companies:
     def _technologies(self, domain):
