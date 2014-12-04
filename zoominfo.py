@@ -77,7 +77,7 @@ class Zoominfo:
 
     def _get_best_match(self, company_name, df):
         similar = difflib.get_close_matches(company_name, 
-                                            [name for name in df.name])
+                                            [name for name in df.company_name])
         if len(similar) and process.extract(company_name, similar)[0][1] > 80:
             zoominfo_profile_name = process.extract(company_name, similar)[0][0]
             for i, zoominfo_profile in df.iterrows():
