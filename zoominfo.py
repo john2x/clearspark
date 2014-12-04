@@ -61,17 +61,16 @@ class Zoominfo:
             description = result.find('td',{'class':'description'})
             # change variables to parse db names
 
-            try:
-                domain = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
-            except:
-                print website + " WEBSITE ERROR"
-                domain = None
+
+            domain = ""
             columns = ['company_name','website','domain','city','revenue',
                        'company_size','description'] 
             values = [name, website, domain, location, revenue, 
                       employee_count, description]
             values = [val.text if val else "" for val in values]
+
             the_info = the_info.append(dict(zip(columns,values)), ignore_index=True)
+            the_info['domain'] = "{}.{}".format(tldextract.extract(values['website']).domain, tldextract.extract(values['website']).tld)
 
         # Add Check for websiteUrl must be a proper domain
         return the_info
