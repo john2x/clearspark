@@ -64,7 +64,7 @@ class Zoominfo:
             try:
                 domain = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
             except:
-                print website
+                print website + " WEBSITE ERROR"
                 domain = None
             columns = ['company_name','website','domain','city','revenue',
                        'company_size','description'] 
