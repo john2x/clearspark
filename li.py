@@ -134,6 +134,8 @@ class Linkedin:
 
             company_info.columns = [col.replace(' ','_').strip().lower()
                                     for col in company_info.columns]
+            img = c.find('div',{'class':'image-wrapper'}).find('img')['src']
+            company_info['img'] =  img
             # new code not in other methods in different file
             company_info['company_name'] = c.find('h1',{'class':'name'}).text.strip()
             if "company_size" not in company_info.columns:
