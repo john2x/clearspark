@@ -86,7 +86,7 @@ class Zoominfo:
           Input: Name and Possibly Location, Parse Object ObjectId
           Output: Update Parse Object
         '''
-        name = clean_name(company_name)
+        name = self._clean(company_name)
         zoominfo_html = get_html_results_from_zoominfo(name)
         if zoominfo_html == "nope": return "not found"
         zoominfo_df = parse_zoominfo_html_into_df(zoominfo_html) 
