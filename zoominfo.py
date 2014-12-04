@@ -81,7 +81,7 @@ class Zoominfo:
         if len(similar) and process.extract(company_name, similar)[0][1] > 80:
             zoominfo_profile_name = process.extract(company_name, similar)[0][0]
             for i, zoominfo_profile in df.iterrows():
-                if zoominfo_profile['name'] == zoominfo_profile_name:
+                if zoominfo_profile['company_name'] == zoominfo_profile_name:
                     return zoominfo_profile
         return "not found"
 
