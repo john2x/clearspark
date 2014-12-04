@@ -33,7 +33,7 @@ app = FlaskAPI(__name__)
 def company_streaming_info():
     company = check_if_company_exists_in_db(request.args)
     if company != []: return company
-    company= Companies()._get_info(company_name)
+    company= Companies()._get_info(request.args['company_name'])
     if str(company) == "not found": 
         return {company_name: "Not Found."}
     else: 
@@ -43,7 +43,7 @@ def company_streaming_info():
 @app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_info():
-    q.enqueue(Companies()._async_get_info, company_name)
+    q.enqueue(Companies()._async_get_info, request.args['company_name'])
     company = check_if_company_exists_in_db(request.args)
     return company if company else {'': 'Your query has been queued.'}
 
