@@ -62,7 +62,6 @@ class Zoominfo:
             description = result.find('td',{'class':'description'})
             # change variables to parse db names
 
-
             columns = ['company_name','website','domain','city','revenue',
                        'company_size','description'] 
             values = [name, website, domain, location, revenue, 
