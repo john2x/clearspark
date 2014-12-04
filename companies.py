@@ -90,7 +90,7 @@ class Companies:
             profile = Zoominfo().search(company_name)
             logger.info("zoominfo company "+str(profile))
         result = Parse()._add_company(profile, company_name)
-        logger.info(str("Parse Result "+str(result))
+        logger.info(str("Parse Result "+str(result)))
 
         return profile
 
