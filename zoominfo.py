@@ -82,7 +82,7 @@ class Zoominfo:
             zoominfo_profile_name = process.extract(company_name, similar)[0][0]
             for i, zoominfo_profile in df.iterrows():
                 if zoominfo_profile['company_name'] == zoominfo_profile_name:
-                    return zoominfo_profile
+                    return zoominfo_profile.ix[0].to_dict()
         return "not found"
 
     def search(self, company_name):
