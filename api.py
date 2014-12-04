@@ -58,7 +58,8 @@ def app_company_info():
 @crossdomain(origin='*')
 def app_company_info_webhook():
     company = check_if_company_exists_in_db(request.args)
-    q.enqueue(Companies()._get_info_webhook, company_name, request.args['objectId'])
+    q.enqueue(Companies()._get_info_webhook, request.args['company_name'], 
+                                             request.args['objectId'])
     return company if company else {'': 'Your query has been queued.'}
 
 '''  **************************
