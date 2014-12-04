@@ -26,7 +26,7 @@ class Zoominfo:
         return browser
 
     def _fill_variables(self, ):
-        ''' lol '''
+        ''' lol - lmao'''
 
     def __search(industry=False,locale=False,name=False,employees=False,revenue=False):
         ''' Search '''
