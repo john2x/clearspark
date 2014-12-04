@@ -44,7 +44,7 @@ class Zoominfo:
             time.sleep(0.2)
         return browser.html
 
-    def _zoominfo_html_to_df(self, html):
+    def _zoominfo_search_html_to_df(self, html):
         ''' Parse Zoominfo Search Results Into DF '''
         the_info = pd.DataFrame()
         results = BeautifulSoup(html).find('table',{'id':'resultGroup'})
@@ -91,7 +91,7 @@ class Zoominfo:
         zoominfo_html = self._fill_variables(company_name)
         #zoominfo_html = get_html_results_from_zoominfo(name)
         if zoominfo_html == "nope": return "not found"
-        zoominfo_df = self._zoominfo_html_into_df(zoominfo_html) 
+        zoominfo_df = self._zoominfo_search_html_to_df(zoominfo_html) 
         best_match = self._get_best_match(name, zoominfo_df)
         return best_match
 
