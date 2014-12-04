@@ -28,7 +28,7 @@ class Zoominfo:
     def _fill_variables(self, ):
         ''' '''
 
-    def search(industry=False,locale=False,name=False,employees=False,revenue=False):
+    def __search(industry=False,locale=False,name=False,employees=False,revenue=False):
         ''' Search '''
         browser = self._browser()
         self._fill_variables()
@@ -81,7 +81,7 @@ class Zoominfo:
                     return zoominfo_profile
         return "not found"
 
-    def search(company_name):
+    def search(self, company_name):
         ''' 
           Input: Name and Possibly Location, Parse Object ObjectId
           Output: Update Parse Object
