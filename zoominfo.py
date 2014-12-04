@@ -55,6 +55,7 @@ class Zoominfo:
             if co == None: continue
             name = co.find('a').text
             website = co.findAll('a')[-1]
+            domain = co.findAll('a')[-1]
             location = co.find('span',{'class':'companyAddress'})
             revenue = co.find('span',{'class':'revenueText'})
             employee_count = co.find('span',{'class':'employeeCount'})
@@ -62,7 +63,6 @@ class Zoominfo:
             # change variables to parse db names
 
 
-            domain = ""
             columns = ['company_name','website','domain','city','revenue',
                        'company_size','description'] 
             values = [name, website, domain, location, revenue, 
