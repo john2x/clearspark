@@ -7,6 +7,7 @@ import fuzzywuzzy
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import requests
+import tldextract
 import re
 import li
 
