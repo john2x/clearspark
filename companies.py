@@ -8,6 +8,7 @@ from google import Google
 from li import Linkedin
 import json
 import re, string
+import logging
 from address import AddressParser, Address
 import zoominfo
 from email_patterns import EmailGuess
