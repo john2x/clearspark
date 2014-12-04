@@ -61,7 +61,11 @@ class Zoominfo:
             description = result.find('td',{'class':'description'})
             # change variables to parse db names
 
-            domain = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
+            try:
+                domain = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
+            except:
+                print website
+                domain = None
             columns = ['company_name','website','domain','city','revenue',
                        'company_size','description'] 
             values = [name, website, domain, location, revenue, 
