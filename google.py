@@ -52,10 +52,14 @@ class Google:
     def _results_to_linkedin_df(self, html):
         ''' '''
     
+    def _remove_non_ascii(self, text):
+        return ''.join(i for i in text if ord(i)<128)
+
     def search(self, qry, pages=1):
         res = pd.DataFrame()
         for page in range(pages):
             print page
+            qry = self._remove_non_ascii(qry)
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://www.google.com/search?'+ args
             cloak = "https://crawlera.p.mashape.com/fetch"
