@@ -50,15 +50,14 @@ class Zoominfo:
         results = BeautifulSoup(html).find('table',{'id':'resultGroup'})
         results = results.findAll('tr')
         for result in results:
-            co = results.find('td',{'class':'name'})
+            co = result.find('td',{'class':'name'})
             if co == None: continue
             name = co.find('a').text
             website = co.findAll('a')[-1]
             location = co.find('span',{'class':'companyAddress'})
             revenue = co.find('span',{'class':'revenueText'})
             employee_count = co.find('span',{'class':'employeeCount'})
-            description = results.find('td',{'class':'description'})
-            # add domain
+            description = result.find('td',{'class':'description'})
             # change variables to parse db names
 
             domain = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
