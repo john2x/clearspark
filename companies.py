@@ -85,8 +85,12 @@ class Companies:
 
     def _get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
-        if type(profile) is str: profile = Zoominfo().search(company_name)
-        print Parse()._add_company(profile, company_name)
+        logger.info("linkedin company "+str(profile))
+        if type(profile) is str: 
+            profile = Zoominfo().search(company_name)
+            logger.info("zoominfo company "+str(profile))
+        result = Parse()._add_company(profile, company_name)
+        logger.info(str("Parse Result "+str(result))
 
         return profile
 
@@ -97,7 +101,7 @@ class Companies:
 
     def _get_info_webhook(self, company_name, objectId):
         profile = self._get_info(company_name)
-        result = Parse().update('Prospect/'+objectId, profile).json()
+        result = Parse().update('Prospect/'+objectId, profile, True).json()
         logger.info(result)
         logger.info(profile)
         logger.info(company_name)
