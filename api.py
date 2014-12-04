@@ -34,8 +34,8 @@ def company_streaming_info():
     company = check_if_company_exists_in_db(request.args)
     if company != []: return company
     company= Companies()._get_info(company_name)
-    if str(company) == "not found": return 
-        {company_name: "Not Found."}
+    if str(company) == "not found": 
+        return {company_name: "Not Found."}
     else: 
         q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
         return company.ix[0].to_dict()
