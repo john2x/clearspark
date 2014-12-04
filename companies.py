@@ -83,7 +83,7 @@ class Companies:
     def _get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
         if type(profile) is str: profile = Zoominfo().search(company_name)
-        print Parse()._add_company(profile.ix[0].to_dict(), company_name)
+        print Parse()._add_company(profile, company_name)
 
         return profile
 
