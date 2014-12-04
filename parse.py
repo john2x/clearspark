@@ -54,7 +54,7 @@ class Parse:
       print "ADD COMPANY"
       r = self.create('Company', company).json()
       print r
-      if 'error' in r.keys():
+      if 'error' in r.keys() and type(company) is not str:
           print company['domain']
           qry = json.dumps({"domain": company['domain']})
           r = self.get('Company', {'where': qry}).json()['results'][0]
