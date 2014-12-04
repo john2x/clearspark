@@ -18,7 +18,7 @@ class Zoominfo:
         name = re.split('[^a-zA-Z\d\s\-]', name)[0]
         return name
 
-    def _browser():
+    def _browser(self):
         url = "http://www.zoominfo.com/s/#!search/company"
         #browser = Browser('chrome')
         browser = Browser('phantomjs')
