@@ -53,6 +53,7 @@ class Parse:
       ''' '''
       print "ADD COMPANY"
       r = self.create('Company', company).json()
+      print r
       if 'error' in r.keys():
           print company['domain']
           qry = json.dumps({"domain": company['domain']})
