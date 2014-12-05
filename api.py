@@ -61,7 +61,7 @@ def app_company_info_webhook():
     q.enqueue(Companies()._get_info_webhook, request.args['company_name'], 
                                              request.args['objectId'],
                                              timeout=3600)
-    if company: Parse().update('Prospect/'+request.args['objectId'], company[0])
+    if company: Parse().update('CompanyProspect/'+request.args['objectId'], company[0])
     return company[0] if company else {'': 'Your query has been queued.'}
 
 '''  **************************
