@@ -103,6 +103,7 @@ class Companies:
     def _get_info_webhook(self, company_name, objectId):
         profile = self._get_info(company_name)
         result = Parse().update('Prospect/'+objectId, profile, True).json()
+        result = Parse().update('CompanyProspect/'+objectId, profile, True).json()
         logger.info(result)
         logger.info(profile)
         logger.info(company_name)
