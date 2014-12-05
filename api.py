@@ -64,7 +64,7 @@ def app_company_info_webhook():
     if company: 
         r = Parse().update('CompanyProspect/'+request.args['objectId'], company[0], True)
         rr = Parse().update('Prospect/'+request.args['objectId'], company[0], True)
-        print "RESULTS", r, rr
+        print "RESULTS - ", r, rr
     return company[0] if company else {'': 'Your query has been queued.'}
 
 '''  **************************
