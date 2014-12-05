@@ -31,15 +31,17 @@ class Companies:
     def _traffic_analysis(self, domain):
         ''' Compete.com, Alexa, SimilarWeb '''
         traffic = requests.get('https://similarweb.com/'+domain)
+        traffic = requests.get('https://alexa.com/siteinfo/'+domain)
         return traffic
 
     def _hiring(self, company_name):
         ''' Indeed '''
+        # paginate
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
         return jobs
 
     def _social_reviews(self, company_name):
-        ''' Glassdoor, Twitter, Facebook, Linkedin, GetApp'''
+        ''' Glassdoor, Twitter, Facebook, Linkedin, GetApp '''
         return reviews
 
     def _press(self, company_name):
@@ -77,7 +79,6 @@ class Companies:
         return related
 
     ''' In Use Methods '''
-
     def _email_pattern(self, domain):
         ''' ClearSpark '''
         patterns = EmailGuess().streaming_search(domain)
