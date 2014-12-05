@@ -62,8 +62,8 @@ def app_company_info_webhook():
                                              request.args['objectId'],
                                              timeout=3600)
     if company: 
-        Parse().update('CompanyProspect/'+request.args['objectId'], company[0])
-        Parse().update('Prospect/'+request.args['objectId'], company[0])
+        Parse().update('CompanyProspect/'+request.args['objectId'], company[0], True)
+        Parse().update('Prospect/'+request.args['objectId'], company[0], True)
     return company[0] if company else {'': 'Your query has been queued.'}
 
 '''  **************************
