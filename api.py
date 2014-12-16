@@ -105,7 +105,7 @@ def find_email_address_webhook():
 @app.route('/v1/new_emails/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def find_new_email_address_webhook():
-    domain = request.args['domain']
+    website = request.args['domain']
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)
     objectId = request.args['objectId']
