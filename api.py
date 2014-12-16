@@ -14,8 +14,8 @@ from parse import Parse
 from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName
-from sources import PRNewsWire
-from sources import BusinessWire
+from press_sources import PRNewsWire
+from press_sources import BusinessWire
 from email_guess import EmailGuess
 from companies import Companies
 import pandas as pd
@@ -104,7 +104,7 @@ def find_email_address_webhook():
 
 @app.route('/v1/new_emails/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def find_email_address_webhook():
+def find_new_email_address_webhook():
     domain = request.args['domain']
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)

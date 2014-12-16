@@ -6,8 +6,8 @@ from nameparser import HumanName
 import pandas as pd
 import arrow
 import json
-from sources import PRNewsWire
-from sources import BusinessWire
+from press_sources import PRNewsWire
+from press_sources import BusinessWire
 #from email_guess_helper import EmailGuessHelper
 
 from rq import Queue
