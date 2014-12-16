@@ -7,7 +7,6 @@ nameparser==0.3.3
 Flask-API==0.6.2
 pystache==0.5.4
 address==0.1.1
--e git://github.com/jordan-wright/rapportive.git#egg=rapportive
 APScheduler==3.0.0
 Jinja2==2.7.2
 MarkupSafe==0.19
