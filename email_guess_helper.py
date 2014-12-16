@@ -39,6 +39,15 @@ class EmailGuessHelper:
                                     for name in contacts.name]
         return contacts
 
+    def _name_to_email_variables(self, name):
+        fi = name.split(' ')[0][0]
+        li = name.split(' ')[-1][0]
+        first = name.split(' ')[0]
+        last = name.split(' ')[-1]
+        var = dict(zip(['fi','li','first','last'], [fi, li, first, last]))
+        var['name'] = name
+        return var
+
     def _find_email_pattern(self, domain, results):
         ''' Decifer Email Pattern '''
         patterns = pd.DataFrame()

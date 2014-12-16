@@ -1,163 +1,95 @@
-from flask.ext.api import FlaskAPI
-import pusher
-from flask import request
-import requests
-import json
-import tldextract
-from parse import Parse
-import logging
-from crossdomain import crossdomain
-from google import Google
-import toofr
-import requests
-import arrow
-from parse import Parse
-from google import Google
-from bs4 import BeautifulSoup
-from email_guess_helper import EmailGuessHelper
-from nameparser import HumanName
-import pandas as pd
-from elasticsearch import Elasticsearch
-from datetime import datetime
-import json
+from queue import Queue
 
-from rq import Queue
-from worker import conn
-q = Queue(connection=conn)
+class Sources:
+    def _google_span_search(self, domain):
+      queue = "google-span-"+domain
+      qry_1 = '("media contact" OR "media contacts" OR "press release") "@{0}"'
+      qry_1 = qry_1.format(domain)
+      qry_2 = '"email * * {0}"'.format(domain)
+      job_1 = q.enqueue(Google().ec2_search, qry_1)
+      job_2 = q.enqueue(Google().ec2_search, qry_2)
+      while not Queue()._has_completed(queue): 
+          results = Queue()._results(queue)
+          self._google_cache_search(domain, results.link_span)
+          # scrape all emails
+          # fullcontact / clearbit to figure out who it is
+          # start google cache search
+          return results
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+    def _google_cache_search(self, domain, links):
+        for link in links:
+            job = q.enqueue(Google()._ec2_cache, link)
+            job.meta['domain'] = domain; job.meta['google-cache-'+domain] =True 
+            job.save()
+        # fullcontact / clearbit to figure out who email is
+        queue = "google-cache-"+domain
+        while not Queue()._has_completed(queue): return Queue()._results(queue)
 
-class PRNewsWire:
-    ''' '''
-    def _extract_contacts(self, html):
-        names, emails, contact = [], [], BeautifulSoup(html)
-        for paragraph in contact.findAll('p',attrs={"itemprop" : "articleBody"}):
-            people = paragraph.findAll('span', {'class':'xn-person'})
-            names = [name.text for name in people]
-            emails = [email.text for email in paragraph.findAll('a') 
-                           if "mailto:" in email['href']]
-                           
-        results = [{'name':name, 'email':email, 'domain':email.split('@')[-1]} 
-                   for name, email in zip(names, emails)]
-        return pd.DataFrame(results)
+    def _whois_search(self, domain):
+        try: results = pythonwhois.get_whois(domain)
+        except: return pd.DataFrame()
+        results = filter(None, results['contacts'].values())
+        results = pd.DataFrame(results)
+        results['domain'] = domain
+        return results
 
-    def _find_emails(self, domain, link, job_queue_lol):
-        ''' PR Newswire '''
-        print "PRNewsWire"
-        parse, html = Parse(), requests.get(link).text
-        contacts    = self._extract_contacts(html)
-        if not contacts.empty: 
-            contacts    = EmailGuessHelper()._add_email_variables(html)
-            res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
-            upload      = EmailGuessHelper()._score(res)
-            EmailGuessHelper()._persist_email_guess(domain, upload)  
-        else:
-            print "no prospects found"
+    def _mx_server_check(self, name, domain):
+        try: 
+            mx_servers = SMTP()._mx_servers(domain)
+            smtp = SMTP()._smtp_auth(mx_servers)
+        except: return pd.DataFrame()
 
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            r = parse.get('CompanyEmailPattern', 
-                          {'where': json.dumps({"domain":domain})})
-            if r.json()['results'] == []:
-                print "what is being printed?", domain, 'PRNewsWire'
-                print r.json()
-                vals = {'domain':domain, 'company_email_pattern': []}
-                print parse.create('CompanyEmailPattern', vals)
-        #return upload
+        prospect = EmailGuessHelper()._name_to_email_variables(name)
+        prospect['domain'] = domain
+        results = pd.DataFrame()
+        for pattern in EmailPattern()._patterns():
+            email = pattern.format(**prospect)
+            try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
+            except: continue
+            prospect['smtp_result'] = result[1]
+            print result
+            if 'OK' in result[1]: 
+                prospect['email'] = email
+                results = results.append(prospect, ignore_index=True)
+        return results
+        
+    def _press_check(self, domain):
+        pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
+        bw = Google().search('"{0}" site:businesswire.com'.format(domain))
+        job_queue_lol = objectId+str(arrow.now().timestamp)
+        pw = pw if not pw.empty else pd.DataFrame(columns=["link"])
+        bw = pw if not bw.empty else pd.DataFrame(columns=["link"])
+        queue = "press-check-"+domain
 
-    def _email_webhook(self, domain, link, job_queue_lol, objectId):
-        ''' PR Newswire '''
-        print "PRNewsWire"
-        parse, html = Parse(), requests.get(link).text
-        contacts    = self._extract_contacts(html)
-        contact = {}
-        if not contacts.empty: 
-            logger.info(contacts)
-            contacts    = contacts[contacts.domain == domain]
-            contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(html)
-            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(contacts)
-            if not contacts.empty:
-                contact     = contacts.ix[contacts.index[0]].to_dict()
-        else:
-            print "no prospects found"
+        for link in pw.link: 
+            job = q.enqueue(PRNewsWire()._email, domain, link, timeout=3600)
+            job.meta[queue] = True; job.save()
 
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            print "Final Contact", contact
-            logger.info(contact)
-            print Parse().update('Prospect/'+objectId, contact, True).json()
+        for link in bw.link: 
+            job = q.enqueue(BusinessWire()._email, domain, link, timeout=3600)
+            job.meta[queue] = True; job.save()
 
-class BusinessWire:
-    def _extract_contacts(self, html):
-        contacts = BeautifulSoup(html)
-        contacts = contacts.find('div',{'class':'bw-release-contact'})
-        if contacts == None: return pd.DataFrame()
-        contacts = str(contacts).split('<br/>or<br/>')
-        for contact in contacts:
-            info = str(contact).split('<br/>')[1:]
-            names = info[0].split(',')
-            emails = [BeautifulSoup(i).text for i in info if "mailto:" in i]
-        contacts = [{'name':name, 'email':email,'domain':email.split('@')[-1]} 
-                    for name, email in zip(names, emails)]
-        return pd.DataFrame(contacts)
+        while not Queue()._has_completed(queue): return Queue()._results(queue)
 
-    def _find_emails(self, domain, link, job_queue_lol):
-        ''' BusinessWire ''' 
-        print "BusinessWire"
-        parse, html, upload = Parse(), requests.get(link).text, ""
-        contacts    = BusinessWire()._extract_contacts(html)
-        if not contacts.empty: 
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
-            upload      = EmailGuessHelper()._score(res)
-            EmailGuessHelper()._persist_email_guess(domain, upload)  
-        else:
-            print "no prospects found"
+    def zoominfo_harvest(self, domain):
+        qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)
+        queue = "zoominfo-check-"+domain
+        job = q.enqueue(Google().ec2_search, domain)
+        job.meta[queue] = True; job.save()
+        while not Queue()._has_completed(queue): 
+            pass
+            # get results
+            # filter for ones with @domain
+            # return results
 
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            r = parse.get('CompanyEmailPattern', {'where': json.dumps({'domain':domain})})
-            if r.json()['results'] == []:
-                print "what is being printed?", domain, 'BusinessWire'
-                print r.json()
-                vals = {'domain':domain, 'company_email_pattern':"not found"}
-                print parse.create('CompanyEmailPattern', vals)
-        return upload
+    #TODO - finish integrating these data sources
+    def data_com(self, domain):
+        ''' Check Rest API''' 
+        # data.com browser automation
+        
+    def domain_harvest(self, domain):
+        ''' Figure Out Domain And Extract'''
 
-    def _email_webhook(self, domain, link, job_queue_lol, objectId):
-        ''' BusinessWire '''
-        print "BusinessWire"
-        parse, html, upload = Parse(), requests.get(link).text, ""
-        contacts    = BusinessWire()._extract_contacts(html)
-        contact = {}
-        if not contacts.empty: 
-            logger.info(contacts)
-            contacts    = contacts[contacts.domain == domain]
-            contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(contacts)
-            if not contacts.empty:
-                contact     = contacts.ix[contacts.index[0]].to_dict()
-            #EmailGuessHelper()._persist_email_guess(domain, upload)  
-        else:
-            print "no prospects found"
-            logger.info("no prospects found")
-
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            print "FINAL CONTACT", contact
-            logger.info(contact)
-            # update prospect with actual email
-            print Parse().update('Prospect/'+objectId, contact, True).json()
-
-
-class QueueHelper:
-    def _is_done(self, profile_id):
-        profile_jobs = [job.meta for job in q.jobs 
-                        if 'profile_id1' in job.meta.keys()]
-        last_one     = [job for job in profile_jobs 
-                        if job['profile_id1'] == profile_id]
-        print "NUMBER OF JOBS", len(last_one)
-        return len(last_one) == 0
-
+    def _personal_mongo_check(self, domain):
+        ''' Personal DB Check '''
 

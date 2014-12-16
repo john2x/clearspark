@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from nameparser import HumanName
 import pandas as pd
 import json
-import email_patterns
+import email_guess
 
 from rq import Queue
 from worker import conn

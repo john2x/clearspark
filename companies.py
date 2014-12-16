@@ -11,7 +11,7 @@ import re, string
 import logging
 from address import AddressParser, Address
 import zoominfo
-from email_patterns import EmailGuess
+from email_guess import EmailGuess
 from zoominfo import Zoominfo
 import random
 import toofr

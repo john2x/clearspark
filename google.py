@@ -27,6 +27,22 @@ class Google:
             # filter only linkedin_url
         return res
 
+    def ec2_cache(self, url):
+        url = url.replace('&', '%26')
+        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
+        return requests.get(url)
+
+    def ec2_search(self, qry, pages=1):
+        res = pd.DataFrame()
+        for page in range(pages):
+            qry = self._remove_non_ascii(qry)
+            args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
+            url = 'https://www.google.com/search?'+ args
+            print url
+            r = requests.get(url)
+            res = res.append(self._results_html_to_df(r.text))
+        return res
+
     def news_search(self, qry, pages=1):
         res = pd.DataFrame()
         for page in range(pages):

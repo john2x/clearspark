@@ -16,11 +16,11 @@ from bs4 import BeautifulSoup
 from nameparser import HumanName
 from sources import PRNewsWire
 from sources import BusinessWire
-from email_patterns import EmailGuess
+from email_guess import EmailGuess
 from companies import Companies
 import pandas as pd
 import json
-import email_patterns
+import email_guess
 
 from rq import Queue
 from worker import conn
@@ -77,14 +77,14 @@ def app_company_info_webhook():
 @crossdomain(origin='*')
 def find_email_address():
     q.enqueue(EmailGuess().start_search, domain)
-    pattern = check_if_email_pattern_exists(request.args)
+    pattern = check_if_email_pattern_exists(request.args)['results']
 
-    if pattern['results'] == []: 
+    if pattern == []: 
         return {'queued': True}
-    elif pattern['results'][0]['company_email_pattern']:
+    elif pattern[0]['company_email_pattern']:
         return {'Error': "Domain email could not be found. Retrying."}
     else: 
-        return pattern['results'][0]
+        return pattern[0]
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
@@ -99,6 +99,22 @@ def find_email_address_webhook():
     domain = request.args['domain']
     objectId = request.args['objectId']
     q.enqueue(EmailGuess().search_webhook, domain, objectId)
+    #pattern = check_if_email_pattern_exists(request.args)
+    return {'started': True}
+
+@app.route('/v1/new_emails/webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def find_email_address_webhook():
+    domain = request.args['domain']
+    domain = "{}.{}".format(tldextract.extract(website).domain,
+                            tldextract.extract(website).tld)
+    objectId = request.args['objectId']
+    research = q.enqueue(EmailGuess().search_sources, domain, objectId,
+                         timeout=6000)
+    # what about sub jobs for this?
+    email_patterns=q.enqueue(Sources()._get_email_pattern(research.result,objectId),
+                             depends_on=research)
+
     #pattern = check_if_email_pattern_exists(request.args)
     return {'started': True}
 
