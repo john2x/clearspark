@@ -21,6 +21,7 @@ from companies import Companies
 import pandas as pd
 import json
 import email_guess
+from sources import Sources
 
 from rq import Queue
 from worker import conn
