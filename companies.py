@@ -86,13 +86,20 @@ class Companies:
 
     def _get_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
-        logger.info("linkedin company "+str(profile))
         if type(profile) is str: 
             profile = Zoominfo().search(company_name)
             logger.info("zoominfo company "+str(profile))
         result = Parse()._add_company(profile, company_name)
-        logger.info(str("Parse Result "+str(result)))
+        return profile
 
+    def _get_long_info(self, company_name):
+        profile = Linkedin()._company_profile(company_name)
+        _profile = Zoominfo().search(company_name)
+        if type(profile) is str: 
+            profile = Zoominfo().search(company_name)
+            logger.info("zoominfo company "+str(profile))
+        profile['phone'] = _profile['phone']
+        result = Parse()._add_company(profile, company_name)
         return profile
 
     def _async_get_info(self, company_name, update_object=False):
@@ -101,12 +108,7 @@ class Companies:
         q.enqueue(EmailGuess().start_search, profile['domain'])
 
     def _get_info_webhook(self, company_name, objectId):
-        profile = self._get_info(company_name)
+        profile = self._get_long_info(company_name)
         res = Parse().update('Prospect/'+objectId, profile, True).json()
-        result = Parse().update('CompanyProspect/'+objectId, profile, True).json()
-        print profile, res, result
-        logger.info(result)
-        logger.info(profile)
-        logger.info(company_name)
-
+        result = Parse().update('CompanyProspect/'+objectId, profile, True)
         return profile

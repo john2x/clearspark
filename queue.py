@@ -2,7 +2,7 @@ from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
 
-class Queue:
+class RQueue:
     def _has_completed(queue_name, domain=False):
         ''' '''
         if domain:

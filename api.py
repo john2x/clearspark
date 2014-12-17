@@ -109,13 +109,11 @@ def find_new_email_address_webhook():
     website = request.args['domain']
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)
-    objectId = request.args['objectId']
-    research = q.enqueue(EmailGuess().search_sources, domain, objectId,
+    objectId = request.args['objectId'] if "objectId" in request.args.keys() else ""
+    name = request.args['name'] if "name" in request.args.keys() else ""
+    research = q.enqueue(EmailGuess().search_sources, domain, name,
                          timeout=6000)
     # what about sub jobs for this?
-    email_patterns=q.enqueue(Sources()._get_email_pattern(research.result,objectId),
-                             depends_on=research)
-
     #pattern = check_if_email_pattern_exists(request.args)
     return {'started': True}
 
@@ -146,4 +144,4 @@ def test():
     return {"test": "lol"}
 
 if __name__ == "__main__":
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=4000)

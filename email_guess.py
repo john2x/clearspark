@@ -8,6 +8,9 @@ import arrow
 import json
 from press_sources import PRNewsWire
 from press_sources import BusinessWire
+from sources import Sources
+from queue import RQueue
+import time
 #from email_guess_helper import EmailGuessHelper
 
 from rq import Queue
@@ -71,21 +74,32 @@ class EmailGuess:
         print len(q.jobs)
 
     def search_sources(self, domain, name=""):
-        job_1 = q.enqueue(Sources()._google_span_search(domain))
-        job_2 = q.enqueue(Sources()._google_span_search(domain))
-        job_3 = q.enqueue(Sources()._google_span_search(domain))
-        job_4 = q.enqueue(Sources()._google_span_search(domain))
-        job_5 = q.enqueue(Sources()._mx_server_check(name, domain))
+        #job_1 = q.enqueue(Sources()._google_span_search, domain)
+        job_2 = q.enqueue(Sources()._mx_server_check, name, domain)
+        #job_3 = q.enqueue(Sources()._whois_search, domain)
+        #job_4 = q.enqueue(Sources()._press_search, domain)
+        #job_5 = q.enqueue(Sources()._zoominfo_harvest, domain)
+        '''
         job_1.meta['domain'] = domain; job_1.save()
         job_2.meta['domain'] = domain; job_2.save()
         job_3.meta['domain'] = domain; job_3.save()
         job_4.meta['domain'] = domain; job_4.save()
         job_5.meta['domain'] = domain; job_5.save()
+        '''
 
-        while None in Queue()._results(domain=domain):
+        print "Started"
+        '''
+        results = RQueue()._results(domain=domain)
+        while None in results or results == []:
+            print "whiling"
             time.sleep(1)
+            results = RQueue()._results(domain=domain)
+        '''
 
-        results = [result for result in Queue()._results(domain=domain)
+        print RQueue()._results(domain=domain)
+        print "Listening"
+
+        results = [result for result in RQueue()._results(domain=domain)
                   if type(result) is not str]
         results = pd.concat(results)
         # df should contain name and email

@@ -1,4 +1,12 @@
-from queue import Queue
+from queue import RQueue
+from google import Google
+import pandas as pd
+import pythonwhois
+from smtp import SMTP
+
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
 
 class Sources:
     def _google_span_search(self, domain):
@@ -8,8 +16,9 @@ class Sources:
       qry_2 = '"email * * {0}"'.format(domain)
       job_1 = q.enqueue(Google().ec2_search, qry_1)
       job_2 = q.enqueue(Google().ec2_search, qry_2)
-      while not Queue()._has_completed(queue): 
-          results = Queue()._results(queue)
+      while not RQueue()._has_completed(queue): 
+          print "Queue Check"
+          results = RQueue()._results(queue)
           self._google_cache_search(domain, results.link_span)
           # scrape all emails
           # fullcontact / clearbit to figure out who it is
@@ -26,6 +35,7 @@ class Sources:
         while not Queue()._has_completed(queue): return Queue()._results(queue)
 
     def _whois_search(self, domain):
+        results = pythonwhois.get_whois(domain)
         try: results = pythonwhois.get_whois(domain)
         except: return pd.DataFrame()
         results = filter(None, results['contacts'].values())
@@ -34,6 +44,10 @@ class Sources:
         return results
 
     def _mx_server_check(self, name, domain):
+        print "START MX SERVER CHECK"
+        # get employees?
+        mx_servers = SMTP()._mx_servers(domain)
+        smtp = SMTP()._smtp_auth(mx_servers)
         try: 
             mx_servers = SMTP()._mx_servers(domain)
             smtp = SMTP()._smtp_auth(mx_servers)
@@ -42,7 +56,9 @@ class Sources:
         prospect = EmailGuessHelper()._name_to_email_variables(name)
         prospect['domain'] = domain
         results = pd.DataFrame()
+        print prospect
         for pattern in EmailPattern()._patterns():
+            print pattern
             email = pattern.format(**prospect)
             try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
             except: continue
@@ -71,16 +87,26 @@ class Sources:
 
         while not Queue()._has_completed(queue): return Queue()._results(queue)
 
-    def zoominfo_harvest(self, domain):
+    def _cache_email_extract(self, url, className, domain):
+        html = Google().cache(url)
+        links = BeautifulSoup(html).find_all('a')
+        links = [link['href'] for link in links if 'mailto:' in link]
+        emails = BeautifulSoup(html).text
+        emails = [word for word in text.split() if "@" in word]
+        if df.empty: return 0
+        df['domain'] = domain
+        obj = {"url":url, "domain":domain, "emails": emails, "links": links}
+
+    def _zoominfo_harvest(self, domain):
         qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)
         queue = "zoominfo-check-"+domain
-        job = q.enqueue(Google().ec2_search, domain)
-        job.meta[queue] = True; job.save()
-        while not Queue()._has_completed(queue): 
-            pass
-            # get results
-            # filter for ones with @domain
-            # return results
+        test = Google().search(qry, 5)
+        res = [[word.lower() for word in link.split() if "@" in word]
+                for link in test[test.link_span.str.contains('@')].link_span]
+        test.ix[test.link_span.str.contains('@'), 'emails'] = res
+        test = test[test.emails.notnull()]
+        test['name'] = [link.split('|')[0].strip() for link in test.link_text]
+        #while not RQueue()._has_completed(queue): pass
 
     #TODO - finish integrating these data sources
     def data_com(self, domain):
