@@ -113,5 +113,7 @@ class Companies:
         print "started"
         profile = self._get_long_info(company_name)
         res = Parse().update('Prospect/'+objectId, profile, True).json()
+        print res
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
+        print result
         return profile
