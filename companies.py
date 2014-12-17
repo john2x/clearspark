@@ -95,6 +95,7 @@ class Companies:
     def _get_long_info(self, company_name):
         profile = Linkedin()._company_profile(company_name)
         _profile = Zoominfo().search(company_name)
+        print profile
         if type(profile) is str: 
             profile = Zoominfo().search(company_name)
             logger.info("zoominfo company "+str(profile))
@@ -108,6 +109,7 @@ class Companies:
         q.enqueue(EmailGuess().start_search, profile['domain'])
 
     def _get_info_webhook(self, company_name, objectId):
+        print "started"
         profile = self._get_long_info(company_name)
         res = Parse().update('Prospect/'+objectId, profile, True).json()
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
