@@ -148,6 +148,7 @@ class Linkedin:
                                     tldextract.extract(website).tld)
             company_info['domain'] = domain
             company_info['source'] = "linkedin"
+            company_info['headcount'] = company_info['company_size']
             return company_info
         except:
             return "not found"
