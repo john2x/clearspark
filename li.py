@@ -142,6 +142,7 @@ class Linkedin:
                 company_size = int(c.find('a',{'class':'employee-count'}).text)
                 company_size = int_to_linkedin_company_size_string(company_size)
                 company_info['company_size'] = company_size
+                company_info['headcount'] = company_size
             website = company_info['website'].ix[0]
             domain = "{}.{}".format(tldextract.extract(website).domain, 
                                     tldextract.extract(website).tld)
