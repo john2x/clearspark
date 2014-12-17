@@ -99,7 +99,8 @@ class Companies:
         if type(profile) is str: 
             profile = Zoominfo().search(company_name)
             logger.info("zoominfo company "+str(profile))
-        profile['phone'] = _profile['phone']
+        if type(profile) is not str and type(_profile) is not str: 
+            profile['phone'] = _profile['phone']
         result = Parse()._add_company(profile, company_name)
         return profile
 
