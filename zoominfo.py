@@ -64,13 +64,14 @@ class Zoominfo:
             # change variables to parse db names
 
             columns = ['company_name','website','domain','city','locale','revenue',
-                       'headcount','description', 'phone','source'] 
+                       'headcount','description', 'phone'] 
             values = [name, website, domain, location, location, revenue, 
-                      employee_count, description, phone,'zoominfo']
+                      employee_count, description, phone]
             values = [val.text if val else "" for val in values]
 
             info = dict(zip(columns, values))
             info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
+            info['source'] = "zoominfo"
             the_info = the_info.append(info, ignore_index=True)
 
         # Add Check for websiteUrl must be a proper domain

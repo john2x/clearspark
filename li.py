@@ -146,6 +146,7 @@ class Linkedin:
             domain = "{}.{}".format(tldextract.extract(website).domain, 
                                     tldextract.extract(website).tld)
             company_info['domain'] = domain
+            company_info['source'] = "linkedin"
             return company_info
         except:
             return "not found"
