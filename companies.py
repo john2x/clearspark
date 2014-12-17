@@ -115,5 +115,5 @@ class Companies:
         res = Parse().update('Prospect/'+objectId, profile, True).json()
         print res
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
-        print result
+        print result.json()
         return profile
