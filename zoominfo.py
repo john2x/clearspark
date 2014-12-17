@@ -63,9 +63,9 @@ class Zoominfo:
             phone = BeautifulSoup(html).find('span',{'class':'companyContactNo'})
             # change variables to parse db names
 
-            columns = ['company_name','website','domain','city','revenue',
+            columns = ['company_name','website','domain','city','locale','revenue',
                        'headcount','description', 'phone'] 
-            values = [name, website, domain, location, revenue, 
+            values = [name, website, domain, location, location, revenue, 
                       employee_count, description, phone]
             values = [val.text if val else "" for val in values]
 
