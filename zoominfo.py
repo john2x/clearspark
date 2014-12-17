@@ -64,9 +64,9 @@ class Zoominfo:
             # change variables to parse db names
 
             columns = ['company_name','website','domain','city','locale','revenue',
-                       'headcount','description', 'phone'] 
+                       'headcount','description', 'phone','source'] 
             values = [name, website, domain, location, location, revenue, 
-                      employee_count, description, phone]
+                      employee_count, description, phone,'zoominfo']
             values = [val.text if val else "" for val in values]
 
             info = dict(zip(columns, values))

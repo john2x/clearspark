@@ -95,9 +95,9 @@ class Linkedin:
                 current = current.strip() if current else ""
 
                 columns = ['name', 'description', 'industry', 'locale', 'pos', 
-                           'company_name', 'linkedin_url']
+                           'company_name', 'linkedin_url', 'source']
                 values = [name, description, industry, locale, title, 
-                          company_name, linkedin_url]
+                          company_name, linkedin_url,'linkedin']
                 results = results.append(dict(zip(columns,values)), ignore_index=True)
         return results
     
