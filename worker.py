@@ -1,7 +1,7 @@
 import os
 import redis
 from rq import Worker, Queue, Connection
-#heroku worker
+import urlparse
 
 listen = ['high', 'default', 'low']
 '''
