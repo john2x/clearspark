@@ -75,9 +75,12 @@ class Companies:
         results = Google().search(qry, 1)
         results = Linkedin()._google_df_to_linkedin_df(results)
         company_name = '(?i){0}'.format(company_name)
-        results = results[results.company.str.contains(company_name)]
+        #results = results[results.company.str.contains(company_name)]
+        results['company_score'] = [fuzz.ratio(company_name, company) 
+                                    for company in results.company]
         results['score'] = [fuzz.ratio(keyword, title) 
                             for title in results.title]
+        results = results[results.company_score > 84]
         results = results[results.score > 75]
         print results
         # rename fields - name, title, company

@@ -118,6 +118,8 @@ def find_new_email_address_webhook():
     #pattern = check_if_email_pattern_exists(request.args)
     return {'started': True}
 
+'''       Employee Stuff        '''
+
 @app.route('/v1/employees/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def employees_webhook():
@@ -129,8 +131,7 @@ def employees_webhook():
 @app.route('/v1/company_list/employees',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_list_employees_webhook():
-    ''' Employees '''
-    # scoring 
+    ''' Employees - (Add Scoring) '''
     qry = {"lists":Parse()._pointer("CompanyProspectList",request.args['company_list'])}
     rr = Parse().get('CompanyProspect', {'where':json.dumps(qry),'order':'-createdAt'}, True)
     _user = rr.json()['results'][0]['user']
@@ -162,7 +163,6 @@ def check_if_email_pattern_exists(args):
     qry = json.dumps({'domain': domain})
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
-
 
 @app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
