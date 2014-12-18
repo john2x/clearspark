@@ -18,6 +18,8 @@ import toofr
 ''' RQ Setup '''
 from rq import Queue
 from worker import conn
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -67,10 +69,19 @@ class Companies:
     def _employees(self, company_name, keyword=""):
         ''' Linkedin Scrape'''
         args = '-inurl:"/dir/" -inurl:"/find/" -inurl:"/updates"'
-        qry = '"at {0}" {1} site:linkedin.com'.format(company_name, args)
-        results = Google().search(qry, 10)
-        # filter companies with company_name
-        return employees
+        args = args+' -inurl:"job" -inurl:"jobs2" -inurl:"company"'
+        qry = '"at {0}" {1} {2} site:linkedin.com'
+        qry = qry.format(company_name, args, keyword)
+        results = Google().search(qry, 1)
+        results = Linkedin()._google_df_to_linkedin_df(results)
+        company_name = '(?i){0}'.format(company_name)
+        results = results[results.company.str.contains(company_name)]
+        results['score'] = [fuzz.ratio(keyword, title) 
+                            for title in results.title]
+        results = results[results.score > 75]
+        print results
+        # rename fields - name, title, company
+        return results
 
     def _related(self, domain):
         ''' Competitors, Similar Companies '''

@@ -27,16 +27,20 @@ class Parse:
         'objectId':objectId
     }
 
-  def create(self, className, data):
+  def create(self, className, data, customero=False):
+    headers = self._master_headers
+    headers = self._customero_headers if customero else headers
     r = requests.post(self._url.format(className),
                       data=json.dumps(data),
-                      headers=self._headers)
+                      headers=headers)
     return r
 
-  def get(self, className, qry={}):
+  def get(self, className, qry={}, customero=False):
+    headers = self._master_headers
+    headers = self._customero_headers if customero else headers
     r = requests.get(self._url.format(className),
                      params=qry,
-                     headers=self._headers)
+                     headers=headers)
     return r
 
   def update(self, className, data, customero=False):

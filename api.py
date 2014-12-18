@@ -22,6 +22,7 @@ import pandas as pd
 import json
 import email_guess
 from sources import Sources
+from mining_job import MiningJob
 
 from rq import Queue
 from worker import conn
@@ -116,6 +117,36 @@ def find_new_email_address_webhook():
     # what about sub jobs for this?
     #pattern = check_if_email_pattern_exists(request.args)
     return {'started': True}
+
+@app.route('/v1/employees/webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def employees_webhook():
+    ''' Employees '''
+    args = request.args
+    q.enqueue(MiningJob().employee_webhook, args['company_name'], args['prospect_list'])
+    return {'started':True }
+
+@app.route('/v1/company_list/employees',methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def company_list_employees_webhook():
+    ''' Employees '''
+    # scoring 
+    qry = {"lists":Parse()._pointer("CompanyProspectList",request.args['company_list'])}
+    rr = Parse().get('CompanyProspect', {'where':json.dumps(qry),'order':'-createdAt'}, True)
+    _user = rr.json()['results'][0]['user']
+    _company = rr.json()['results'][0]['company']
+    data = {'name':request.args['prospect_list'], 
+            'user':_user, 'company':_company}
+    _list_id =Parse().create('ProspectList',data, True).json()['objectId']
+    for company in rr.json()['results']:
+        print company
+        q.enqueue(MiningJob().employee_webhook, company['name'], 
+                             company['user']['objectId'], 
+                             company['company']['objectId'], 
+                             request.args['qry'], 
+                             request.args['limit'], 
+                             _list_id) 
+    return {'started':True }
 
 def check_if_company_exists_in_db(args):
     parse, company_name = Parse(), args['company_name']

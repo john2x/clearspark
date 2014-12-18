@@ -26,6 +26,19 @@ class Linkedin:
                 return {'pos':pos[0], 'company_qry':pos[1]}
         return "not found"
 
+    def _google_df_to_linkedin_df(self, results):
+        final = pd.DataFrame()
+        final['name'] = [name.split('|')[0].strip().split(',')[0] 
+                         for name in results.link_text]
+        final['locale']  = [name.split('-')[0].strip() 
+                            for name in results.title]
+        final['company']  = [name.split(' at ')[-1].strip() 
+                              if " at " in name else ""
+                             for name in results.title]
+        final['title']  = [name.split(' at ')[0].split('-')[-1].strip()
+                             for name in results.title]
+        return final
+
     def _linkedin_profile_from_name(self, company_name):
         '''   '''
         qry = company_name+' site:linkedin.com/company'
