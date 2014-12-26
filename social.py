@@ -1,4 +1,5 @@
 from splinter import Browser
+from parse import Parse
 
 class Twitter:
     def _company_profile(self, company_name, domain):
