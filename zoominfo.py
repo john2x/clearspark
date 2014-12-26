@@ -91,7 +91,7 @@ class Zoominfo:
     def _company_profile(self, company_name):
         qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
         google_df = Google().search(qry)
-        zoominfo_url = google_df.ix[0].link
+        url = google_df.ix[0].link
         html = Google().cache(url)
         zoominfo = self._cache_html_to_df(html)
         CompanyInfoCrawl()._persist(zoominfo.to_dict())
