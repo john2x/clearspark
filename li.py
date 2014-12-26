@@ -12,6 +12,7 @@ import json
 from google import Google
 from bs4 import BeautifulSoup
 import string
+from social import CompanyInfoCrawl
 
 class Linkedin:
     def _parse_google_span_for_title_and_company(self, link_span):
@@ -162,6 +163,7 @@ class Linkedin:
             company_info['domain'] = domain
             company_info['source'] = "linkedin"
             company_info['headcount'] = company_info['company_size']
+            CompanyInfoCrawl()._persist(company_info)
             return company_info
         except:
             return "not found"
