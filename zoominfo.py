@@ -95,7 +95,7 @@ class Zoominfo:
         url = google_df.ix[0].link
         html = Google().cache(url)
         zoominfo = self._cache_html_to_df(html)
-        CompanyInfoCrawl()._persist(zoominfo.to_dict())
+        CompanyInfoCrawl()._persist(zoominfo)
 
     def _cache_html_to_df(self, html):
         company = BeautifulSoup(html)
