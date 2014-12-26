@@ -43,9 +43,10 @@ class Yelp:
             val = self._html_to_dict(url)
             if val != {}: break
         '''
-        url = df.ix[0].link
-        val = self._html_to_dict(url)
-        CompanyInfoCrawl._persist(val)
+        if not df.empty:
+            url = df.ix[0].link
+            val = self._html_to_dict(url)
+            CompanyInfoCrawl._persist(val)
 
     def _html_to_dict(self, url):
         r = requests.get(url).text
@@ -67,14 +68,15 @@ class YellowPages:
     def _company_profile(self, company_name, location=""):
         qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
         df = Google().search(qry)
-        url = df.ix[0].link
-        val = self._html_to_dict(url)
+        if not df.empty:
+            url = df.ix[0].link
+            val = self._html_to_dict(url)
+            CompanyInfoCrawl._persist(val)
         '''
         for url in df.link:
             val = self._html_to_dict(url, domain)
             if val != {}: break
         '''
-        CompanyInfoCrawl._persist(val)
 
     def _html_to_dict(self, url):
         r = requests.get(url).text
