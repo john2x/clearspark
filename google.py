@@ -29,8 +29,8 @@ class Google:
 
     def ec2_cache(self, url):
         url = url.replace('&', '%26')
-        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
-        return requests.get(url)
+        url='http://webcache.googleusercontent.com/search?q=cache:'+url
+        return requests.get(url).text
 
     def ec2_search(self, qry, pages=1):
         res = pd.DataFrame()

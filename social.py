@@ -3,6 +3,7 @@ from parse import Parse
 from google import Google
 import json
 import requests
+from bs4 import BeautifulSoup
 
 class Twitter:
     def _company_profile(self, company_name, domain):
