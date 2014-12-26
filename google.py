@@ -32,6 +32,15 @@ class Google:
         url='http://webcache.googleusercontent.com/search?q=cache:'+url
         return requests.get(url).text
 
+    def cache(self, url):
+        url = url.replace('&', '%26')
+        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
+        cloak = "https://crawlera.p.mashape.com/fetch"
+        headers = {"X-Mashape-Key": 
+                   "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
+        r = requests.get(cloak, params={'url':url}, headers=headers)
+        return r.text
+
     def ec2_search(self, qry, pages=1):
         res = pd.DataFrame()
         for page in range(pages):
@@ -55,15 +64,6 @@ class Google:
             r = requests.get(cloak, params={'url':url}, headers=headers)
             res = res.append(self._results_html_to_df(r.text))
         return res
-
-    def cache(self, url):
-        url = url.replace('&', '%26')
-        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
-        cloak = "https://crawlera.p.mashape.com/fetch"
-        headers = {"X-Mashape-Key": 
-                   "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
-        r = requests.get(cloak, params={'url':url}, headers=headers)
-        return r.text
 
     def _results_to_linkedin_df(self, html):
         ''' '''

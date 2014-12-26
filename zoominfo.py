@@ -97,9 +97,13 @@ class Zoominfo:
         html = Google().ec2_cache(url)
         print html
         html = requests.get(url).text
+        html = self._remove_non_ascii(html)
         print html
         zoominfo = self._cache_html_to_df(html)
         CompanyInfoCrawl()._persist(zoominfo)
+
+    def _remove_non_ascii(self, text):
+        return ''.join(i for i in text if ord(i)<128)
 
     def _cache_html_to_df(self, html):
         company = BeautifulSoup(html)
