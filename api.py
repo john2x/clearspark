@@ -23,6 +23,7 @@ import json
 import email_guess
 from sources import Sources
 from mining_job import MiningJob
+from score import Score
 
 from rq import Queue
 from worker import conn
@@ -68,6 +69,12 @@ def app_company_info_webhook():
         rr = Parse().update('Prospect/'+request.args['objectId'], company[0], True)
         print "RESULTS - ", r.json(), rr.json()
     return company[0] if company else {'': 'Your query has been queued.'}
+
+@app.route('/v1/companies/research', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def company_info():
+    q.enqueue(Companies()._research, request.args['company_name'])
+    return {'Research has started.' : True}
 
 '''  **************************
 
@@ -148,6 +155,33 @@ def company_list_employees_webhook():
                              request.args['limit'], 
                              _list_id) 
     return {'started':True }
+
+'''  **************************
+
+          Scoring
+     
+**************************  '''
+
+@app.route('/v1/score/email_pattern',methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def score_email_pattern():
+    domain = request.args['domain']
+    q.enqueue(Score()._email_pattern, domain)
+    return {'started': True}
+
+@app.route('/v1/score/company_info',methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def score_company_info():
+    # Company Info objectId 
+    domain = request.args['domain']
+    q.enqueue(Score()._company_info, domain)
+    return {'started': True}
+
+'''  **************************
+
+        Helper Functions
+     
+**************************  '''
 
 def check_if_company_exists_in_db(args):
     parse, company_name = Parse(), args['company_name']

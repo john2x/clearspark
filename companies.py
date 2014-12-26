@@ -25,6 +25,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Companies:
+    def _company_blog():
+        ''' Find Company Blog '''
+        
     def _technologies(self, domain):
         ''' BuiltWith '''
         technology = requests.get('https://builtwith.com/'+domain)
@@ -37,7 +40,7 @@ class Companies:
         return traffic
 
     def _hiring(self, company_name):
-        ''' Indeed '''
+        ''' Also add Indeed profile'''
         # paginate
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
         return jobs
@@ -61,10 +64,13 @@ class Companies:
         return social_profiles
 
     def _fundings(self, company_name):
-        ''' Crunchbase '''
+        ''' Also find crunchbase profile Crunchbase '''
         results = Google().search("{0} site:crunchbase.com".format(company_name))
         # scrape
         return fundings
+
+    def _employee_estimate():
+        ''' '''
 
     def _employees(self, company_name, keyword=""):
         ''' Linkedin Scrape'''
@@ -91,6 +97,12 @@ class Companies:
         companies = Google().search("related:{0}".format(domain), 10)
         # linkedin companies info 
         return related
+
+    def _tags_describing_company():
+        ''' '''
+
+    def _description():
+        ''' '''
 
     ''' In Use Methods '''
     def _email_pattern(self, domain):
@@ -124,10 +136,35 @@ class Companies:
         q.enqueue(EmailGuess().start_search, profile['domain'])
 
     def _get_info_webhook(self, company_name, objectId):
-        print "started"
         profile = self._get_long_info(company_name)
         res = Parse().update('Prospect/'+objectId, profile, True).json()
-        print res
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
-        print result.json()
         return profile
+
+    def _research(self, company_name):
+        ''' Research '''
+        q.enqueue(Zoominfo()._company_profile(company_name))
+        q.enqueue(Linkedin()._company_profile(company_name))
+        q.enqueue(YellowPages()._company_profile(company_name))
+        q.enqueue(Yelp()._company_profile(company_name))
+        # sometimes require location or domain
+        '''
+        q.enqueue(Facebook()._company_profile(company_name))
+        q.enqueue(Twitter()._company_profile(company_name))
+        '''
+
+class CompanyTrends:
+    def linkedin_followers():
+        ''' '''
+
+    def alexa_rank():
+        ''' '''
+
+    def twitter_followers():
+        ''' '''
+
+    def angellist_followers():
+        ''' '''
+
+    def google_search_volume():
+        ''' '''

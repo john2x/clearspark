@@ -6,6 +6,7 @@ class SMTP:
         results = [(str(rdata.exchange), rdata.preference) 
                    for rdata in answers]
         return results
+
     def _smtp_auth(self, mx_servers):
         smtp = smtplib.SMTP(mx_servers[0][0], 25)
         smtp.helo()

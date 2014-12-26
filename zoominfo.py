@@ -87,6 +87,35 @@ class Zoominfo:
                     return zoominfo_profile.to_dict()
         return "not found"
 
+    def _company_profile(self, company_name):
+        qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
+        google_df = Google().search(qry)
+        zoominfo_url = google_df.ix[0].link
+        html = Google().cache(url)
+        zoominfo = self._cache_html_to_df(html)
+        CompanyInfoCrawl()._persist(zoominfo.to_dict())
+
+    def _cache_html_to_df(self, html):
+        title = company.find('div',{'class':'companyTitle'})
+        description = company.find('div',{'class':'companyDescription'})
+        revenue = company.find('div',{'class':'companyRevenue'})
+        address = company.find('div',{'class':'companyAddress'})
+        employee_count = company.find('p',{'class':'companyEmployeeCountText'})
+        website = company.find('div',{'class':'website'})
+        phone = company.find('span',{'class':'hq'})
+        url = ""
+        
+        data = [title, description, revenue, address, employee_count,
+                website, phone, url]
+        columns = ["title", "description", "revenue", "address",
+                   "address","employee_count","website","phone", "url"]
+        data = [val.text if val else "" for val in data]
+        data = dict(zip(columns, data))
+        data["domain"] = "{}.{}".format(tldextract.extract(data["website"]).domain,
+                                        tldextract.extract(data["website"]).tld)
+        data["source"] = "zoominfo"
+        return data
+
     def search(self, company_name):
         ''' 
           Input: Name and Possibly Location, Parse Object ObjectId

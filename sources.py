@@ -9,6 +9,7 @@ from worker import conn
 q = Queue(connection=conn)
 
 class Sources:
+#class EmailSources:
     def _google_span_search(self, domain):
       queue = "google-span-"+domain
       qry_1 = '("media contact" OR "media contacts" OR "press release") "@{0}"'
@@ -16,6 +17,7 @@ class Sources:
       qry_2 = '"email * * {0}"'.format(domain)
       job_1 = q.enqueue(Google().ec2_search, qry_1)
       job_2 = q.enqueue(Google().ec2_search, qry_2)
+      # persist
       while not RQueue()._has_completed(queue): 
           print "Queue Check"
           results = RQueue()._results(queue)
@@ -41,6 +43,7 @@ class Sources:
         results = filter(None, results['contacts'].values())
         results = pd.DataFrame(results)
         results['domain'] = domain
+        # persist
         return results
 
     def _mx_server_check(self, name, domain):
@@ -67,6 +70,7 @@ class Sources:
             if 'OK' in result[1]: 
                 prospect['email'] = email
                 results = results.append(prospect, ignore_index=True)
+        # persist to parse
         return results
         
     def _press_check(self, domain):
@@ -113,9 +117,9 @@ class Sources:
         ''' Check Rest API''' 
         # data.com browser automation
         
-    def domain_harvest(self, domain):
-        ''' Figure Out Domain And Extract'''
-
     def _personal_mongo_check(self, domain):
         ''' Personal DB Check '''
+
+    def domain_harvest(self, domain):
+        ''' Figure Out Domain And Extract'''
 
