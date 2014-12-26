@@ -96,6 +96,7 @@ class CompanyInfoCrawl:
         crawl = Parse().create('CompanyInfoCrawl', data).json()
         crawl = Parse()._pointer('CompanyInfoCrawl', crawl['objectId'])
         company = Parse().get('Company', {'where':{'domain':data['domain']}}).json()
+        print company
         if company:
             company = 'Company/'+company['objectId'], 
             data = {'__op':'AddUnique', "objects":[crawl]}
