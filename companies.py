@@ -20,6 +20,8 @@ from rq import Queue
 from worker import conn
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+from social import Yelp
+from social import YellowPages
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -143,10 +145,10 @@ class Companies:
 
     def _research(self, company_name):
         ''' Research '''
-        q.enqueue(Zoominfo()._company_profile(company_name))
-        q.enqueue(Linkedin()._company_profile(company_name))
-        q.enqueue(YellowPages()._company_profile(company_name))
-        q.enqueue(Yelp()._company_profile(company_name))
+        q.enqueue(Zoominfo()._company_profile, company_name)
+        q.enqueue(Linkedin()._company_profile, company_name)
+        q.enqueue(YellowPages()._company_profile, company_name)
+        q.enqueue(Yelp()._company_profile, company_name)
         # sometimes require location or domain
         '''
         q.enqueue(Facebook()._company_profile(company_name))
