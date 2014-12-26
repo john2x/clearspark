@@ -1,5 +1,6 @@
 from splinter import Browser
 from parse import Parse
+from google import Google
 import json
 
 class Twitter:
@@ -61,7 +62,7 @@ class Yelp:
 class YellowPages:
     def _company_profile(self, company_name, location=""):
         qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
-        df = Google().search()
+        df = Google().search(qry)
         for url in df.link:
             val = self._html_to_dict(url, domain)
             if val != {}: break
