@@ -4,7 +4,7 @@ class Score:
     def _email_pattern(self, data):
         ''' Score email pattern based on number of occurrences '''
         domain = data["domain"]
-        crawls = Parse().get('CompanyEmailPatternCrawl', {'where':{'domain':domain})
+        crawls = Parse().get('CompanyEmailPatternCrawl', {'where':{'domain':domain}})
         crawls = crawl.json()['results']
         crawls = pd.concat([pd.DataFrame(_crawl) for _crawl in crawl['results']])
         # get value_counts for pattern column
