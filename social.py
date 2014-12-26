@@ -58,7 +58,7 @@ class Yelp:
 
 class YellowPages:
     def _company_profile(self, company_name, location=""):
-        qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location))
+        qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
         df = Google().search()
         for url in df.link:
             val = self._html_to_dict(url, domain)
