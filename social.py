@@ -95,7 +95,7 @@ class CompanyInfoCrawl:
     def _persist(self, data):
         crawl = Parse().create('CompanyInfoCrawl', data).json()
         crawl = Parse()._pointer('CompanyInfoCrawl', crawl['objectId'])
-        company = Parse().get('Company', {'where':{'domain':data['domain']}}).json()
+        company = Parse().get('Company', {'where':json.dumps({'domain':data['domain']})}).json()
         print company
         if company:
             company = 'Company/'+company['objectId'], 
