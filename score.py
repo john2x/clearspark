@@ -20,7 +20,7 @@ class Score:
     def _company_infomation(self, data):
         ''' Replace blank strings with company info '''
         domain = data["domain"]
-        crawl = Parse().get('CompanyInfoCrawl', {'where':{'domain':domain}).json()
+        crawl = Parse().get('CompanyInfoCrawl', {'where':{'domain':domain}}).json()
         crawls = pd.concat([pd.DataFrame(_crawl) for _crawl in crawl['results']])
         crawls = self._source_score(crawls)
         # remove duplicate domain keep the one with the highest score
