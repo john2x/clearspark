@@ -93,6 +93,7 @@ class Zoominfo:
         qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
         google_df = Google().search(qry)
         url = google_df.ix[0].link
+        print "ZOOMINFO URL", url
         html = Google().cache(url)
         zoominfo = self._cache_html_to_df(html)
         CompanyInfoCrawl()._persist(zoominfo)
