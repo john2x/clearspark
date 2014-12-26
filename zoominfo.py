@@ -106,12 +106,13 @@ class Zoominfo:
         employee_count = company.find('p',{'class':'companyEmployeeCountText'})
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
+        logo = company.find('img',{'class':'companyLogo'})['src']
         url = ""
         
         data = [title, description, revenue, address, employee_count,
-                website, phone, url]
+                website, phone, url, logo]
         columns = ["title", "description", "revenue", "address",
-                   "address","employee_count","website","phone", "url"]
+                   "address","employee_count","website","phone", "url", "logo"]
         data = [val.text if val else "" for val in data]
         data = dict(zip(columns, data))
         data["domain"] = "{}.{}".format(tldextract.extract(data["website"]).domain,
