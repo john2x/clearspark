@@ -117,6 +117,7 @@ class Zoominfo:
         data["domain"] = "{}.{}".format(tldextract.extract(data["website"]).domain,
                                         tldextract.extract(data["website"]).tld)
         data["source"] = "zoominfo"
+        print data
         return data
 
     def search(self, company_name):

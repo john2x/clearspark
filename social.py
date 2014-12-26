@@ -101,6 +101,6 @@ class CompanyInfoCrawl:
         if company:
             company = 'Company/'+company['results'][0]['objectId'], 
             data = {'__op':'AddUnique', "objects":[crawl]}
-            print Parse().update(company, {'crawls': data}).json()
+            print "update", Parse().update(company, {'crawls': data}).json()
         else:
             print Parse().create(company, {'crawls':[crawl],'domain':data['domain']}).json()
