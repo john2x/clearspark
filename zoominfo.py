@@ -97,6 +97,7 @@ class Zoominfo:
         CompanyInfoCrawl()._persist(zoominfo.to_dict())
 
     def _cache_html_to_df(self, html):
+        company = BeautifulSoup(html)
         title = company.find('div',{'class':'companyTitle'})
         description = company.find('div',{'class':'companyDescription'})
         revenue = company.find('div',{'class':'companyRevenue'})
