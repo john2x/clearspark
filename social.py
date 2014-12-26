@@ -99,7 +99,7 @@ class CompanyInfoCrawl:
         company = Parse().get('Company', {'where':json.dumps({'domain':data['domain']})}).json()
         print company
         if company:
-            company = 'Company/'+company['objectId'], 
+            company = 'Company/'+company['results'][0]['objectId'], 
             data = {'__op':'AddUnique', "objects":[crawl]}
             print Parse().update(company, {'crawls': data}).json()
         else:
