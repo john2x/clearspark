@@ -2,6 +2,7 @@ from splinter import Browser
 from parse import Parse
 from google import Google
 import json
+import requests
 
 class Twitter:
     def _company_profile(self, company_name, domain):
