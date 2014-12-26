@@ -106,7 +106,10 @@ class Zoominfo:
         employee_count = company.find('p',{'class':'companyEmployeeCountText'})
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
-        logo = company.find('img',{'class':'companyLogo'})['src']
+        try:
+          logo = company.find('img',{'class':'companyLogo'})['src']
+        except:
+          logo = ""
         url = ""
         
         data = [title, description, revenue, address, employee_count,
