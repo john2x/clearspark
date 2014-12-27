@@ -118,7 +118,7 @@ class Zoominfo:
                 website, phone]
         columns = ["title", "description", "revenue", "address",
                    "employee_count","website","phone"]
-        data = [val.text if val else "" for val in data]
+        data = [val.text.strip() if val else "" for val in data]
         data = dict(zip(columns, data))
         data["domain"] = "{}.{}".format(tldextract.extract(data["website"]).domain,
                                         tldextract.extract(data["website"]).tld)
