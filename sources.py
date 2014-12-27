@@ -97,7 +97,7 @@ class Sources:
         # guess email patterns
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row.name)
-            pattern = EmailGuessHelper()._find_email_pattern(row.name, row.email)
+            pattern = EmailGuessHelper()._find_email_pattern(name, row.email)
             emails.ix[index, 'pattern'] = pattern
             
         CompanyEmailPatternCrawl()._persist("whois_search", emails)
@@ -129,11 +129,15 @@ class Sources:
         test = Google().search(qry, 5)
         res = [[word.lower() for word in link.split() if "@" in word]
                 for link in test[test.link_span.str.contains('@')].link_span]
-        test.ix[test.link_span.str.contains('@'), 'emails'] = res
+        test.ix[test.link_span.str.contains('@'), 'email'] = res
         test = test[test.emails.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
-        # decifer email pattern
-        CompanyEmailPatternCrawl()._persist("Zoominfo Search", test)
+        emails = test
+        for index, row in emails.iterrows():
+            name = FullContact()._normalize_name(row.name)
+            pattern = EmailGuessHelper()._find_email_pattern(name, row.email)
+            emails.ix[index, 'pattern'] = pattern
+        CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
 
     def _mx_server_check(self, name, domain):
         print "START MX SERVER CHECK"
