@@ -33,7 +33,7 @@ class Sources:
 
     def _google_cache_search(self, domain, links):
         for link in links:
-            text = BeautifulSoup(Google()._ec2_cache(link)).text
+            text = BeautifulSoup(Google().ec2_cache(link)).text
             emails = [word for word in text.split() if "@" in word]
             print emails
         # fullcontact / clearbit to figure out who email is
