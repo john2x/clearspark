@@ -25,6 +25,8 @@ class CompanyEmailPatternCrawl:
         ''' '''
 
     def _persist(self, data, source=""):
+        if type(data) is str: 
+            print "NO RESULTS TO PERSIST FROM ", source
         print source
         print data
         data['source'] = [source for i in range(data.shape[0])]
