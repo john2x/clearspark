@@ -20,16 +20,15 @@ class Sources:
       second = Google().ec2_search(qry_2)
       first = first[first.link_span.str.contains('@')]
       second = second[second.link_span.str.contains('@')]
-      print first
-      print second
-      # persist
+      emails = [[email for email in span.split() if "@" in email] 
+                for span in first.append(second).link_span]
+      emails = pd.Series(emails).sum()
+      print emails
+      # scrape all emails
+      # fullcontact / clearbit to figure out who it is
 
       q.enqueue(Sources()._google_cache_search, domain, first.link)
       q.enqueue(Sources()._google_cache_search, domain, second.link)
-      # scrape all emails
-      # fullcontact / clearbit to figure out who it is
-      # start google cache search
-      # return results
 
     def _google_cache_search(self, domain, links):
         all_emails = []
