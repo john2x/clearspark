@@ -87,6 +87,7 @@ class Sources:
         emails = filter(None, results['contacts'].values())
         emails = pd.DataFrame(emails)
         emails['domain'] = domain
+        # guess email patterns
         CompanyEmailPatternCrawl()._persist("Whois Search", emails)
 
     def _press_search(self, domain):
@@ -119,7 +120,7 @@ class Sources:
         test.ix[test.link_span.str.contains('@'), 'emails'] = res
         test = test[test.emails.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
-        CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
+        CompanyEmailPatternCrawl()._persist("Zoominfo Search", test)
 
     def _mx_server_check(self, name, domain):
         print "START MX SERVER CHECK"
