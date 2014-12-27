@@ -5,6 +5,7 @@ import pythonwhois
 from smtp import SMTP
 from bs4 import BeautifulSoup
 from press_sources import BusinessWire
+import requests
 from press_sources import PRNewsWire
 
 from rq import Queue
@@ -42,7 +43,7 @@ class Sources:
                 for span in first.append(second).link_span]
       emails = pd.Series(emails).sum()
       emails = self._research_emails(emails)
-      CompanyEmailPatternCrawl()._persist(emails)
+      CompanyEmailPatternCrawl()._persist("Google Span Search", emails)
 
     def _research_emails(self, emails):
       for email in emails:
@@ -64,7 +65,7 @@ class Sources:
             emails = [word for word in text.split() if "@"+domain in word]
             all_emails = all_emails + emails + links
         emails = self._research_emails(all_emails)
-        CompanyEmailPatternCrawl()._persist(emails)
+        CompanyEmailPatternCrawl()._persist("Google Cache Search", emails)
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
@@ -73,7 +74,7 @@ class Sources:
         results = filter(None, results['contacts'].values())
         results = pd.DataFrame(results)
         results['domain'] = domain
-        CompanyEmailPatternCrawl()._persist(emails)
+        CompanyEmailPatternCrawl()._persist("Whois Search", emails)
 
     def _press_search(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
@@ -94,7 +95,7 @@ class Sources:
         bw = pd.concat([BusinessWire()._email(domain, link) for link in bw.link])
         pw = pd.concat([PRNewsWire()._email(domain, link) for link in pw.link])
         emails = bw.append(pw)
-        CompanyEmailPatternCrawl()._persist(emails)
+        CompanyEmailPatternCrawl()._persist("Press Search", emails)
 
     def _zoominfo_search(self, domain):
         qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)
@@ -105,7 +106,7 @@ class Sources:
         test.ix[test.link_span.str.contains('@'), 'emails'] = res
         test = test[test.emails.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
-        CompanyEmailPatternCrawl()._persist(emails)
+        CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
 
     def _mx_server_check(self, name, domain):
         print "START MX SERVER CHECK"
