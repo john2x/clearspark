@@ -46,11 +46,18 @@ class Sources:
       CompanyEmailPatternCrawl()._persist("Google Span Search", emails)
 
     def _research_emails(self, emails):
+      _emails = pd.DataFrame()
       for email in emails:
-          person = FullContact()._person_from_email(email)
+          full_name = FullContact()._person_from_email(email)['fullName']
           if type(person) is str: continue
-          # find email pattern
-      return emails # must be dataframe
+          person = EmailGuessHelper()._name_to_email_variables(full_name)
+          person['domain'] = email.split('@')[-1]
+          for pattern in EmailGuessHelper()._patterns():
+              _email = pattern.format(**person)
+              if email.lower() == _email.lower(): break
+          person['pattern'], person['email'] = pattern, email
+          _emails = _emails.append(person, ignore_index=True)
+      return _emails #must be dataframe
 
     def _google_cache_search(self, domain, links):
         all_emails = []

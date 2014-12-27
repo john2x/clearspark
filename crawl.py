@@ -15,5 +15,6 @@ class CompanyEmailPatternCrawl:
     def _bulk_persist(self, data):
         ''' '''
 
-    def _persist(self, data):
+    def _persist(self, data, source=""):
+        print source
         print data
