@@ -62,9 +62,11 @@ class Yelp:
         phone = BeautifulSoup(r).find('span', {'itemprop':'telephone'})
         website = BeautifulSoup(r).find('div', {'class':'biz-website'}).find('a')
 
-        _vars = [company_name, industry, address, city, state, postal_code, phone, website]
+        domain = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
+
+        _vars = [company_name, industry, address, city, state, postal_code, phone, website, domain]
         _vars = [var.text.strip() if var else "" for var in _vars]
-        labels = ["company_name","industry","address","city","state","postal_code","phone","website"]
+        labels = ["company_name","industry","address","city","state","postal_code","phone","website", "domain"]
         return dict(zip(labels, _vars))
 
 class YellowPages:
