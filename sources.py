@@ -8,6 +8,7 @@ from press_sources import BusinessWire
 import requests
 from press_sources import PRNewsWire
 from crawl import CompanyEmailPatternCrawl
+from email_guess_helper import EmailGuessHelper
 
 from rq import Queue
 from worker import conn
