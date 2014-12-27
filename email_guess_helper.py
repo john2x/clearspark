@@ -25,11 +25,11 @@ class EmailGuessHelper:
         cols = ['first_initial','last_initial','first_name','last_name','name']
         return dict(zip(cols,vals))
 
-    def _find_email_pattern(self, email, domain, name):
+    def _find_email_pattern(self, name, email):
         ''' Decifer Email Pattern '''
         patterns = pd.DataFrame()
-        person = self._name_to_email_variables(name)
-        person['domain'] = domain
+        person = self._name_to_email_variables(name.strip())
+        person['domain'] = email.strip().split('@')[-1]
         for pattern in self._patterns():
             _email = pattern.format(**person)
             if email.lower() != _email.lower(): continue
