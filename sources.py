@@ -21,6 +21,7 @@ class FullContact:
         while r.status_code == 202:
             time.sleep(1)
             r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
+            print r.status_code, r.json()
         if r.status_code == 200:
             return r.json()
         else:
@@ -49,6 +50,7 @@ class Sources:
     def _research_emails(self, emails):
       _emails = pd.DataFrame()
       for email in emails:
+          print email
           full_name = FullContact()._person_from_email(email)
           print full_name
           if type(full_name) is str: continue
@@ -79,11 +81,11 @@ class Sources:
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
-        try: results = pythonwhois.get_whois(domain)
+        try: emails = pythonwhois.get_whois(domain)
         except: return pd.DataFrame()
-        results = filter(None, results['contacts'].values())
-        results = pd.DataFrame(results)
-        results['domain'] = domain
+        emails = filter(None, results['contacts'].values())
+        emails = pd.DataFrame(emails)
+        emails['domain'] = domain
         CompanyEmailPatternCrawl()._persist("Whois Search", emails)
 
     def _press_search(self, domain):
