@@ -10,30 +10,11 @@ from press_sources import PRNewsWire
 from crawl import CompanyEmailPatternCrawl
 from email_guess_helper import EmailGuessHelper
 import time
+from full_contact import FullContact
 
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
-
-#class EmailSources:
-class FullContact:
-    def _person_from_email(self, email):
-        data = {'email':email, 'apiKey':'edbdfddbff83c6d8'}
-        r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
-        print r.status_code, r.json()
-        while r.status_code == 202:
-            time.sleep(1)
-            r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
-            print r.status_code, r.json()
-        if r.status_code == 200:
-            return r.json()
-        else:
-            # if not_found: search google for it 
-            return "not found"
-    def _normalize_name(self, name):
-        data = {'q':name, 'apiKey':'edbdfddbff83c6d8'}
-        r = requests.get('https://api.fullcontact.com/v2/name/normalizer.json',params=data)
-        return r.json()['fullName']
 
 class Sources:
     def _google_span_search(self, domain):
@@ -94,12 +75,10 @@ class Sources:
         emails = filter(None, results['contacts'].values())
         emails = pd.DataFrame(emails)
         emails['domain'] = domain
-        # guess email patterns
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row.name)
             pattern = EmailGuessHelper()._find_email_pattern(name, row.email)
             emails.ix[index, 'pattern'] = pattern
-            
         CompanyEmailPatternCrawl()._persist("whois_search", emails)
 
     def _press_search(self, domain):
