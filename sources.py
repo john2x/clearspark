@@ -91,7 +91,7 @@ class Sources:
         emails['domain'] = domain
         # guess email patterns
         for index, row in emails.iterrows():
-            pattern = EmailGuessHelper()._find_email_pattern(row.name, email)
+            pattern = EmailGuessHelper()._find_email_pattern(row.name, row.email)
             emails.ix[index, 'pattern'] = pattern
             
         CompanyEmailPatternCrawl()._persist("Whois Search", emails)
