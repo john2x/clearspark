@@ -21,26 +21,21 @@ class Sources:
       second = second[second.link_span.str.contains('@')]
       print first
       print second
-
       # persist
 
-      while not RQueue()._has_completed(queue): 
-          print "Queue Check"
-          results = RQueue()._results(queue)
-          self._google_cache_search(domain, results.link_span)
-          # scrape all emails
-          # fullcontact / clearbit to figure out who it is
-          # start google cache search
-          return results
+      q.enqueue(Sources()._google_cache_search, domain, first.link)
+      q.enqueue(Sources()._google_cache_search, domain, second.link)
+      # scrape all emails
+      # fullcontact / clearbit to figure out who it is
+      # start google cache search
+      return results
 
     def _google_cache_search(self, domain, links):
         for link in links:
-            job = q.enqueue(Google()._ec2_cache, link)
-            job.meta['domain'] = domain; job.meta['google-cache-'+domain] =True 
-            job.save()
+            text = BeautifulSoup(Google()._ec2_cache(link)).text
+            emails = [word if "@" in word for word in text.split()]
+            print emails
         # fullcontact / clearbit to figure out who email is
-        queue = "google-cache-"+domain
-        while not Queue()._has_completed(queue): return Queue()._results(queue)
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
