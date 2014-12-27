@@ -32,11 +32,13 @@ class Sources:
       #return results
 
     def _google_cache_search(self, domain, links):
+        all_emails = []
         for link in links:
             if "lead411" in link: continue
             text = BeautifulSoup(Google().ec2_cache(link)).text
             emails = [word for word in text.split() if "@"+domain in word]
-            print emails
+            all_emails = all_emails + emails
+        print all_emails
         # fullcontact / clearbit to figure out who email is
 
     def _whois_search(self, domain):
