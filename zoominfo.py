@@ -95,11 +95,10 @@ class Zoominfo:
         url = google_df.ix[0].link
         print "ZOOMINFO URL", url
         html = Google().ec2_cache(url)
-        print html
         html = requests.get(url).text
         html = self._remove_non_ascii(html)
-        print html
         zoominfo = self._cache_html_to_df(html)
+        print zoominfo
         CompanyInfoCrawl()._persist(zoominfo)
 
     def _remove_non_ascii(self, text):
