@@ -22,7 +22,7 @@ class EmailGuessHelper:
         first = name.split(' ')[0]
         last = name.split(' ')[-1]
         vals = [fi, li, first, last, name]
-        cols = ['fi','li','first','last','name']
+        cols = ['fi','li','first_name','last_name','name']
         return dict(zip(cols,vals))
 
     def _find_email_pattern(self, domain, people):
