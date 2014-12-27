@@ -50,23 +50,21 @@ class Sources:
       CompanyEmailPatternCrawl()._persist("Google Span Search", emails)
 
     def _research_emails(self, emails):
-      _emails = pd.DataFrame()
-      for email in emails:
-          # if -, ., _
-          print email
-          # clean emails
-          full_name = FullContact()._person_from_email(email)
-          print full_name
-          if type(full_name) is str: continue
-          full_name = full_name['contactInfo']['fullName']
-          person = EmailGuessHelper()._name_to_email_variables(full_name)
-          person['domain'] = email.split('@')[-1]
-          for pattern in EmailGuessHelper()._patterns():
-              _email = pattern.format(**person)
-              if email.lower() == _email.lower(): break
-          person['pattern'], person['email'] = pattern, email
-          _emails = _emails.append(person, ignore_index=True)
-      return _emails
+        _emails = pd.DataFrame()
+        for email in emails:
+            # if -, ., _       | clean emails
+            full_name = FullContact()._person_from_email(email)
+            print email, full_name
+            if type(full_name) is str: continue
+            full_name = full_name['contactInfo']['fullName']
+            person = EmailGuessHelper()._name_to_email_variables(full_name)
+            person['domain'] = email.split('@')[-1]
+            for pattern in EmailGuessHelper()._patterns():
+                _email = pattern.format(**person)
+                if email.lower() == _email.lower(): break
+            person['pattern'], person['email'] = pattern, email
+            _emails = _emails.append(person, ignore_index=True)
+        return _emails
 
     def _google_cache_search(self, domain, links):
         all_emails = []
@@ -75,7 +73,7 @@ class Sources:
             html = Google().ec2_cache(link)
             links = BeautifulSoup(html).find_all('a')
             links = [link['href'] for link in links if 'href' in link.attrs] 
-            links = [link.split('mailto:')[-1].split(domain)[0]
+            links = [link.split('mailto:')[-1]
                      for link in links if 'mailto:' in link and "@"+domain in link]
             text = BeautifulSoup(html).text
             emails = [word for word in text.split() if "@"+domain in word]
@@ -91,6 +89,10 @@ class Sources:
         emails = pd.DataFrame(emails)
         emails['domain'] = domain
         # guess email patterns
+        for index, row in emails.iterrows():
+            pattern = EmailGuessHelper()._find_email_pattern(row.name, email)
+            emails.ix[index, 'pattern'] = pattern
+            
         CompanyEmailPatternCrawl()._persist("Whois Search", emails)
 
     def _press_search(self, domain):

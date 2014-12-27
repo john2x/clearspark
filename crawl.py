@@ -26,7 +26,7 @@ class CompanyEmailPatternCrawl:
 
     def _persist(self, data, source=""):
         print source
-        data['source'] = source
         print data
+        data['source'] = [source for i in range(data.shape[0])]
         for index, row in data.iterrows():
             print Parse().create('CompanyEmailPatternCrawl', row.to_dict()).json()

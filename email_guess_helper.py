@@ -41,6 +41,22 @@ class EmailGuessHelper:
                                             ignore_index=True)
         return patterns
 
+    def _bulk_find_email_pattern(self, domain, people):
+        ''' Decifer Email Pattern '''
+        patterns = pd.DataFrame()
+        for index, person in people.iterrows():
+            for pattern in self._patterns():
+                email = pattern.format(**person)
+                if person['email'].lower() != email.lower(): continue
+                info = [pattern.strip(), 
+                        person['domain'].strip(), 
+                        person['email'].lower().strip(), 
+                        person['name'].title().strip()]
+                columns = ['pattern','domain','email','name']
+                patterns = patterns.append(dict(zip(columns, info)), 
+                                            ignore_index=True)
+        return patterns
+
     def _patterns(self):
         return ['{first_name}@{domain}', '{last_name}@{domain}',
                 '{first_initial}@{domain}', '{last_initial}@{domain}',
