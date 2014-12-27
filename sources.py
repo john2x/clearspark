@@ -48,7 +48,7 @@ class Sources:
                 for span in first.append(second).link_span]
       emails = pd.Series(emails).sum()
       emails = self._research_emails(emails)
-      CompanyEmailPatternCrawl()._persist("Google Span Search", emails)
+      CompanyEmailPatternCrawl()._persist("google_span_search", emails)
 
     def _research_emails(self, emails):
         _emails = pd.DataFrame()
@@ -62,9 +62,9 @@ class Sources:
             person['domain'] = email.split('@')[-1]
             for pattern in EmailGuessHelper()._patterns():
                 _email = pattern.format(**person)
-                if email.lower() == _email.lower(): break
-            person['pattern'], person['email'] = pattern, email
-            _emails = _emails.append(person, ignore_index=True)
+                if email.lower() == _email.lower():
+                    person['pattern'], person['email'] = pattern, email
+                    _emails = _emails.append(person, ignore_index=True)
         return _emails
 
     def _google_cache_search(self, domain, links):
@@ -80,7 +80,7 @@ class Sources:
             emails = [word for word in text.split() if "@"+domain in word]
             all_emails = all_emails + emails + links
         emails = self._research_emails(all_emails)
-        CompanyEmailPatternCrawl()._persist("Google Cache Search", emails)
+        CompanyEmailPatternCrawl()._persist("google_cache_search", emails)
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
@@ -94,7 +94,7 @@ class Sources:
             pattern = EmailGuessHelper()._find_email_pattern(row.name, row.email)
             emails.ix[index, 'pattern'] = pattern
             
-        CompanyEmailPatternCrawl()._persist("Whois Search", emails)
+        CompanyEmailPatternCrawl()._persist("whois_search", emails)
 
     def _press_search(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
@@ -126,6 +126,7 @@ class Sources:
         test.ix[test.link_span.str.contains('@'), 'emails'] = res
         test = test[test.emails.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
+        # decifer email pattern
         CompanyEmailPatternCrawl()._persist("Zoominfo Search", test)
 
     def _mx_server_check(self, name, domain):
