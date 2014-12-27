@@ -74,8 +74,8 @@ class EmailGuess:
         print len(q.jobs)
 
     def search_sources(self, domain, name=""):
-        q.enqueue(Sources()._google_span_search, domain)
         q.enqueue(Sources()._whois_search, domain)
+        q.enqueue(Sources()._google_span_search, domain)
         q.enqueue(Sources()._press_search, domain)
         q.enqueue(Sources()._zoominfo_harvest, domain)
         if name != "":

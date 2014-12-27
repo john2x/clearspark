@@ -15,9 +15,15 @@ class Sources:
       qry_1 = '("media contact" OR "media contacts" OR "press release") "@{0}"'
       qry_1 = qry_1.format(domain)
       qry_2 = '"email * * {0}"'.format(domain)
-      job_1 = q.enqueue(Google().ec2_search, qry_1)
-      job_2 = q.enqueue(Google().ec2_search, qry_2)
+      first = Google().ec2_search(qry_1)
+      second = Google().ec2_search(qry_2)
+      first = first[first.link_span.str.contains('@')]
+      second = second[first.link_span.str.contains('@')]
+      print first
+      print second
+
       # persist
+
       while not RQueue()._has_completed(queue): 
           print "Queue Check"
           results = RQueue()._results(queue)
