@@ -128,6 +128,10 @@ def find_new_email_address_webhook():
 @app.route('/v1/new_emails', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def email_research():
+    website = request.args['domain']
+    domain = "{}.{}".format(tldextract.extract(website).domain,
+                            tldextract.extract(website).tld)
+    name = request.args['name'] if "name" in request.args.keys() else ""
     q.enqueue(EmailGuess().search_sources, domain, name, timeout=6000)
     return {'started': True}
 
