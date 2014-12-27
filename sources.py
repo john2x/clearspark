@@ -18,6 +18,10 @@ class Sources:
       qry_2 = '"email * * {0}"'.format(domain)
       first = Google().ec2_search(qry_1)
       second = Google().ec2_search(qry_2)
+
+      q.enqueue(Sources()._google_cache_search, domain, first.link)
+      q.enqueue(Sources()._google_cache_search, domain, second.link)
+
       first = first[first.link_span.str.contains('@')]
       second = second[second.link_span.str.contains('@')]
       emails = [[email for email in span.split() if "@" in email] 
@@ -27,8 +31,6 @@ class Sources:
       # scrape all emails
       # fullcontact / clearbit to figure out who it is
 
-      q.enqueue(Sources()._google_cache_search, domain, first.link)
-      q.enqueue(Sources()._google_cache_search, domain, second.link)
 
     def _google_cache_search(self, domain, links):
         all_emails = []
@@ -40,7 +42,7 @@ class Sources:
             links = [link.split('mailto:')[-1].split(domain)[0]
                      for link in links if 'mailto:' in link and "@"+domain in link]
             text = BeautifulSoup(html).text
-            emails = [word.split(domain)[0] 
+            emails = [word
                       for word in text.split() if "@"+domain in word]
             all_emails = all_emails + emails + links
         print all_emails
@@ -85,7 +87,7 @@ class Sources:
         # persist to parse
         return results
         
-    def _press_sources(self, domain):
+    def _press_search(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
         bw = Google().search('"{0}" site:businesswire.com'.format(domain))
         job_queue_lol = objectId+str(arrow.now().timestamp)
