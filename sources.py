@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from press_sources import BusinessWire
 import requests
 from press_sources import PRNewsWire
+from crawl import CompanyEmailPatternCrawl
 
 from rq import Queue
 from worker import conn
@@ -48,8 +49,10 @@ class Sources:
     def _research_emails(self, emails):
       _emails = pd.DataFrame()
       for email in emails:
-          full_name = FullContact()._person_from_email(email)['fullName']
-          if type(person) is str: continue
+          full_name = FullContact()._person_from_email(email)
+          print full_name
+          if type(full_name) is str: continue
+          full_name = full_name['contactInfo']['fullName']
           person = EmailGuessHelper()._name_to_email_variables(full_name)
           person['domain'] = email.split('@')[-1]
           for pattern in EmailGuessHelper()._patterns():

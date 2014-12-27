@@ -1,3 +1,11 @@
+from splinter import Browser
+from parse import Parse
+from google import Google
+import json
+import requests
+from bs4 import BeautifulSoup
+import tldextract
+
 class CompanyInfoCrawl:
     def _persist(self, data):
         crawl = Parse().create('CompanyInfoCrawl', data).json()
