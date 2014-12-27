@@ -20,6 +20,7 @@ import pandas as pd
 from elasticsearch import Elasticsearch
 from datetime import datetime
 import json
+from crawl import CompanyEmailPatternCrawl
 
 from rq import Queue
 from worker import conn
@@ -29,7 +30,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class PRNewsWire:
-    ''' '''
     def _extract_contacts(self, html):
         names, emails, contact = [], [], BeautifulSoup(html)
         for paragraph in contact.findAll('p',attrs={"itemprop" : "articleBody"}):
@@ -43,67 +43,40 @@ class PRNewsWire:
         return pd.DataFrame(results)
 
     def _find_emails(self, domain, link, job_queue_lol):
-        ''' PR Newswire '''
-        print "PRNewsWire"
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
         if not contacts.empty: 
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            res         = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
-            upload      = EmailGuessHelper()._score(res)
-            EmailGuessHelper()._persist_email_guess(domain, upload)  
+            contacts = EmailGuessHelper()._add_email_variables(contacts)
+            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
+        CompanyEmailPatternCrawl()._persist(contacts)
         else:
             print "no prospects found"
 
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            r = parse.get('CompanyEmailPattern', 
-                          {'where': json.dumps({"domain":domain})})
-            if r.json()['results'] == []:
-                print "what is being printed?", domain, 'PRNewsWire'
-                print r.json()
-                vals = {'domain':domain, 'company_email_pattern': []}
-                print parse.create('CompanyEmailPattern', vals)
-        #return upload
 
     def _email(self, domain, link):
-        ''' PR Newswire '''
-        print "PRNewsWire"
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
         if not contacts.empty: 
             logger.info(contacts)
-            contacts    = contacts[contacts.domain == domain]
-            contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(contacts)
-        else:
-            contacts = pd.DataFrame()
-        print contacts
+            contacts = contacts[contacts.domain == domain]
+            contacts = contacts.drop_duplicates('domain')
+            contacts = EmailGuessHelper()._add_email_variables(contacts)
+            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
+        CompanyEmailPatternCrawl()._persist(contacts)
         return contacts
 
     def _email_webhook(self, domain, link, job_queue_lol, objectId):
-        ''' PR Newswire '''
-        print "PRNewsWire"
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
-        contact = {}
         if not contacts.empty: 
             logger.info(contacts)
-            contacts    = contacts[contacts.domain == domain]
-            contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(contacts)
-            if not contacts.empty:
-                contact     = contacts.ix[contacts.index[0]].to_dict()
+            contacts = contacts[contacts.domain == domain]
+            contacts = contacts.drop_duplicates('domain')
+            contacts = EmailGuessHelper()._add_email_variables(contacts)
+            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
         else:
             print "no prospects found"
-
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            print "Final Contact", contact
-            logger.info(contact)
-            print Parse().update('Prospect/'+objectId, contact, True).json()
+        CompanyEmailPatternCrawl()._persist(contacts)
 
 class BusinessWire:
     def _extract_contacts(self, html):
@@ -123,20 +96,11 @@ class BusinessWire:
         parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
         if not contacts.empty: 
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            res         = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
-            upload      = EmailGuessHelper()._score(res)
-            EmailGuessHelper()._persist_email_guess(domain, upload)  
+            contacts = EmailGuessHelper()._add_email_variables(contacts)
+            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
         else:
             print "no prospects found"
-
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            r = parse.get('CompanyEmailPattern', {'where': json.dumps({'domain':domain})})
-            if r.json()['results'] == []:
-                print "what is being printed?", domain, 'BusinessWire'
-                print r.json()
-                vals = {'domain':domain, 'company_email_pattern':"not found"}
-                print parse.create('CompanyEmailPattern', vals)
+        CompanyEmailPatternCrawl()._persist(contacts)
         return upload
 
     def _email(self, domain, link):
@@ -144,14 +108,11 @@ class BusinessWire:
         contacts    = BusinessWire()._extract_contacts(html)
         if not contacts.empty: 
             logger.info(contacts)
-            contacts    = contacts[contacts.domain == domain]
-            contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(contacts)
-        else:
-            contacts = pd.DataFrame()
-        print contacts
+            contacts = contacts[contacts.domain == domain]
+            contacts = contacts.drop_duplicates('domain')
+            contacts = EmailGuessHelper()._add_email_variables(contacts)
+            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
+        CompanyEmailPatternCrawl()._persist(contacts)
         return contacts
 
     def _email_webhook(self, domain, link, job_queue_lol, objectId):
@@ -159,35 +120,13 @@ class BusinessWire:
         print "BusinessWire"
         parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
-        contact = {}
         if not contacts.empty: 
             logger.info(contacts)
-            contacts    = contacts[contacts.domain == domain]
-            contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
-            contacts    = EmailGuessHelper()._score(contacts)
-            if not contacts.empty:
-                contact     = contacts.ix[contacts.index[0]].to_dict()
-            #EmailGuessHelper()._persist_email_guess(domain, upload)  
+            contacts = contacts[contacts.domain == domain]
+            contacts = contacts.drop_duplicates('domain')
+            contacts = EmailGuessHelper()._add_email_variables(contacts)
+            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
+        CompanyEmailPatternCrawl()._persist(contacts)
         else:
             print "no prospects found"
             logger.info("no prospects found")
-
-        if QueueHelper()._is_done(job_queue_lol) and job_queue_lol:
-            print "FINAL CONTACT", contact
-            logger.info(contact)
-            # update prospect with actual email
-            print Parse().update('Prospect/'+objectId, contact, True).json()
-
-
-class QueueHelper:
-    def _is_done(self, profile_id):
-        profile_jobs = [job.meta for job in q.jobs 
-                        if 'profile_id1' in job.meta.keys()]
-        last_one     = [job for job in profile_jobs 
-                        if job['profile_id1'] == profile_id]
-        print "NUMBER OF JOBS", len(last_one)
-        return len(last_one) == 0
-
-
