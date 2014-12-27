@@ -90,7 +90,7 @@ class Sources:
     def _press_search(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
         bw = Google().search('"{0}" site:businesswire.com'.format(domain))
-        job_queue_lol = objectId+str(arrow.now().timestamp)
+        #job_queue_lol = objectId+str(arrow.now().timestamp)
         pw = pw if not pw.empty else pd.DataFrame(columns=["link"])
         bw = pw if not bw.empty else pd.DataFrame(columns=["link"])
         queue = "press-check-"+domain
