@@ -78,7 +78,7 @@ class PRNewsWire:
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
         else:
-            contacts = "no prospects found"
+            contacts = pd.DataFrame()
         print contacts
         return contacts
 
@@ -150,7 +150,7 @@ class BusinessWire:
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
         else:
-            contacts = "no prospects found"
+            contacts = pd.DataFrame()
         print contacts
         return contacts
 
