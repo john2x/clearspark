@@ -117,13 +117,10 @@ class BusinessWire:
         print "BusinessWire"
         parse, html, upload = Parse(), requests.get(link).text, ""
         contacts    = BusinessWire()._extract_contacts(html)
-        if not contacts.empty: 
-            logger.info(contacts)
-            contacts = contacts[contacts.domain == domain]
-            contacts = contacts.drop_duplicates('domain')
-            contacts = EmailGuessHelper()._add_email_variables(contacts)
-            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
+        if contacts.empty: return contacts
+        logger.info(contacts)
+        contacts = contacts[contacts.domain == domain]
+        contacts = contacts.drop_duplicates('domain')
+        contacts = EmailGuessHelper()._add_email_variables(contacts)
+        contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
         CompanyEmailPatternCrawl()._persist(contacts)
-        else:
-            print "no prospects found"
-            logger.info("no prospects found")
