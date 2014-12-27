@@ -29,17 +29,23 @@ class Sources:
       # scrape all emails
       # fullcontact / clearbit to figure out who it is
       # start google cache search
-      #return results
+      # return results
 
     def _google_cache_search(self, domain, links):
         all_emails = []
         for link in links:
             if "lead411" in link: continue
-            text = BeautifulSoup(Google().ec2_cache(link)).text
+            html = Google().ec2_cache(link)
+            links = BeautifulSoup(html).find_all('a')
+            links = [link['href'] for link in links 
+                      if 'mailto:' in link['href'] and domain in link['href']]
+            text = BeautifulSoup(html).text
             emails = [word for word in text.split() if "@"+domain in word]
-            all_emails = all_emails + emails
+            all_emails = all_emails + emails + links
         print all_emails
         # fullcontact / clearbit to figure out who email is
+        # guess email pattern
+
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
@@ -85,7 +91,7 @@ class Sources:
         pw = pw if not pw.empty else pd.DataFrame(columns=["link"])
         bw = pw if not bw.empty else pd.DataFrame(columns=["link"])
         queue = "press-check-"+domain
-
+        '''
         for link in pw.link: 
             job = q.enqueue(PRNewsWire()._email, domain, link, timeout=3600)
             job.meta[queue] = True; job.save()
@@ -93,18 +99,14 @@ class Sources:
         for link in bw.link: 
             job = q.enqueue(BusinessWire()._email, domain, link, timeout=3600)
             job.meta[queue] = True; job.save()
+        '''
 
-        while not Queue()._has_completed(queue): return Queue()._results(queue)
+        bw = pd.concat([BusinessWire()._email(domain, link) for link in bw.link])
+        pw = pd.concat([PRNewsWire()._email(domain, link) for link in pw.link])
 
-    def _cache_email_extract(self, url, className, domain):
-        html = Google().cache(url)
-        links = BeautifulSoup(html).find_all('a')
-        links = [link['href'] for link in links if 'mailto:' in link]
-        emails = BeautifulSoup(html).text
-        emails = [word for word in text.split() if "@" in word]
-        if df.empty: return 0
-        df['domain'] = domain
-        obj = {"url":url, "domain":domain, "emails": emails, "links": links}
+        print bw.append(pw)
+
+
 
     def _zoominfo_harvest(self, domain):
         qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)
@@ -115,6 +117,7 @@ class Sources:
         test.ix[test.link_span.str.contains('@'), 'emails'] = res
         test = test[test.emails.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
+        print test
         #while not RQueue()._has_completed(queue): pass
 
     #TODO - finish integrating these data sources
