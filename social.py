@@ -4,6 +4,7 @@ from google import Google
 import json
 import requests
 from bs4 import BeautifulSoup
+import tldextract
 
 class Twitter:
     def _company_profile(self, company_name, domain):
