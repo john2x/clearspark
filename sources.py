@@ -30,6 +30,10 @@ class FullContact:
         else:
             # if not_found: search google for it 
             return "not found"
+    def _normalize_name(self, name):
+        data = {'q':name, 'apiKey':'edbdfddbff83c6d8'}
+        r = requests.get('https://api.fullcontact.com/v2/name/normalizer.json',params=data)
+        return r.json()['fullName']
 
 class Sources:
     def _google_span_search(self, domain):
@@ -92,6 +96,7 @@ class Sources:
         emails['domain'] = domain
         # guess email patterns
         for index, row in emails.iterrows():
+            name = FullContact()._normalize_name(row.name)
             pattern = EmailGuessHelper()._find_email_pattern(row.name, row.email)
             emails.ix[index, 'pattern'] = pattern
             

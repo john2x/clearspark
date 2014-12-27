@@ -49,7 +49,7 @@ class PRNewsWire:
         contacts    = self._extract_contacts(html)
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            res         = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
             upload      = EmailGuessHelper()._score(res)
             EmailGuessHelper()._persist_email_guess(domain, upload)  
         else:
@@ -75,7 +75,7 @@ class PRNewsWire:
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
         else:
             contacts = pd.DataFrame()
@@ -93,7 +93,7 @@ class PRNewsWire:
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
             if not contacts.empty:
                 contact     = contacts.ix[contacts.index[0]].to_dict()
@@ -124,7 +124,7 @@ class BusinessWire:
         contacts    = BusinessWire()._extract_contacts(html)
         if not contacts.empty: 
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            res         = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
             upload      = EmailGuessHelper()._score(res)
             EmailGuessHelper()._persist_email_guess(domain, upload)  
         else:
@@ -147,7 +147,7 @@ class BusinessWire:
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
         else:
             contacts = pd.DataFrame()
@@ -165,7 +165,7 @@ class BusinessWire:
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
             contacts    = EmailGuessHelper()._add_email_variables(contacts)
-            contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
+            contacts    = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
             if not contacts.empty:
                 contact     = contacts.ix[contacts.index[0]].to_dict()
