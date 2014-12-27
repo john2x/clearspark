@@ -37,7 +37,8 @@ class Sources:
             html = Google().ec2_cache(link)
             links = BeautifulSoup(html).find_all('a')
             links = [link['href'] for link in links if 'href' in link.attrs] 
-            links = [link for link in links if 'mailto:' in link and domain in link]
+            links = [link.split('mailto:')[-1] 
+                     for link in links if 'mailto:' in link and domain in link]
             text = BeautifulSoup(html).text
             emails = [word for word in text.split() if "@"+domain in word]
             all_emails = all_emails + emails + links
