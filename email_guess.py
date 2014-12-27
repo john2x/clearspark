@@ -77,6 +77,8 @@ class EmailGuess:
         q.enqueue(Sources()._whois_search, domain)
         q.enqueue(Sources()._google_span_search, domain)
         q.enqueue(Sources()._press_search, domain)
-        q.enqueue(Sources()._zoominfo_harvest, domain)
+        q.enqueue(Sources()._zoominfo_search, domain)
+        #q.enqueue(Sources()._jigsaw_search, domain)
         if name != "":
             q.enqueue(Sources()._mx_server_check, name, domain)
+            #q.enqueue(Sources()._linkedin_login_search, name, domain)

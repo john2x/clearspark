@@ -4,13 +4,27 @@ import pandas as pd
 import pythonwhois
 from smtp import SMTP
 from bs4 import BeautifulSoup
+from press_sources import BusinessWire
+from press_sources import PRNewsWire
 
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
 
-class Sources:
 #class EmailSources:
+class FullContact:
+    def _person_from_email(self, email):
+        data = {'email':email, 'apiKey':'edbdfddbff83c6d8'}
+        r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
+        while r.status_code == 202:
+            time.sleep(1)
+            r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            return "not found"
+
+class Sources:
     def _google_span_search(self, domain):
       queue = "google-span-"+domain
       qry_1 = '("media contact" OR "media contacts" OR "press release") "@{0}"'
@@ -27,10 +41,15 @@ class Sources:
       emails = [[email for email in span.split() if "@" in email] 
                 for span in first.append(second).link_span]
       emails = pd.Series(emails).sum()
-      print emails
-      # scrape all emails
-      # fullcontact / clearbit to figure out who it is
+      emails = self._research_emails(emails)
+      CompanyEmailPatternCrawl()._persist(emails)
 
+    def _research_emails(self, emails):
+      for email in emails:
+          person = FullContact()._person_from_email(email)
+          if type(person) is str: continue
+          # find email pattern
+      return emails # must be dataframe
 
     def _google_cache_search(self, domain, links):
         all_emails = []
@@ -42,13 +61,10 @@ class Sources:
             links = [link.split('mailto:')[-1].split(domain)[0]
                      for link in links if 'mailto:' in link and "@"+domain in link]
             text = BeautifulSoup(html).text
-            emails = [word
-                      for word in text.split() if "@"+domain in word]
+            emails = [word for word in text.split() if "@"+domain in word]
             all_emails = all_emails + emails + links
-        print all_emails
-        # fullcontact / clearbit to figure out who email is
-        # guess email pattern
-
+        emails = self._research_emails(all_emails)
+        CompanyEmailPatternCrawl()._persist(emails)
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
@@ -57,36 +73,8 @@ class Sources:
         results = filter(None, results['contacts'].values())
         results = pd.DataFrame(results)
         results['domain'] = domain
-        # persist
-        return results
+        CompanyEmailPatternCrawl()._persist(emails)
 
-    def _mx_server_check(self, name, domain):
-        print "START MX SERVER CHECK"
-        # get employees?
-        mx_servers = SMTP()._mx_servers(domain)
-        smtp = SMTP()._smtp_auth(mx_servers)
-        try: 
-            mx_servers = SMTP()._mx_servers(domain)
-            smtp = SMTP()._smtp_auth(mx_servers)
-        except: return pd.DataFrame()
-
-        prospect = EmailGuessHelper()._name_to_email_variables(name)
-        prospect['domain'] = domain
-        results = pd.DataFrame()
-        print prospect
-        for pattern in EmailPattern()._patterns():
-            print pattern
-            email = pattern.format(**prospect)
-            try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
-            except: continue
-            prospect['smtp_result'] = result[1]
-            print result
-            if 'OK' in result[1]: 
-                prospect['email'] = email
-                results = results.append(prospect, ignore_index=True)
-        # persist to parse
-        return results
-        
     def _press_search(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
         bw = Google().search('"{0}" site:businesswire.com'.format(domain))
@@ -103,15 +91,12 @@ class Sources:
             job = q.enqueue(BusinessWire()._email, domain, link, timeout=3600)
             job.meta[queue] = True; job.save()
         '''
-
         bw = pd.concat([BusinessWire()._email(domain, link) for link in bw.link])
         pw = pd.concat([PRNewsWire()._email(domain, link) for link in pw.link])
+        emails = bw.append(pw)
+        CompanyEmailPatternCrawl()._persist(emails)
 
-        print bw.append(pw)
-
-
-
-    def _zoominfo_harvest(self, domain):
+    def _zoominfo_search(self, domain):
         qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)
         queue = "zoominfo-check-"+domain
         test = Google().search(qry, 5)
@@ -120,17 +105,48 @@ class Sources:
         test.ix[test.link_span.str.contains('@'), 'emails'] = res
         test = test[test.emails.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
-        print test
-        #while not RQueue()._has_completed(queue): pass
+        CompanyEmailPatternCrawl()._persist(emails)
+
+    def _mx_server_check(self, name, domain):
+        print "START MX SERVER CHECK"
+        mx_servers = SMTP()._mx_servers(domain)
+        smtp = SMTP()._smtp_auth(mx_servers)
+        try: 
+            mx_servers = SMTP()._mx_servers(domain)
+            smtp = SMTP()._smtp_auth(mx_servers)
+        except: return pd.DataFrame()
+
+        prospect = EmailGuessHelper()._name_to_email_variables(name)
+        prospect['domain'] = domain
+        results = pd.DataFrame()
+        print prospect
+        for pattern in EmailPattern()._patterns():
+            email = pattern.format(**prospect)
+            try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
+            except: continue
+            prospect['smtp_result'] = result[1]
+            print result
+            if 'OK' in result[1]: 
+                prospect['email'] = email
+                results = results.append(prospect, ignore_index=True)
+        # persist to parse
+        return results
 
     #TODO - finish integrating these data sources
-    def data_com(self, domain):
-        ''' Check Rest API''' 
-        # data.com browser automation
+    def _linkedin_login_search(self, domain):
+        ''' linkedin login search '''
+
+    def _mass_linkedin_login_search(self, domain):
+        ''' get employees then linkedin login search '''
+
+    def _mass_mx_server_check(self, domain):
+        ''' get employees then mx server check '''
+
+    def _jigsaw_search(self, domain):
+        ''' data.com browser automation '''
         
     def _personal_mongo_check(self, domain):
         ''' Personal DB Check '''
 
-    def domain_harvest(self, domain):
-        ''' Figure Out Domain And Extract'''
-
+    def _domain_harvest(self, domain):
+        ''' Crawl Domain And Extract '''

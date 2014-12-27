@@ -12,7 +12,7 @@ import json
 from google import Google
 from bs4 import BeautifulSoup
 import string
-from social import CompanyInfoCrawl
+from crawl import CompanyInfoCrawl
 
 class Linkedin:
     def _parse_google_span_for_title_and_company(self, link_span):

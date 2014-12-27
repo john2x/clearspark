@@ -1,6 +1,18 @@
 # Scoring 
 
 class Score:
+    def _score(self, patterns):
+        ''' Old Scoring To Multiple Patterns '''
+        print "_score"
+        if patterns.shape[0] == 0:
+            return patterns
+        total = len(patterns.drop_duplicates().pattern)
+        values = patterns.drop_duplicates('name').pattern.value_counts()
+        upload = patterns.drop_duplicates('name')
+        upload['instances'] = [i for i in patterns.email.value_counts()]
+        upload['score'] = [int(float(i)/total*100) for i in values]
+        return upload
+
     def _email_pattern(self, data):
         ''' Score email pattern based on number of occurrences '''
         domain = data["domain"]

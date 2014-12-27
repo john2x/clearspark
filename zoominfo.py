@@ -6,7 +6,7 @@ import difflib
 import fuzzywuzzy
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
-from social import CompanyInfoCrawl
+from crawl import CompanyInfoCrawl
 from google import Google
 import requests
 import tldextract
