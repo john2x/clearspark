@@ -79,6 +79,7 @@ class PRNewsWire:
             contacts    = EmailGuessHelper()._score(contacts)
         else:
             contacts = "no prospects found"
+        print contacts
         return contacts
 
     def _email_webhook(self, domain, link, job_queue_lol, objectId):
@@ -150,6 +151,7 @@ class BusinessWire:
             contacts    = EmailGuessHelper()._score(contacts)
         else:
             contacts = "no prospects found"
+        print contacts
         return contacts
 
     def _email_webhook(self, domain, link, job_queue_lol, objectId):
