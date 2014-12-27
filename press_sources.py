@@ -45,13 +45,10 @@ class PRNewsWire:
     def _find_emails(self, domain, link, job_queue_lol):
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
-        if not contacts.empty: 
-            contacts = EmailGuessHelper()._add_email_variables(contacts)
-            contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
+        if contacts.empty: return contacts
+        contacts = EmailGuessHelper()._add_email_variables(contacts)
+        contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
         CompanyEmailPatternCrawl()._persist(contacts)
-        else:
-            print "no prospects found"
-
 
     def _email(self, domain, link):
         parse, html = Parse(), requests.get(link).text
