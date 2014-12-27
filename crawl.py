@@ -32,4 +32,6 @@ class CompanyEmailPatternCrawl:
         print data
         data['source'] = [source for i in range(data.shape[0])]
         for index, row in data.iterrows():
-            print Parse().create('CompanyEmailPatternCrawl', row.to_dict()).json()
+            print row.to_dict()
+            r  = Parse().create('CompanyEmailPatternCrawl', row.to_dict()).json()
+            print r

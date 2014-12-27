@@ -28,6 +28,7 @@ class FullContact:
         if r.status_code == 200:
             return r.json()
         else:
+            # if not_found: search google for it 
             return "not found"
 
 class Sources:
