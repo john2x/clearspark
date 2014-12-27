@@ -18,7 +18,7 @@ class Sources:
       first = Google().ec2_search(qry_1)
       second = Google().ec2_search(qry_2)
       first = first[first.link_span.str.contains('@')]
-      second = second[first.link_span.str.contains('@')]
+      second = second[second.link_span.str.contains('@')]
       print first
       print second
 
