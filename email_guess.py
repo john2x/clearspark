@@ -74,34 +74,9 @@ class EmailGuess:
         print len(q.jobs)
 
     def search_sources(self, domain, name=""):
-        #job_1 = q.enqueue(Sources()._google_span_search, domain)
-        job_2 = q.enqueue(Sources()._mx_server_check, name, domain)
-        #job_3 = q.enqueue(Sources()._whois_search, domain)
-        #job_4 = q.enqueue(Sources()._press_search, domain)
-        #job_5 = q.enqueue(Sources()._zoominfo_harvest, domain)
-        '''
-        job_1.meta['domain'] = domain; job_1.save()
-        job_2.meta['domain'] = domain; job_2.save()
-        job_3.meta['domain'] = domain; job_3.save()
-        job_4.meta['domain'] = domain; job_4.save()
-        job_5.meta['domain'] = domain; job_5.save()
-        '''
-
-        print "Started"
-        '''
-        results = RQueue()._results(domain=domain)
-        while None in results or results == []:
-            print "whiling"
-            time.sleep(1)
-            results = RQueue()._results(domain=domain)
-        '''
-
-        print RQueue()._results(domain=domain)
-        print "Listening"
-
-        results = [result for result in RQueue()._results(domain=domain)
-                  if type(result) is not str]
-        results = pd.concat(results)
-        # df should contain name and email
-        # EmailPatternGuess, Score, Persist
-
+        q.enqueue(Sources()._google_span_search, domain)
+        q.enqueue(Sources()._whois_search, domain)
+        q.enqueue(Sources()._press_search, domain)
+        q.enqueue(Sources()._zoominfo_harvest, domain)
+        if name != "":
+            q.enqueue(Sources()._mx_server_check, name, domain)
