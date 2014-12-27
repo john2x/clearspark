@@ -125,7 +125,7 @@ def find_new_email_address_webhook():
     #pattern = check_if_email_pattern_exists(request.args)
     return {'started': True}
 
-@app.route('/v1/new_emails/webhook', methods=['GET','OPTIONS','POST'])
+@app.route('/v1/new_emails', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def email_research():
     q.enqueue(EmailGuess().search_sources, domain, name, timeout=6000)
