@@ -48,7 +48,7 @@ class PRNewsWire:
         parse, html = Parse(), requests.get(link).text
         contacts    = self._extract_contacts(html)
         if not contacts.empty: 
-            contacts    = EmailGuessHelper()._add_email_variables(html)
+            contacts    = EmailGuessHelper()._add_email_variables(contacts)
             res         = EmailGuessHelper()._find_email_pattern(domain, contacts)
             upload      = EmailGuessHelper()._score(res)
             EmailGuessHelper()._persist_email_guess(domain, upload)  
@@ -74,7 +74,7 @@ class PRNewsWire:
             logger.info(contacts)
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(html)
+            contacts    = EmailGuessHelper()._add_email_variables(contacts)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
         else:
@@ -92,7 +92,7 @@ class PRNewsWire:
             logger.info(contacts)
             contacts    = contacts[contacts.domain == domain]
             contacts    = contacts.drop_duplicates('domain')
-            contacts    = EmailGuessHelper()._add_email_variables(html)
+            contacts    = EmailGuessHelper()._add_email_variables(contacts)
             contacts    = EmailGuessHelper()._find_email_pattern(domain, contacts)
             contacts    = EmailGuessHelper()._score(contacts)
             if not contacts.empty:
