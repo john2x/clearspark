@@ -5,6 +5,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 import tldextract
+from parse import Parse
 
 class CompanyInfoCrawl:
     def _persist(self, data):
@@ -25,4 +26,7 @@ class CompanyEmailPatternCrawl:
 
     def _persist(self, data, source=""):
         print source
+        data['source'] = source
         print data
+        for index, row in data.iterrows():
+            print Parse().create('CompanyEmailPatternCrawl', row.to_dict()).json()

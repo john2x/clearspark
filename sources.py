@@ -19,6 +19,7 @@ class FullContact:
     def _person_from_email(self, email):
         data = {'email':email, 'apiKey':'edbdfddbff83c6d8'}
         r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
+        print r.status_code, r.json()
         while r.status_code == 202:
             time.sleep(1)
             r = requests.get('https://api.fullcontact.com/v2/person.json',params=data)
@@ -51,7 +52,9 @@ class Sources:
     def _research_emails(self, emails):
       _emails = pd.DataFrame()
       for email in emails:
+          # if -, ., _
           print email
+          # clean emails
           full_name = FullContact()._person_from_email(email)
           print full_name
           if type(full_name) is str: continue
@@ -63,7 +66,7 @@ class Sources:
               if email.lower() == _email.lower(): break
           person['pattern'], person['email'] = pattern, email
           _emails = _emails.append(person, ignore_index=True)
-      return _emails #must be dataframe
+      return _emails
 
     def _google_cache_search(self, domain, links):
         all_emails = []

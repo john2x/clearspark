@@ -15,6 +15,7 @@ class Score:
 
     def _email_pattern(self, data):
         ''' Score email pattern based on number of occurrences '''
+        print "SCORE CALLED BECAUSE NEW DOMAIN PATTERN WAS ADDED"
         domain = data["domain"]
         crawls = Parse().get('CompanyEmailPatternCrawl', {'where':{'domain':domain}})
         crawls = crawl.json()['results']
