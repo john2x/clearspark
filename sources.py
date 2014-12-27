@@ -33,6 +33,7 @@ class Sources:
 
     def _google_cache_search(self, domain, links):
         for link in links:
+            if "lead411" in link: continue
             text = BeautifulSoup(Google().ec2_cache(link)).text
             emails = [word for word in text.split() if "@"+domain in word]
             print emails
