@@ -3,6 +3,7 @@ from google import Google
 import pandas as pd
 import pythonwhois
 from smtp import SMTP
+from bs4 import BeautifulSoup
 
 from rq import Queue
 from worker import conn
@@ -28,7 +29,7 @@ class Sources:
       # scrape all emails
       # fullcontact / clearbit to figure out who it is
       # start google cache search
-      return results
+      #return results
 
     def _google_cache_search(self, domain, links):
         for link in links:
@@ -74,7 +75,7 @@ class Sources:
         # persist to parse
         return results
         
-    def _press_check(self, domain):
+    def _press_sources(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
         bw = Google().search('"{0}" site:businesswire.com'.format(domain))
         job_queue_lol = objectId+str(arrow.now().timestamp)
