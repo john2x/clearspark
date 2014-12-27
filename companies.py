@@ -148,7 +148,7 @@ class Companies:
         q.enqueue(Zoominfo()._company_profile, company_name)
         q.enqueue(Linkedin()._company_profile, company_name)
         q.enqueue(YellowPages()._company_profile, company_name)
-        q.enqueue(Yelp()._company_profile, company_name)
+        #q.enqueue(Yelp()._company_profile, company_name)
         # sometimes require location or domain
         '''
         q.enqueue(Facebook()._company_profile(company_name))
