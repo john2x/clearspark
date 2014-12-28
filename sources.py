@@ -113,6 +113,8 @@ class Sources:
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
         emails = test
         for index, row in emails.iterrows():
+            print row
+            print "NAME", row.name
             name = FullContact()._normalize_name(row.name).strip()
             email = row.email.strip()
             if email[-1] is ".": email = email[:-1]
