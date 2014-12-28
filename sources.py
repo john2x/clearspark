@@ -119,7 +119,7 @@ class Sources:
             if email[-1] is ".": email = email[:-1]
             pattern = EmailGuessHelper()._find_email_pattern(name, email)
             patterns.append(pattern)
-            
+
         emails['pattern'] = patterns
         CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
 

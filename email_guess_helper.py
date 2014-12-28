@@ -33,13 +33,7 @@ class EmailGuessHelper:
         person['domain'] = email.strip().split('@')[-1]
         for pattern in self._patterns():
             _email = pattern.format(**person)
-            print _email.lower(), email.lower(), _email.lower() == email.lower()
-            if email.lower() != _email.lower(): continue
-            info = [pattern.strip(), person['domain'].strip(), 
-                    _email.lower().strip(), name.title().strip()]
-            columns = ['pattern','domain','email','name']
-            patterns = patterns.append(dict(zip(columns, info)), ignore_index=True)
-        return patterns
+            if email.lower() == _email.lower(): return pattern
 
     def _bulk_find_email_pattern(self, domain, people):
         ''' Decifer Email Pattern '''
