@@ -112,12 +112,15 @@ class Sources:
         test = test[test.email.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
         emails = test
+        patterns = []
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row['name']).strip()
             email = row.email.strip()
             if email[-1] is ".": email = email[:-1]
             pattern = EmailGuessHelper()._find_email_pattern(name, email)
-            emails.ix[index, 'pattern'] = pattern
+            patterns.append(pattern)
+            
+        emails['pattern'] = patterns
         CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
 
     def _mx_server_check(self, name, domain):
