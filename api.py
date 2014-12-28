@@ -175,6 +175,7 @@ def company_list_employees_webhook():
 @app.route('/v1/score/email_pattern',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def score_email_pattern():
+    print request.args
     domain = request.args['domain']
     q.enqueue(Score()._email_pattern, domain)
     return {'started': True}
@@ -183,6 +184,7 @@ def score_email_pattern():
 @crossdomain(origin='*')
 def score_company_info():
     # Company Info objectId 
+    print request.args
     domain = request.args['domain']
     q.enqueue(Score()._company_info, domain)
     return {'started': True}
