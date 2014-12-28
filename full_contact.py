@@ -19,4 +19,8 @@ class FullContact:
     def _normalize_name(self, name):
         data = {'q':name, 'apiKey':'edbdfddbff83c6d8'}
         r = requests.get('https://api.fullcontact.com/v2/name/normalizer.json',params=data)
-        return r.json()['nameDetails']['fullName']
+        print r.json()
+        if 'nameDetails' in r.json().keys():
+            return r.json()['nameDetails']['fullName']
+        else:
+            return name

@@ -109,7 +109,7 @@ class Sources:
         res = [[word.lower() for word in link.split() if "@" in word]
                 for link in test[test.link_span.str.contains('@')].link_span]
         test.ix[test.link_span.str.contains('@'), 'email'] = res
-        test = test[test.emails.notnull()]
+        test = test[test.email.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
         emails = test
         for index, row in emails.iterrows():
