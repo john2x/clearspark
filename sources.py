@@ -78,7 +78,7 @@ class Sources:
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row['name'])
             email = row.email.strip()
-            pattern = EmailGuessHelper()._find_email_pattern(name, email)
+            pattern = EmailGuessHelper()._find_email_pattern(name, row.email)
             emails.ix[index, 'pattern'] = pattern
         CompanyEmailPatternCrawl()._persist("whois_search", emails)
 
