@@ -25,11 +25,7 @@ class CompanyEmailPatternCrawl:
         ''' '''
 
     def _persist(self, data, source=""):
-        if type(data) is str: 
-            print "NO RESULTS TO PERSIST FROM ", source
-            return False
-        print source
-        print data
+        print source, data, "PERSISTING YOYO"
         data['source'] = [source for i in range(data.shape[0])]
         for index, row in data.iterrows():
             print row.to_dict()
