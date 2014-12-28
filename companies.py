@@ -29,7 +29,8 @@ logger = logging.getLogger(__name__)
 class Companies:
     def _company_blog():
         ''' Find Company Blog '''
-        
+        # get recent blog posts
+
     def _technologies(self, domain):
         ''' BuiltWith '''
         technology = requests.get('https://builtwith.com/'+domain)
@@ -44,6 +45,7 @@ class Companies:
     def _hiring(self, company_name):
         ''' Also add Indeed profile'''
         # paginate
+        # Google().search("site:indeed.com/cmp {0}".format(company_name))
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
         return jobs
 
@@ -66,9 +68,9 @@ class Companies:
         return social_profiles
 
     def _fundings(self, company_name):
-        ''' Also find crunchbase profile Crunchbase '''
-        results = Google().search("{0} site:crunchbase.com".format(company_name))
-        # scrape
+        ''' Also find crunchbase handle '''
+        results = Google().search("{0} site:crunchbase.com/organization".format(company_name))
+        # scrape funding rounds
         return fundings
 
     def _employee_estimate():

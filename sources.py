@@ -76,8 +76,9 @@ class Sources:
         emails = pd.DataFrame(emails)
         emails['domain'] = domain
         for index, row in emails.iterrows():
-            name = FullContact()._normalize_name(row.name)
-            pattern = EmailGuessHelper()._find_email_pattern(name, row.email)
+            name = FullContact()._normalize_name(row['name'])
+            email = row.email.strip()
+            pattern = EmailGuessHelper()._find_email_pattern(name, email)
             emails.ix[index, 'pattern'] = pattern
         CompanyEmailPatternCrawl()._persist("whois_search", emails)
 

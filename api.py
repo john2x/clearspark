@@ -74,7 +74,7 @@ def app_company_info_webhook():
 @crossdomain(origin='*')
 def company_research():
     q.enqueue(Companies()._research, request.args['company_name'])
-    return {'Research has started.' : True}
+    return {'Research has started.': True}
 
 '''  **************************
 
