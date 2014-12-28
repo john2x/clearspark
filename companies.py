@@ -27,8 +27,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Companies:
-    def _company_blog():
+    # TODO
+    def _tags_describing_company():
+        ''' '''
+
+    def _description():
+        ''' '''
+
+    ''' Working '''
+    def _company_blog(self, domain):
         ''' Find Company Blog '''
+        # Google().search("site:{0} inurl:blog".format(domain))
         # get recent blog posts
 
     def _technologies(self, domain):
@@ -42,10 +51,20 @@ class Companies:
         traffic = requests.get('https://alexa.com/siteinfo/'+domain)
         return traffic
 
+    def _glassdoor(self, domain):
+        ''' site:glassdoor.com/overview "cascadia metals" inurl:overview '''
+
+    def _businessweek(self, domain):
+        ''' '''
+
+    def _forbes(self, domain)
+        ''' http://www.forbes.com/companies/guidespark/ '''
+
+    def _indeed_profile(self, domain):
+        ''' Get Profile and Scrape Info'''
+
     def _hiring(self, company_name):
-        ''' Also add Indeed profile'''
         # paginate
-        # Google().search("site:indeed.com/cmp {0}".format(company_name))
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
         return jobs
 
@@ -57,12 +76,15 @@ class Companies:
         ''' Google News, PRNewsWire, BusinessWire '''
         pw = Google().search("{0} site:prnewswire.com".format(company_name))
         bw = Google().search("{0} site:businesswire.com".format(company_name))
-        gn = Google().news_search("{0}".format(company_name))
+        # add marketwired, newswire.ca
         # parse and return
-        return  press
+        #persist press
+
+    def _news(self, company_name):
+        gn = Google().news_search("{0}".format(company_name))
+        # persist news
 
     def _social_profiles(self, domain):
-        ''' Clearbit '''
         fb = Google().search("{0} site:facebook.com/".format(domain))
         tw = Google().search("{0} site:twitter.com/".format(domain))
         return social_profiles
@@ -72,9 +94,6 @@ class Companies:
         results = Google().search("{0} site:crunchbase.com/organization".format(company_name))
         # scrape funding rounds
         return fundings
-
-    def _employee_estimate():
-        ''' '''
 
     def _employees(self, company_name, keyword=""):
         ''' Linkedin Scrape'''
@@ -93,7 +112,6 @@ class Companies:
         results = results[results.company_score > 84]
         results = results[results.score > 75]
         print results
-        # rename fields - name, title, company
         return results
 
     def _related(self, domain):
@@ -102,11 +120,34 @@ class Companies:
         # linkedin companies info 
         return related
 
-    def _tags_describing_company():
-        ''' '''
+    def _research(self, company_name):
+        # Primary Research - [scored]
+        q.enqueue(Zoominfo()._company_profile, company_name)
+        q.enqueue(Linkedin()._company_profile, company_name)
+        #q.enqueue(Companies()._businessweek, company_name)
+        #q.enqueue(Companies()._forbes, company_name)
+        q.enqueue(YellowPages()._company_profile, company_name)
+        #q.enqueue(Yelp()._company_profile, company_name)
 
-    def _description():
-        ''' '''
+        # Secondary Research - sometimes require location or domain
+        #q.enqueue(Companies()._company_blog, domain)
+        #q.enqueue(Companies()._technologies, domain)
+        #q.enqueue(Companies()._traffic_analysis, domain)
+        #q.enqueue(Companies()._glassdoor, domain)
+        #q.enqueue(Companies()._twitter, domain)
+        #q.enqueue(Companies()._facebook, domain)
+        #q.enqueue(Companies()._indeed_profile, domain)
+        #q.enqueue(Companies()._hiring, domain)
+        #q.enqueue(Companies()._fundings, domain)
+        #q.enqueue(Companies()._related, domain)
+
+        #q.enqueue(Companies()._press, company_name)
+        #q.enqueue(Companies()._news, company_name)
+        #q.enqueue(Companies()._employees, company_name)
+        '''
+        q.enqueue(Facebook()._company_profile(company_name))
+        q.enqueue(Twitter()._company_profile(company_name))
+        '''
 
     ''' In Use Methods '''
     def _email_pattern(self, domain):
@@ -145,17 +186,6 @@ class Companies:
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
         return profile
 
-    def _research(self, company_name):
-        ''' Research '''
-        q.enqueue(Zoominfo()._company_profile, company_name)
-        q.enqueue(Linkedin()._company_profile, company_name)
-        q.enqueue(YellowPages()._company_profile, company_name)
-        #q.enqueue(Yelp()._company_profile, company_name)
-        # sometimes require location or domain
-        '''
-        q.enqueue(Facebook()._company_profile(company_name))
-        q.enqueue(Twitter()._company_profile(company_name))
-        '''
 
 class CompanyTrends:
     def linkedin_followers():
