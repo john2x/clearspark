@@ -36,7 +36,7 @@ class EmailGuessHelper:
             print _email.lower(), email.lower(), _email.lower() == email.lower()
             if email.lower() != _email.lower(): continue
             info = [pattern.strip(), person['domain'].strip(), 
-                    person['email'].lower().strip(), person['name'].title().strip()]
+                    _email.lower().strip(), name.title().strip()]
             columns = ['pattern','domain','email','name']
             patterns = patterns.append(dict(zip(columns, info)), ignore_index=True)
         return patterns
