@@ -115,7 +115,7 @@ class Sources:
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row.name).strip()
             email = row.email.strip()
-            email = if email[-1] is ".": email[:-1]
+            if email[-1] is ".": email = email[:-1]
             pattern = EmailGuessHelper()._find_email_pattern(name, email)
             emails.ix[index, 'pattern'] = pattern
         CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
