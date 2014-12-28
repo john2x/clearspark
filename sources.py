@@ -34,7 +34,7 @@ class Sources:
                 for span in first.append(second).link_span]
       emails = pd.Series(emails).sum()
       emails = self._research_emails(emails)
-      CompanyEmailPatternCrawl()._persist("google_span_search", emails)
+      CompanyEmailPatternCrawl()._persist(emails, "google_span_search")
 
     def _research_emails(self, emails):
         _emails = pd.DataFrame()
@@ -66,7 +66,7 @@ class Sources:
             emails = [word for word in text.split() if "@"+domain in word]
             all_emails = all_emails + emails + links
         emails = self._research_emails(all_emails)
-        CompanyEmailPatternCrawl()._persist("google_cache_search", emails)
+        CompanyEmailPatternCrawl()._persist(emails, "google_cache_search")
 
     def _whois_search(self, domain):
         results = pythonwhois.get_whois(domain)
@@ -80,7 +80,7 @@ class Sources:
             email = row.email.strip()
             pattern = EmailGuessHelper()._find_email_pattern(name, row.email)
             emails.ix[index, 'pattern'] = pattern
-        CompanyEmailPatternCrawl()._persist("whois_search", emails)
+        CompanyEmailPatternCrawl()._persist(emails, "whois_search")
 
     def _press_search(self, domain):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
@@ -101,7 +101,7 @@ class Sources:
         bw = pd.concat([BusinessWire()._email(domain, link) for link in bw.link])
         pw = pd.concat([PRNewsWire()._email(domain, link) for link in pw.link])
         emails = bw.append(pw)
-        CompanyEmailPatternCrawl()._persist("Press Search", emails)
+        CompanyEmailPatternCrawl()._persist(emails, "press_search")
 
     def _zoominfo_search(self, domain):
         qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)
@@ -122,7 +122,7 @@ class Sources:
             patterns.append(pattern)
 
         emails['pattern'] = patterns
-        CompanyEmailPatternCrawl()._persist("Zoominfo Search", emails)
+        CompanyEmailPatternCrawl()._persist(emails, "zoominfo_search")
 
     def _mx_server_check(self, name, domain):
         print "START MX SERVER CHECK"
