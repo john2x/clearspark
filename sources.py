@@ -113,6 +113,7 @@ class Sources:
         test = test[test.email.notnull()]
         test['name'] = [link.split('|')[0].strip() for link in test.link_text]
         emails = test
+        emails['domain'] = domain
         patterns = []
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row['name']).strip()
