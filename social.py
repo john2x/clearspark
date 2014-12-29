@@ -66,9 +66,9 @@ class Yelp:
         website = website.find('a') if website else None
 
 
-        _vars = [company_name, industry, address, city, state, postal_code, phone, website, domain]
+        _vars = [company_name, industry, address, city, state, postal_code, phone, website]
         _vars = [var.text.strip() if var else "" for var in _vars]
-        labels = ["name", "industry","address","city","state","postal_code","phone","website", "domain"]
+        labels = ["name", "industry","address","city","state","postal_code","phone","website"]
         data = dict(zip(labels, _vars))
         website = data['domain']
         data['domain'] = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
