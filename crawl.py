@@ -10,6 +10,9 @@ from parse import Parse
 class CompanyInfoCrawl:
     def _persist(self, data, source=""):
         crawl = Parse().create('CompanyInfoCrawl', data).json()
+        print crawl
+
+    def _score(self, crawl_id):
         crawl = Parse()._pointer('CompanyInfoCrawl', crawl['objectId'])
         company = Parse().get('Company', {'where':json.dumps({'domain':data['domain']})}).json()
         data['crawl_source'] = [source for i in range(data.shape[0])]
