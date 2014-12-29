@@ -152,9 +152,9 @@ class Companies:
         #q.enqueue(Companies()._related, domain)
         #q.enqueue(Companies()._whois_info, domain)
 
-        #q.enqueue(Companies()._press, company_name)
-        #q.enqueue(Companies()._news, company_name)
-        #q.enqueue(Companies()._employees, company_name)
+        #q.enqueue(Companies()._press, company_name, domain)
+        #q.enqueue(Companies()._news, company_name, domain)
+        #q.enqueue(Companies()._employees, company_name, domain)
         '''
         q.enqueue(Facebook()._company_profile(company_name))
         q.enqueue(Twitter()._company_profile(company_name))

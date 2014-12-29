@@ -117,7 +117,7 @@ class Zoominfo:
         industries = company.find('p', {'class':'industry'})
         
         data = [title, description, revenue, address, employee_count,
-                website, phone, industry]
+                website, phone, industries]
         columns = ["name", "description", "revenue", "address",
                    "headcount","website","phone", "industries"]
         # add industries
