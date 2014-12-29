@@ -114,7 +114,7 @@ class Zoominfo:
         employee_count = company.find('p',{'class':'companyEmployeeCountText'})
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
-        industries = company.find('p', {'class':'industry'}).text
+        industries = company.find('p', {'class':'industry'})
         
         data = [title, description, revenue, address, employee_count,
                 website, phone, industry]
