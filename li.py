@@ -24,7 +24,7 @@ class Linkedin:
             pos = pos.split(' at ')
             print pos
             if len(pos) > 1:
-                return {'pos':pos[0], 'company_qry':pos[1]}
+               return {'pos':pos[0], 'company_qry':pos[1]}
         return "not found"
 
     def _google_df_to_linkedin_df(self, results):
@@ -54,9 +54,8 @@ class Linkedin:
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
         info['company_name'] = company_name
-        print info
-        if type(info) is not str:
-            CompanyInfoCrawl()._persist(info.to_dict('records'), 'linkedin')
+        print info.to_dict('records')
+        CompanyInfoCrawl()._persist(info.to_dict('records'), 'linkedin')
         return info if type(info) is str else info.ix[0].to_dict()
 
     def _create_linkedin_directory_urls_from_name(self, name):
