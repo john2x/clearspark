@@ -57,7 +57,7 @@ class Companies:
     def _businessweek(self, domain):
         ''' '''
 
-    def _forbes(self, domain)
+    def _forbes(self, domain):
         ''' http://www.forbes.com/companies/guidespark/ '''
 
     def _indeed_profile(self, domain):
