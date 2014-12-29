@@ -98,6 +98,7 @@ class Zoominfo:
         html = requests.get(url).text
         html = self._remove_non_ascii(html)
         zoominfo = self._cache_html_to_df(html)
+        zoominfo['search_qry'] = company_name
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo)
 

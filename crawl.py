@@ -8,10 +8,11 @@ import tldextract
 from parse import Parse
 
 class CompanyInfoCrawl:
-    def _persist(self, data):
+    def _persist(self, data, source=""):
         crawl = Parse().create('CompanyInfoCrawl', data).json()
         crawl = Parse()._pointer('CompanyInfoCrawl', crawl['objectId'])
         company = Parse().get('Company', {'where':json.dumps({'domain':data['domain']})}).json()
+        data['crawl_source'] = [source for i in range(data.shape[0])]
         print company
         if company['results']:
             company = 'Company/'+company['results'][0]['objectId'], 

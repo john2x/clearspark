@@ -49,6 +49,7 @@ class Yelp:
         if not df.empty:
             url = df.ix[0].link
             val = self._html_to_dict(url)
+            val['search_qry'] = company_name
             print "Yelp", val
             CompanyInfoCrawl()._persist(val)
 
@@ -79,8 +80,9 @@ class YellowPages:
         if not df.empty:
             url = df.ix[0].link
             val = self._html_to_dict(url)
+            val['search_qry'] = company_name
             print "YellowPages", val
-            CompanyInfoCrawl._persist(val)
+            CompanyInfoCrawl._persist(val, 'yellowpages')
         '''
         for url in df.link:
             val = self._html_to_dict(url, domain)

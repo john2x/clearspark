@@ -53,6 +53,9 @@ class Linkedin:
         url = self._linkedin_profile_from_name(company_name)
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
+        info['search_qry'] = company_name
+        if type(info) is not str:
+            CompanyInfoCrawl()._persist(company_info, 'linkedin')
         return info if type(info) is str else info.ix[0].to_dict()
 
     def _create_linkedin_directory_urls_from_name(self, name):
@@ -163,7 +166,6 @@ class Linkedin:
             company_info['domain'] = domain
             company_info['source'] = "linkedin"
             company_info['headcount'] = company_info['company_size']
-            CompanyInfoCrawl()._persist(company_info)
             return company_info
         except:
             return "not found"
