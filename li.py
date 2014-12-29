@@ -148,13 +148,13 @@ class Linkedin:
             vals = [i.find('p').text.strip()
                     for i in c.find('dd',{'class','basic-info-about'}).findAll('li')]
             company_info = company_info.append(dict(zip(cols,vals)),ignore_index=True)
-
             company_info.columns = [col.replace(' ','_').strip().lower()
                                     for col in company_info.columns]
+            # rename companies title columns
             img = c.find('div',{'class':'image-wrapper'}).find('img')['src']
             company_info['img'] =  img
             # new code not in other methods in different file
-            company_info['company_name'] = c.find('h1',{'class':'name'}).text.strip()
+            company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
             if "company_size" not in company_info.columns:
                 company_size = int(c.find('a',{'class':'employee-count'}).text)
                 company_size = int_to_linkedin_company_size_string(company_size)

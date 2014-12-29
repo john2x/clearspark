@@ -65,7 +65,7 @@ class Zoominfo:
             phone = BeautifulSoup(html).find('span',{'class':'companyContactNo'})
             # change variables to parse db names
 
-            columns = ['company_name','website','domain','city','locale','revenue',
+            columns = ['name','website','domain','city','locale','revenue',
                        'headcount','description', 'phone'] 
             values = [name, website, domain, location, location, revenue, 
                       employee_count, description, phone]
@@ -100,7 +100,7 @@ class Zoominfo:
         zoominfo = self._cache_html_to_df(html)
         zoominfo['search_qry'] = company_name
         print zoominfo
-        CompanyInfoCrawl()._persist(zoominfo)
+        CompanyInfoCrawl()._persist(zoominfo, "zoominfo")
 
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)
@@ -117,7 +117,7 @@ class Zoominfo:
         
         data = [title, description, revenue, address, employee_count,
                 website, phone]
-        columns = ["title", "description", "revenue", "address",
+        columns = ["name", "description", "revenue", "address",
                    "employee_count","website","phone"]
         data = [val.text.strip() if val else "" for val in data]
         data = dict(zip(columns, data))
@@ -142,7 +142,7 @@ class Zoominfo:
         phone = company.find('span',{'class':'companyContactNo'})
         data = [title, description, revenue, address, employee_count,
                 website, phone, url, logo]
-        columns = ["title", "description", "revenue", "address",
+        columns = ["name", "description", "revenue", "address",
                    "address","employee_count","website","phone", "url", "logo"]
         data = [val.text if val else "" for val in data]
         data = dict(zip(columns, data))

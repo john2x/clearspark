@@ -67,7 +67,7 @@ class Yelp:
 
         _vars = [company_name, industry, address, city, state, postal_code, phone, website, domain]
         _vars = [var.text.strip() if var else "" for var in _vars]
-        labels = ["company_name","industry","address","city","state","postal_code","phone","website", "domain"]
+        labels = ["name", "industry","address","city","state","postal_code","phone","website", "domain"]
         data = dict(zip(labels, _vars))
         website = data['domain']
         data['domain'] = "{}.{}".format(tldextract.extract(website).domain, tldextract.extract(website).tld)
@@ -109,7 +109,7 @@ class YellowPages:
         numbers['main'] = main
 
         _vars = [company_name, address, city, state, postal_code, description, logo, website, domain]
-        labels = ["company_name","address","city","state","postal_code", "description", "logo", "website", "domain"]
+        labels = ["name","address","city","state","postal_code", "description", "logo", "website", "domain"]
         company = dict(zip(labels, _vars))
         company["numbers"] = numbers
         return company
