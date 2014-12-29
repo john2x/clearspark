@@ -117,6 +117,12 @@ class Companies:
     def _whois_info(self, domain):
         ''' Glean Info From Here'''
 
+    def _crunchbase_profile(self, company_name):
+        ''' Crunchbase Profile '''
+
+    def _angellist_profile(self, company_name):
+        ''' Angellist Profile '''
+
     def _related(self, domain):
         ''' Competitors, Similar Companies '''
         companies = Google().search("related:{0}".format(domain), 10)
@@ -127,10 +133,11 @@ class Companies:
         # Primary Research - [scored]
         q.enqueue(Zoominfo()._company_profile, company_name)
         q.enqueue(Linkedin()._company_profile, company_name)
-        q.enqueue(Companies()._businessweek, company_name)
-        q.enqueue(Companies()._forbes, company_name)
         q.enqueue(YellowPages()._company_profile, company_name)
         q.enqueue(Yelp()._company_profile, company_name)
+        #q.enqueue(Companies()._businessweek, company_name)
+        #q.enqueue(Companies()._forbes, company_name)
+        #q.enqueue(Companies()._crunchbase_profile, company_name)
 
         # Secondary Research - sometimes require location or domain
         #q.enqueue(Companies()._company_blog, domain)

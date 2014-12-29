@@ -114,11 +114,13 @@ class Zoominfo:
         employee_count = company.find('p',{'class':'companyEmployeeCountText'})
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
+        industries = company.find('p', {'class':'industry'}).text
         
         data = [title, description, revenue, address, employee_count,
-                website, phone]
+                website, phone, industry]
         columns = ["name", "description", "revenue", "address",
-                   "employee_count","website","phone"]
+                   "headcount","website","phone", "industries"]
+        # add industries
         data = [val.text.strip() if val else "" for val in data]
         data = dict(zip(columns, data))
         data["domain"] = "{}.{}".format(tldextract.extract(data["website"]).domain,
@@ -128,7 +130,7 @@ class Zoominfo:
         except:
           data['logo'] = ""
         data["source"] = "zoominfo"
-        data['employee_count'] = data['employee_count'].split('Employees')[0]
+        data['headcount'] = data['employee_count'].split('Employees')[0]
         data['description'] = data['description'].split('Company Description')[-1]
         data['revenue'] = data['revenue'].split('in Revenue')[0]
         # add fullcontact address support

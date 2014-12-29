@@ -149,16 +149,18 @@ class Linkedin:
             company_info = company_info.append(dict(zip(cols,vals)),ignore_index=True)
             company_info.columns = [col.replace(' ','_').strip().lower()
                                     for col in company_info.columns]
+            company_info['description'] = c.find('div', {'class':'description'}).text
             # rename companies title columns
             img = c.find('div',{'class':'image-wrapper'}).find('img')['src']
-            company_info['img'] =  img
+            company_info['logo'] =  img
             # new code not in other methods in different file
             company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
             if "company_size" not in company_info.columns:
                 company_size = int(c.find('a',{'class':'employee-count'}).text)
                 company_size = int_to_linkedin_company_size_string(company_size)
-                company_info['company_size'] = company_size
                 company_info['headcount'] = company_size
+            company_info['address'] = company_info['headquarters']
+            company_info.drop('headquarters', axis=1, inplace=True)
             website = company_info['website'].ix[0]
             domain = "{}.{}".format(tldextract.extract(website).domain, 
                                     tldextract.extract(website).tld)
