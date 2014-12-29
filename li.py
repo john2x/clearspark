@@ -53,7 +53,8 @@ class Linkedin:
         url = self._linkedin_profile_from_name(company_name)
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
-        info['search_qry'] = company_name
+        info['company_name'] = company_name
+        print info
         if type(info) is not str:
             CompanyInfoCrawl()._persist(info.to_dict('records'), 'linkedin')
         return info if type(info) is str else info.ix[0].to_dict()
@@ -61,7 +62,6 @@ class Linkedin:
     def _create_linkedin_directory_urls_from_name(self, name):
         ''' name '''
         the_name = name.split(' ')[0]+'/'+name.split(' ')[-1]
-        
         dir_urls = [url.replace('+','%2B') for url in dir_urls]
         dir_urls = ['http://www.linkedin.com/pub/dir/'+the_name] + dir_urls
         return dir_urls

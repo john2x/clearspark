@@ -136,7 +136,6 @@ def email_research():
     return {'started': True}
 
 '''       Employee Stuff        '''
-
 @app.route('/v1/employees/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def employees_webhook():

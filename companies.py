@@ -114,6 +114,9 @@ class Companies:
         print results
         return results
 
+    def _whois_info(self, domain):
+        ''' Glean Info From Here'''
+
     def _related(self, domain):
         ''' Competitors, Similar Companies '''
         companies = Google().search("related:{0}".format(domain), 10)
@@ -124,10 +127,10 @@ class Companies:
         # Primary Research - [scored]
         q.enqueue(Zoominfo()._company_profile, company_name)
         q.enqueue(Linkedin()._company_profile, company_name)
-        #q.enqueue(Companies()._businessweek, company_name)
-        #q.enqueue(Companies()._forbes, company_name)
+        q.enqueue(Companies()._businessweek, company_name)
+        q.enqueue(Companies()._forbes, company_name)
         q.enqueue(YellowPages()._company_profile, company_name)
-        #q.enqueue(Yelp()._company_profile, company_name)
+        q.enqueue(Yelp()._company_profile, company_name)
 
         # Secondary Research - sometimes require location or domain
         #q.enqueue(Companies()._company_blog, domain)
@@ -140,6 +143,7 @@ class Companies:
         #q.enqueue(Companies()._hiring, domain)
         #q.enqueue(Companies()._fundings, domain)
         #q.enqueue(Companies()._related, domain)
+        #q.enqueue(Companies()._whois_info, domain)
 
         #q.enqueue(Companies()._press, company_name)
         #q.enqueue(Companies()._news, company_name)

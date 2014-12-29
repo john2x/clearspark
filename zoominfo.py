@@ -98,7 +98,7 @@ class Zoominfo:
         html = requests.get(url).text
         html = self._remove_non_ascii(html)
         zoominfo = self._cache_html_to_df(html)
-        zoominfo['search_qry'] = company_name
+        zoominfo['company_name'] = company_name
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo, "zoominfo")
 
@@ -128,6 +128,10 @@ class Zoominfo:
         except:
           data['logo'] = ""
         data["source"] = "zoominfo"
+        data['employee_count'] = data['employee_count'].split('Employees')[0]
+        data['description'] = data['description'].split('Company Description')[-1]
+        data['revenue'] = data['revenue'].split('in Revenue')[0]
+        # add fullcontact address support
         print data
         return data
 
