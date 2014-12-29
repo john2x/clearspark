@@ -62,7 +62,8 @@ class Yelp:
         state = BeautifulSoup(r).find('span', {'itemprop':'addressRegion'})
         postal_code = BeautifulSoup(r).find('span', {'itemprop':'postalCode'})
         phone = BeautifulSoup(r).find('span', {'itemprop':'telephone'})
-        website = BeautifulSoup(r).find('div', {'class':'biz-website'}).find('a')
+        website = BeautifulSoup(r).find('div', {'class':'biz-website'})
+        website = website.find('a') if website else None
 
 
         _vars = [company_name, industry, address, city, state, postal_code, phone, website, domain]
