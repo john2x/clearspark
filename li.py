@@ -55,8 +55,7 @@ class Linkedin:
         info = self._company_cache_html_to_df(html)
         info['company_name'] = company_name
         print info.to_dict('records')
-        CompanyInfoCrawl()._persist(info.to_dict('records'), 'linkedin')
-        CompanyInfoCrawl()._persist(info.ix[0].to_dict(), 'linkedin_')
+        CompanyInfoCrawl()._persist(info.ix[0].to_dict(), 'linkedin')
         return info if type(info) is str else info.ix[0].to_dict()
 
     def _create_linkedin_directory_urls_from_name(self, name):
