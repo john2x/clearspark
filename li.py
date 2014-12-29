@@ -155,10 +155,10 @@ class Linkedin:
             company_info['logo'] =  img
             # new code not in other methods in different file
             company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
-            if "company_size" not in company_info.columns:
-                company_size = int(c.find('a',{'class':'employee-count'}).text)
-                company_size = int_to_linkedin_company_size_string(company_size)
-                company_info['headcount'] = company_size
+            company_size = int(c.find('a',{'class':'employee-count'}).text)
+            company_size = int_to_linkedin_company_size_string(company_size)
+            company_info['employee_count'] = company_size
+
             company_info['address'] = company_info['headquarters']
             company_info.drop('headquarters', axis=1, inplace=True)
             website = company_info['website'].ix[0]
@@ -167,6 +167,7 @@ class Linkedin:
             company_info['domain'] = domain
             company_info['source'] = "linkedin"
             company_info['headcount'] = company_info['company_size']
+            company_info['headcount'] = company_info['headcount'].split(' ')[0]
             return company_info
         except:
             return "not found"
