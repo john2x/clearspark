@@ -15,7 +15,7 @@ class Score:
         score = score.to_dict('records')
         self._find_if_object_exists('CompanyEmailPattern','domain', domain, score)
 
-    def _company_infomation(self, company_name):
+    def _company_info(self, company_name):
         print 'remove duplicate info keep the one with the highest score'
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
