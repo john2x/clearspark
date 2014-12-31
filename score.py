@@ -1,3 +1,6 @@
+from parse import Parse
+import json
+import pandas as pd
 # Scoring 
 
 class Score:
@@ -13,6 +16,7 @@ class Score:
         score['pattern'], score['freq'] = df.index, df.values
         score['score'] = [freq / float(score.freq.sum()) for freq in score['freq']]
         score = score.to_dict('records')
+        print score
         self._find_if_object_exists('CompanyEmailPattern','domain', domain, score)
 
     def _company_info(self, company_name):
@@ -25,6 +29,7 @@ class Score:
             if col == 'score': continue
             df = crawls[[col, 'score']]
             final[col] = list(df.dropna().sort('score')[col])[-1]
+        print final
         self._find_if_object_exists('Company', 'company_name', company_name, final)
 
     def _find_if_object_exists(self, class_name, column, value, data):
