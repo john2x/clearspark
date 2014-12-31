@@ -99,6 +99,7 @@ class Zoominfo:
         html = self._remove_non_ascii(html)
         zoominfo = self._cache_html_to_df(html)
         zoominfo['company_name'] = company_name
+        zoominfo['handle'] = url
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo, "zoominfo")
 
@@ -114,15 +115,18 @@ class Zoominfo:
         employee_count = company.find('p',{'class':'companyEmployeeCountText'})
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
-        industries = company.find('p', {'class':'industry'})
+        industries = company.find('p', {'class':'industry'}).find_all('span')
+        industries = [industry.text for industry in industries]
         
         data = [title, description, revenue, address, employee_count,
-                website, phone, industries]
+                website, phone]
         columns = ["name", "description", "revenue", "address",
-                   "headcount","website","phone", "industries"]
+                   "headcount","website","phone"]
         # add industries
         data = [val.text.strip() if val else "" for val in data]
         data = dict(zip(columns, data))
+        data["industry"] = industries
+        print data
         data["domain"] = "{}.{}".format(tldextract.extract(data["website"]).domain,
                                         tldextract.extract(data["website"]).tld)
         try:
@@ -130,7 +134,7 @@ class Zoominfo:
         except:
           data['logo'] = ""
         data["source"] = "zoominfo"
-        data['headcount'] = data['employee_count'].split('Employees')[0]
+        data['headcount'] = data['headcount'].split('Employees')[0]
         data['description'] = data['description'].split('Company Description')[-1]
         data['revenue'] = data['revenue'].split('in Revenue')[0]
         # add fullcontact address support

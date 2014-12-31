@@ -53,10 +53,11 @@ class Linkedin:
         url = self._linkedin_profile_from_name(company_name)
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
+        info = json.loads(info.ix[0].to_json())
         info['company_name'] = company_name
-        print info.to_dict('records')
-        CompanyInfoCrawl()._persist(info.ix[0].to_dict(), 'linkedin')
-        return info if type(info) is str else info.ix[0].to_dict()
+        info['handle'] = url
+        CompanyInfoCrawl()._persist(info, 'linkedin')
+        return info 
 
     def _create_linkedin_directory_urls_from_name(self, name):
         ''' name '''
@@ -149,25 +150,32 @@ class Linkedin:
             company_info = company_info.append(dict(zip(cols,vals)),ignore_index=True)
             company_info.columns = [col.replace(' ','_').strip().lower()
                                     for col in company_info.columns]
-            company_info['description'] = c.find('div', {'class':'description'}).text
+            company_info['description'] = c.find('div', {'class':'description'}).text.strip()
             # rename companies title columns
             img = c.find('div',{'class':'image-wrapper'}).find('img')['src']
             company_info['logo'] =  img
             # new code not in other methods in different file
             company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
-            company_size = int(c.find('a',{'class':'employee-count'}).text)
-            company_size = int_to_linkedin_company_size_string(company_size)
-            company_info['employee_count'] = company_size
+            company_info['employee_count'] = int(c.find('a',{'class':'employee-count'}).text)
 
-            company_info['address'] = company_info['headquarters']
-            company_info.drop('headquarters', axis=1, inplace=True)
+            if 'headquarters' in company_info.columns:
+                company_info['address'] = company_info['headquarters']
+                company_info.drop('headquarters', axis=1, inplace=True)
+            if 'industry' in company_info.columns:
+                company_info['industry'] = [[company_info['industry'].ix[0]] for i in range(company_info.shape[0])]
+
+
             website = company_info['website'].ix[0]
             domain = "{}.{}".format(tldextract.extract(website).domain, 
                                     tldextract.extract(website).tld)
             company_info['domain'] = domain
             company_info['source'] = "linkedin"
             company_info['headcount'] = company_info['company_size']
-            company_info['headcount'] = company_info['headcount'].split(' ')[0]
+            company_info['headcount'] = company_info['headcount'].ix[0].split(' ')[0]
+
+            if 'company_size' in company_info.columns:
+                company_info.drop('company_size', axis=1, inplace=True)
             return company_info
-        except:
+        except Exception,e:
+            print str(e)
             return "not found"

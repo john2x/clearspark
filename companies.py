@@ -20,8 +20,8 @@ from rq import Queue
 from worker import conn
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
-from social import Yelp
-from social import YellowPages
+from company_db import *
+
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -131,30 +131,36 @@ class Companies:
 
     def _research(self, company_name):
         # Primary Research - [scored]
+        q.enqueue(BusinessWeek()._company_profile, company_name)
         q.enqueue(Zoominfo()._company_profile, company_name)
         q.enqueue(Linkedin()._company_profile, company_name)
         q.enqueue(YellowPages()._company_profile, company_name)
         q.enqueue(Yelp()._company_profile, company_name)
-        #q.enqueue(Companies()._businessweek, company_name)
-        #q.enqueue(Companies()._forbes, company_name)
-        #q.enqueue(Companies()._crunchbase_profile, company_name)
+        q.enqueue(Forbes()._company_profile, company_name)
+        q.enqueue(GlassDoor()._company_profile, company_name)
+        q.enqueue(Hoovers()._company_profile, company_name)
+        q.enqueue(Crunchbase()._company_profile, company_name)
+        # whois
+        # jigsaw
 
         # Secondary Research - sometimes require location or domain
         #q.enqueue(Companies()._company_blog, domain)
         #q.enqueue(Companies()._technologies, domain)
-        #q.enqueue(Companies()._traffic_analysis, domain)
         #q.enqueue(Companies()._glassdoor, domain)
-        #q.enqueue(Companies()._twitter, domain)
-        #q.enqueue(Companies()._facebook, domain)
-        #q.enqueue(Companies()._indeed_profile, domain)
-        #q.enqueue(Companies()._hiring, domain)
-        #q.enqueue(Companies()._fundings, domain)
-        #q.enqueue(Companies()._related, domain)
-        #q.enqueue(Companies()._whois_info, domain)
-
         #q.enqueue(Companies()._press, company_name, domain)
         #q.enqueue(Companies()._news, company_name, domain)
+        #q.enqueue(Companies()._hiring, domain)
+        #q.enqueue(Companies()._whois_info, domain)
+
         #q.enqueue(Companies()._employees, company_name, domain)
+        #q.enqueue(Companies()._indeed_profile, domain)
+        #q.enqueue(Companies()._twitter, domain)
+        #q.enqueue(Companies()._facebook, domain)
+        #q.enqueue(Companies()._related, domain)
+
+        #q.enqueue(Companies()._traffic_analysis, domain)
+        #q.enqueue(Companies()._fundings, domain)
+
         '''
         q.enqueue(Facebook()._company_profile(company_name))
         q.enqueue(Twitter()._company_profile(company_name))

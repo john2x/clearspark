@@ -9,6 +9,8 @@ from parse import Parse
 
 class CompanyInfoCrawl:
     def _persist(self, data, source=""):
+        data['source'] = source
+        print source
         crawl = Parse().create('CompanyInfoCrawl', data).json()
         print crawl
 

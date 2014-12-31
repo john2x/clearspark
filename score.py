@@ -1,6 +1,60 @@
 # Scoring 
 
 class Score:
+    def _email_pattern(self, domain):
+        print ''' Score email pattern based on number of occurrences '''
+        qry = {'where':json.dumps({'domain': domain})}
+        crawls = Parse().get('CompanyEmailPatternCrawl', qry)
+        crawls = pd.DataFrame(crawls.json()['results'])
+        df = crawls[crawls.pattern.notnull()].drop_duplicates('email')
+        df = df.pattern.value_counts()
+
+        score = pd.DataFrame()
+        score['pattern'], score['freq'] = df.index, df.values
+        score['score'] = [freq / float(score.freq.sum()) for freq in score['freq']]
+        score = score.to_dict('records')
+        self._find_if_object_exists('CompanyEmailPattern','domain', domain, score)
+
+    def _company_infomation(self, company_name):
+        print 'remove duplicate info keep the one with the highest score'
+        qry = {'where':json.dumps({'company_name': company_name})}
+        crawls = Parse().get('CompanyInfoCrawl', qry).json()
+        crawls = _source_score(pd.DataFrame(crawls['results']))
+        final = {}
+        for col in crawls.columns:
+            if col == 'score': continue
+            df = crawls[[col, 'score']]
+            final[col] = list(df.dropna().sort('score')[col])[-1]
+        self._find_if_object_exists('Company', 'company_name', company_name, final)
+
+    def _find_if_object_exists(self, class_name, column, value, data):
+        obj = Parse().get(class_name, {'where':{'domain':domain}}).json()
+        object_id = obj['results']['objectId']
+        if company:
+            print Parse().update(class_name+'/'+object_id, data)
+        else:
+            print Parse().create(class_name, data)
+
+    def _source_score(self, df):
+        df.ix[df.source == "linkedin", 'score']    = 10
+        df.ix[df.source == "zoominfo", 'score']    = 9
+        df.ix[df.source == "yelp", 'score']        = 2
+        df.ix[df.source == "yellowpages", 'score'] = 3
+        df.ix[df.source == "facebook", 'score']    = 1
+        df.ix[df.source == "twitter", 'score']     = 0
+        df.ix[df.source == "businessweek", 'score']    = 4
+        df.ix[df.source == "forbes", 'score']     = 5
+        df.ix[df.source == "hoovers", 'score']     = 6
+        df.ix[df.source == "crunchbase", 'score']     = 7
+        df.ix[df.source == "glassdoor", 'score']     = 8
+        return df
+
+    def _prospect_score(self, data):
+        ''' How hot a prospect they are based on a couple of factors '''
+
+    def _company_prospect_score(self, data):
+        ''' How hot a prospect they are based on a couple of factors '''
+
     def _score(self, patterns):
         ''' Old Scoring To Multiple Patterns '''
         print "_score"
@@ -12,51 +66,4 @@ class Score:
         upload['instances'] = [i for i in patterns.email.value_counts()]
         upload['score'] = [int(float(i)/total*100) for i in values]
         return upload
-
-    def _email_pattern(self, data):
-        ''' Score email pattern based on number of occurrences '''
-        print "SCORE CALLED BECAUSE NEW DOMAIN PATTERN WAS ADDED"
-        domain = data["domain"]
-        crawls = Parse().get('CompanyEmailPatternCrawl', {'where':{'domain':domain}})
-        crawls = crawl.json()['results']
-        crawls = pd.concat([pd.DataFrame(_crawl) for _crawl in crawl['results']])
-        # get value_counts for pattern column
-        # add percentage confidence
-        qry = {'where':{'domain':domain}}
-        email_pattern = Parse().get('CompanyEmailPattern', qry).json()
-        if email_pattern:
-            pattern = 'CompanyEmailPattern/'+company['results']['objectId']
-            Parse().update(pattern, crawls.to_dict('records'))
-        else:
-            Parse().create('CompanyEmailPattern', crawls.to_dict('records'))
-
-    def _company_infomation(self, data):
-        ''' Replace blank strings with company info '''
-        domain = data["domain"]
-        crawl = Parse().get('CompanyInfoCrawl', {'where':{'domain':domain}}).json()
-        crawls = pd.concat([pd.DataFrame(_crawl) for _crawl in crawl['results']])
-        crawls = self._source_score(crawls)
-        # remove duplicate domain keep the one with the highest score
-        company = Parse().get('Company', {'where':{'domain':domain}}).json()
-        if company:
-            Parse().update('Company/'+company['results']['objectId'],
-                          crawls.to_dict('records'))
-        else:
-            Parse().create('Company', crawls.to_dict('records'))
-
-    def _source_score(self, df):
-        df.ix[df.source == "linkedin", 'score']    = 10
-        df.ix[df.source == "zoominfo", 'score']    = 10
-        df.ix[df.source == "yelp", 'score']        = 5
-        df.ix[df.source == "yellowpages", 'score'] = 5
-        df.ix[df.source == "facebook", 'score']    = 1
-        df.ix[df.source == "twitter", 'score']     = 1
-        return df
-
-    def _prospect_score(self, data):
-        ''' How hot a prospect they are based on a couple of factors '''
-
-    def _company_prospect_score(self, data):
-        ''' How hot a prospect they are based on a couple of factors '''
-
 
