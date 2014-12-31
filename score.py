@@ -37,7 +37,7 @@ class Score:
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
         if obj:
-            print Parse().update(class_name+'/'+obj['objectId'], data).json()
+            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
         else:
             print Parse().create(class_name, data).json()
 
