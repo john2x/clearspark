@@ -36,6 +36,7 @@ class Score:
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
+        print obj
         if obj:
             print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
         else:
