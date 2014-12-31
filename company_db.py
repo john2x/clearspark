@@ -37,6 +37,8 @@ class GlassDoor:
         del _info['size']
         _info['type'] = info['type'].split(' - ')[-1]
         _info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
+        _info['address'] = _info['headquarters']
+        del _info['headquarters']
         return _info
 
 class BusinessWeek:
@@ -98,6 +100,8 @@ class Forbes:
         if 'ceo' in info.keys(): del info['ceo']
         if 'founders' in info.keys(): del info['founders']
         del info['country']
+        info['address'] = info['headquarters']
+        del info['headquarters']
         return info
 
 
@@ -130,6 +134,8 @@ class Crunchbase:
         _info['industry'] = [info['categories']]
         del info['categories']
         _info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
+        _info['address'] = _info['headquarters']
+        del _info['headquarters']
         return _info
 
 class Hoovers:
