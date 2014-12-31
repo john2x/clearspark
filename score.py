@@ -23,7 +23,7 @@ class Score:
         print 'remove duplicate info keep the one with the highest score'
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
-        crawls = _source_score(pd.DataFrame(crawls['results']))
+        crawls = self._source_score(pd.DataFrame(crawls['results']))
         final = {}
         for col in crawls.columns:
             if col == 'score': continue
