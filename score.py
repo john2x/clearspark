@@ -1,6 +1,7 @@
 from parse import Parse
 import json
 import pandas as pd
+import requests
 # Scoring 
 
 class Score:
