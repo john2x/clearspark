@@ -36,6 +36,7 @@ class Score:
         data = {'place':final['address'], 'apiKey':'edbdfddbff83c6d8'}
         r = requests.get('https://api.fullcontact.com/v2/address/locationNormalizer.json',params=data) 
         final['address'] = r.json()
+        del final['source']
         self._find_if_object_exists('Company', 'company_name', company_name, final)
 
     def _find_if_object_exists(self, class_name, column, value, data):
