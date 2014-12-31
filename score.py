@@ -30,7 +30,7 @@ class Score:
             df = crawls[[col, 'score']]
             final[col] = list(df.dropna().sort('score')[col])[-1]
         # TODO - add date crawled
-        print final
+        final['industry'] = final['industry'][0]
         self._find_if_object_exists('Company', 'company_name', company_name, final)
 
     def _find_if_object_exists(self, class_name, column, value, data):
