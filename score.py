@@ -35,9 +35,9 @@ class Score:
 
     def _find_if_object_exists(self, class_name, column, value, data):
         obj = Parse().get(class_name, {'where':{column: value}}).json()
-        object_id = obj['results']['objectId']
-        if company:
-            print Parse().update(class_name+'/'+object_id, data)
+        object_id = obj['results']
+        if object_id:
+            print Parse().update(class_name+'/'+object_id['objectId'], data)
         else:
             print Parse().create(class_name, data)
 
