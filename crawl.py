@@ -30,9 +30,10 @@ class CompanyEmailPatternCrawl:
     def _bulk_persist(self, data):
         ''' '''
 
-    def _persist(self, data, source=""):
+    def _persist(self, data, source="", api_key=""):
         print source, data, "PERSISTING YOYO"
         data['crawl_source'] = source
+        data['api_key'] = api_key
         for index, row in data.iterrows():
             print row.to_dict()
             r  = Parse().create('CompanyEmailPatternCrawl', row.to_dict()).json()

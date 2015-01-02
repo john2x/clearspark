@@ -200,7 +200,7 @@ class YellowPages:
     def _company_profile(self, company_name, location="", api_key=""):
         qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
         df = Google().search(qry)
-        if df.empty: CompanyInfoCrawl._persist({}, 'yellowpages', api_key)
+        if df.empty: CompanyInfoCrawl()._persist({}, 'yellowpages', api_key)
         val = self._html_to_dict(df.ix[0].link)
         val['search_qry'] = company_name
         print "YellowPages", val
