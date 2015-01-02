@@ -14,6 +14,7 @@ class CompanyInfoCrawl:
         print source
         crawl = Parse().create('CompanyInfoCrawl', data).json()
         print crawl
+        return crawl
 
     def _score(self, crawl_id):
         crawl = Parse()._pointer('CompanyInfoCrawl', crawl['objectId'])
