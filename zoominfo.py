@@ -92,6 +92,7 @@ class Zoominfo:
     def _company_profile(self, company_name, api_key=""):
         qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
         google_df = Google().search(qry)
+        if google_df.empty: CompanyInfoCrawl()._persist(zoominfo,"zoominfo",api_key)
         url = google_df.ix[0].link
         print "ZOOMINFO URL", url
         html = Google().ec2_cache(url)
