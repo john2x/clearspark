@@ -7,7 +7,7 @@ from crawl import CompanyInfoCrawl
 class GlassDoor:
     def _company_profile(self, name, api_key=""):
         df = Google().search('site:glassdoor.com/overview {0}'.format(name))
-        if df.empty: return CompanyInfoCrawl()._persist({}, "glassdoor", api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name': name}, "glassdoor", api_key)
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val = self._rename_vars(val)
@@ -45,7 +45,7 @@ class BusinessWeek:
     def _company_profile(self, name, api_key=""):
         qry = 'site:businessweek.com/research {0} inurl:snapshot'.format(name)
         df = Google().search(qry)
-        if df.empty: return CompanyInfoCrawl()._persist({}, "businessweek", api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "businessweek", api_key)
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val['company_name'] = name
@@ -74,7 +74,7 @@ class Forbes:
     def _company_profile(self, name, api_key=""):
         qry = 'site:forbes.com/companies {0}'.format(name)
         df = Google().search(qry)
-        if df.empty: return CompanyInfoCrawl()._persist({}, "forbes", api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "forbes", api_key)
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val = self._rename_vars(val)
@@ -110,7 +110,7 @@ class Crunchbase:
     def _company_profile(self, name, api_key=""):
         qry = 'site:crunchbase.com/organization {0}'.format(name)
         df = Google().search(qry)
-        if df.empty: return CompanyInfoCrawl()._persist({}, "crunchbase", api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "crunchbase", api_key)
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val = self._rename_vars(val)
@@ -143,7 +143,7 @@ class Hoovers:
     def _company_profile(self, name, api_key=""):
         qry = 'site:http://www.hoovers.com {0} inurl:company-profile'.format(name)
         df = Google().search(qry)
-        if df.empty: return CompanyInfoCrawl()._persist({}, "hoovers", api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "hoovers", api_key)
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val = self._rename_vars(val)
@@ -170,7 +170,7 @@ class Hoovers:
 class Yelp:
     def _company_profile(self, company_name, location="", api_key=""):
         df = Google().search('site:yelp.com {0}'.format(company_name))
-        if df.empty: return CompanyInfoCrawl()._persist({}, "yelp", api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, "yelp", api_key)
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val['company_name'] = company_name
@@ -201,9 +201,9 @@ class YellowPages:
     def _company_profile(self, company_name, location="", api_key=""):
         qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
         df = Google().search(qry)
-        if df.empty: return CompanyInfoCrawl()._persist({}, 'yellowpages', api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'yellowpages', api_key)
         val = self._html_to_dict(df.ix[0].link)
-        val['search_qry'] = company_name
+        val['company_name'] = company_name
         print "YellowPages", val
         CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
         '''
