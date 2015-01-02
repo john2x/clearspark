@@ -30,21 +30,25 @@ class Score:
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
         crawls = self._source_score(pd.DataFrame(crawls['results']))
+        crawls = crawls[crawls.api_key == api_key]
         final = {}
         for col in crawls.columns:
             if col == 'score': continue
-            df = crawls[[col, 'score']]
-            final[col] = list(df.dropna().sort('score')[col])[-1]
-        # TODO - add date crawled
+            df = crawls[[col, 'score', 'source', 'createdAt']]
+            df = df[(df[col].notnull()) & (df[col] != "")]
+            df = [source[1].sort('createdAt').drop_duplicates(col, True) 
+                  for source in _df.groupby(col)]
+            df = pd.concat(df)
+            df = df.sort('score')[col]
+            final[col] = list(df)[-1]
         final['industry'] = final['industry'][0]
         final['address'] = FullContact()._normalize_location(final['address'])
         del final['source']
         self._find_if_object_exists('Company', 'company_name', company_name, final)
-        # TODO - webhook should be called when all crawls are complete for api_key
-        if self._webhook_should_be_called(): Webhook()._post(api_key, final)
+        if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final)
 
-    def _webhook_should_be_called(self):
-        return False
+    def _webhook_should_be_called(self, crawls):
+        return crawls.source.drop_duplicates().shape[0] == 9:
 
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
