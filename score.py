@@ -48,7 +48,7 @@ class Score:
         if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final)
 
     def _webhook_should_be_called(self, crawls):
-        return crawls.source.drop_duplicates().shape[0] == 9:
+        return crawls.source.drop_duplicates().shape[0] == 9
 
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
