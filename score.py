@@ -2,10 +2,11 @@ from parse import Parse
 import json
 import pandas as pd
 import requests
+from webhook import Webhook
 # Scoring 
 
 class Score:
-    def _email_pattern(self, domain):
+    def _email_pattern(self, domain, api_key=""):
         print ''' Score email pattern based on number of occurrences '''
         qry = {'where':json.dumps({'domain': domain})}
         crawls = Parse().get('CompanyEmailPatternCrawl', qry)
@@ -19,8 +20,11 @@ class Score:
         score = score.to_dict('records')
         print score
         self._find_if_object_exists('CompanyEmailPattern','domain', domain, score)
+        # TODO - add date crawled
+        # TODO - webhook should be called when all calls are complete
+        if self._webhook_should_be_called(): Webhook()._post(api_key, final)
 
-    def _company_info(self, company_name):
+    def _company_info(self, company_name, api_key=""):
         print 'remove duplicate info keep the one with the highest score'
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
@@ -32,21 +36,21 @@ class Score:
             final[col] = list(df.dropna().sort('score')[col])[-1]
         # TODO - add date crawled
         final['industry'] = final['industry'][0]
-        # add full contact for address
-        data = {'place':final['address'], 'apiKey':'edbdfddbff83c6d8'}
-        r = requests.get('https://api.fullcontact.com/v2/address/locationNormalizer.json',params=data) 
-        final['address'] = r.json()
+        final['address'] = FullContact()._normalize_location(final['address'])
         del final['source']
         self._find_if_object_exists('Company', 'company_name', company_name, final)
+        # TODO - webhook should be called when all crawls are complete for api_key
+        if self._webhook_should_be_called(): Webhook()._post(api_key, final)
+
+    def _webhook_should_be_called(self):
+        return False
 
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
         print obj
-        if obj:
-            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
-        else:
-            print Parse().create(class_name, data).json()
+        if obj: print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
+        else: print Parse().create(class_name, data).json()
 
     def _source_score(self, df):
         df.ix[df.source == "linkedin", 'score']    = 10

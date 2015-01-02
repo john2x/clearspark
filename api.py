@@ -73,7 +73,8 @@ def app_company_info_webhook():
 @app.route('/v1/companies/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_research():
-    q.enqueue(Companies()._research, request.args['company_name'])
+    # include api key
+    q.enqueue(Companies()._research, request.args['company_name'], request.args['api_key'])
     return {'Research has started.': True}
 
 '''  **************************
@@ -175,8 +176,9 @@ def company_list_employees_webhook():
 @crossdomain(origin='*')
 def score_email_pattern():
     domain = json.loads(request.args['domain'])['object']['domain']
+    api_key = json.loads(request.args['domain'])['object']['api_key']
     print domain
-    q.enqueue(Score()._email_pattern, domain)
+    q.enqueue(Score()._email_pattern, domain, api_key)
     return {'started': True}
 
 @app.route('/v1/score/company_info',methods=['GET','OPTIONS','POST'])
@@ -184,8 +186,9 @@ def score_email_pattern():
 def score_company_info():
     # Company Info objectId 
     domain = json.loads(request.args['company_name'])['object']['company_name']
+    api_key = json.loads(request.args['company_name'])['object']['api_key']
     print domain
-    q.enqueue(Score()._company_info, domain)
+    q.enqueue(Score()._company_info, domain, api_key)
     return {'started': True}
 
 '''  **************************

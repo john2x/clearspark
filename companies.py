@@ -129,17 +129,18 @@ class Companies:
         # linkedin companies info 
         return related
 
-    def _research(self, company_name):
+    def _research(self, company_name, api_key=""):
         # Primary Research - [scored]
-        q.enqueue(BusinessWeek()._company_profile, company_name)
-        q.enqueue(Zoominfo()._company_profile, company_name)
-        q.enqueue(Linkedin()._company_profile, company_name)
-        q.enqueue(YellowPages()._company_profile, company_name)
-        q.enqueue(Yelp()._company_profile, company_name)
-        q.enqueue(Forbes()._company_profile, company_name)
-        q.enqueue(GlassDoor()._company_profile, company_name)
-        q.enqueue(Hoovers()._company_profile, company_name)
-        q.enqueue(Crunchbase()._company_profile, company_name)
+        q.enqueue(BusinessWeek()._company_profile, company_name, api_key)
+        q.enqueue(Zoominfo()._company_profile, company_name, api_key)
+        q.enqueue(Linkedin()._company_profile, company_name, api_key)
+        q.enqueue(YellowPages()._company_profile, company_name, api_key)
+        q.enqueue(Yelp()._company_profile, company_name, api_key)
+        q.enqueue(Forbes()._company_profile, company_name, api_key)
+        q.enqueue(GlassDoor()._company_profile, company_name, api_key)
+        q.enqueue(Hoovers()._company_profile, company_name, api_key)
+        q.enqueue(Crunchbase()._company_profile, company_name, api_key)
+        # 9
         # whois
         # jigsaw
 

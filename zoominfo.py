@@ -89,7 +89,7 @@ class Zoominfo:
                     return zoominfo_profile.to_dict()
         return "not found"
 
-    def _company_profile(self, company_name):
+    def _company_profile(self, company_name, api_key=""):
         qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
         google_df = Google().search(qry)
         url = google_df.ix[0].link
@@ -101,7 +101,7 @@ class Zoominfo:
         zoominfo['company_name'] = company_name
         zoominfo['handle'] = url
         print zoominfo
-        CompanyInfoCrawl()._persist(zoominfo, "zoominfo")
+        CompanyInfoCrawl()._persist(zoominfo, "zoominfo", api_key)
 
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)

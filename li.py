@@ -49,14 +49,14 @@ class Linkedin:
         # scrape cache
         return url if "/company/" in url else "not found"
 
-    def _company_profile(self, company_name):
+    def _company_profile(self, company_name, api_key):
         url = self._linkedin_profile_from_name(company_name)
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
         info = json.loads(info.ix[0].to_json())
         info['company_name'] = company_name
         info['handle'] = url
-        CompanyInfoCrawl()._persist(info, 'linkedin')
+        CompanyInfoCrawl()._persist(info, 'linkedin', api_key)
         return info 
 
     def _create_linkedin_directory_urls_from_name(self, name):

@@ -25,3 +25,8 @@ class FullContact:
             return r.json()['nameDetails']['fullName']
         else:
             return name
+
+  def _normalize_location(self, location):
+        data = {'place':location, 'apiKey':'edbdfddbff83c6d8'}
+        r = requests.get('https://api.fullcontact.com/v2/address/locationNormalizer.json',params=data) 
+        return r.json()
