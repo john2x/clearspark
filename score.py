@@ -19,36 +19,40 @@ class Score:
         score['pattern'], score['freq'] = df.index, df.values
         score['score'] = [freq / float(score.freq.sum()) for freq in score['freq']]
         score = score.to_dict('records')
-        print score
+        print score, api_key
         self._find_if_object_exists('CompanyEmailPattern','domain', domain, score)
         # TODO - add date crawled
         # TODO - webhook should be called when all calls are complete
         if self._webhook_should_be_called(): Webhook()._post(api_key, final)
 
     def _company_info(self, company_name, api_key=""):
-        print 'remove duplicate info keep the one with the highest score'
+        print api_key
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
         crawls = self._source_score(pd.DataFrame(crawls['results']))
         crawls = crawls[crawls.api_key == api_key]
         final = {}
+        # TODO - filter crawls where crawled company is not at least 85 fuzzy score
         for col in crawls.columns:
-            if col == 'score': continue
+            if col in ['score', 'source', 'createdAt']: continue
             df = crawls[[col, 'score', 'source', 'createdAt']]
-            df = df[(df[col].notnull()) & (df[col] != "")]
-            df = [source[1].sort('createdAt').drop_duplicates(col, True) 
-                  for source in _df.groupby(col)]
-            df = pd.concat(df)
-            df = df.sort('score')[col]
+            if type(list(df[col].dropna())[0]) == list: df[col] = df[col].dropna().apply(tuple)
+            df = df[df[col] != ""] if df[col].dtype != "float64" else df
+            df = df[df[col].notnull()]
+            df = [source[1].sort('createdAt').drop_duplicates(col, True)
+                  for source in df.groupby(col)]
+            df = pd.concat(df).sort('score')[col]
             final[col] = list(df)[-1]
         final['industry'] = final['industry'][0]
+        final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
         final['address'] = FullContact()._normalize_location(final['address'])
-        del final['source']
         self._find_if_object_exists('Company', 'company_name', company_name, final)
+        # TODO -phone should be list of all the different numbers found
         if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final)
 
     def _webhook_should_be_called(self, crawls):
-        return crawls.source.drop_duplicates().shape[0] == 9
+        print crawls.source.drop_duplicates().shape[0]
+        return True
 
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
