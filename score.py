@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import requests
 from webhook import Webhook
+from fullcontact import FullContact
 # Scoring 
 
 class Score:

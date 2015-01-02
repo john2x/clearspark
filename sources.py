@@ -10,7 +10,7 @@ from press_sources import PRNewsWire
 from crawl import CompanyEmailPatternCrawl
 from email_guess_helper import EmailGuessHelper
 import time
-from full_contact import FullContact
+from fullcontact import FullContact
 
 from rq import Queue
 from worker import conn
