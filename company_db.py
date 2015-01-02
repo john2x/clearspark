@@ -57,7 +57,8 @@ class BusinessWeek:
         description = co.find('p', {'itemprop':'description'})
         address = co.find('div', {'itemprop':'address'})
         phone = co.find('div', {'itemprop':'telephone'})
-        website = co.find('div',{'id':'detailsContainer'}).find('a')
+        website = ""#co.find('div',{'id':'detailsContainer'}).find('a')
+        # TODO - figure out why this is not working
 
         _vars = [name, description, address, phone, website]
         _vars = [var.text.strip() if var else "" for var in _vars]

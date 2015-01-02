@@ -8,8 +8,9 @@ import tldextract
 from parse import Parse
 
 class CompanyInfoCrawl:
-    def _persist(self, data, source=""):
+    def _persist(self, data, source="", api_key=""):
         data['source'] = source
+        data['api_key'] = api_key
         print source
         crawl = Parse().create('CompanyInfoCrawl', data).json()
         print crawl
