@@ -52,7 +52,7 @@ class Linkedin:
     def _company_profile(self, company_name, api_key):
         qry = company_name+' site:linkedin.com/company'
         google_results = Google().search(qry)
-        if google_results.empty: return CompanyInfoCrawl()._persist({}, 'linkedin', api_key)
+        if google_results.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'linkedin', api_key)
         url = google_results.ix[0].url
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
