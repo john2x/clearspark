@@ -41,6 +41,8 @@ class Score:
             df = df[df[col].notnull()]
             df = [source[1].sort('createdAt').drop_duplicates(col, True)
                   for source in df.groupby(col)]
+            df = [_df for _df in df if _df is not None]
+            df = [pd.DataFrame()] if len(df) is 0 else df
             df = pd.concat(df).sort('score')[col]
             final[col] = list(df)[-1]
         final['industry'] = final['industry'][0]
