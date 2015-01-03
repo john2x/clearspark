@@ -92,7 +92,7 @@ class Zoominfo:
     def _company_profile(self, company_name, api_key=""):
         qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
         google_df = Google().search(qry)
-        if google_df.empty: CompanyInfoCrawl()._persist(zoominfo,"zoominfo",api_key)
+        if google_df.empty: CompanyInfoCrawl()._persist({},"zoominfo",api_key)
         url = google_df.ix[0].link
         print "ZOOMINFO URL", url
         html = Google().ec2_cache(url)
@@ -117,6 +117,7 @@ class Zoominfo:
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
         industries = company.find('p', {'class':'industry'}).find_all('span')
+        industries = industries.find_all('span') if industries else []
         industries = [industry.text for industry in industries]
         
         data = [title, description, revenue, address, employee_count,

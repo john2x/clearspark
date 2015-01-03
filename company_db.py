@@ -19,7 +19,8 @@ class GlassDoor:
 
     def _html_to_dict(self, url):
         r = BeautifulSoup(Google().cache(url))
-        logo = r.find('div',{'class':'logo'}).find('img')['src']
+        logo = r.find('div',{'class':'logo'}).find('img')
+        logo = logo['src'] if logo else ""
         #website = r.find('span',{'class':'hideHH'}).text
         info = r.find('div',{'id':'EmpBasicInfo'}).find_all('div',{'class':'empInfo'})
         info = dict([[i.find('strong').text.lower().strip(), i.find('span').text.strip()] for i in info])
@@ -95,7 +96,7 @@ class Forbes:
     def _rename_vars(self, info):
         info = dict(zip([key.lower() for key in info.keys()], info.values()))
         info['industry'] = [info['industry']]
-        info['employee_count'] = int(info['employees'])
+        info['employee_count'] = int(info['employees'].replace(',',''))
         del info['employees']
         info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
         if 'ceo' in info.keys(): del info['ceo']
@@ -132,8 +133,11 @@ class Crunchbase:
 
     def _rename_vars(self, info):
         _info = info
-        _info['industry'] = [info['categories']]
-        del info['categories']
+        if 'categories' in info.keys():
+            _info['industry'] = [info['categories']]
+            del info['categories']
+        else:
+            _info['industry'] = []
         _info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
         _info['address'] = _info['headquarters']
         del _info['headquarters']
