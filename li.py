@@ -56,7 +56,7 @@ class Linkedin:
         url = google_results.ix[0].url
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
-        if google_results.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'linkedin', api_key)
+        if type(info) is str: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'linkedin', api_key)
         info = json.loads(info.ix[0].to_json())
         info['company_name'] = company_name
         info['handle'] = url
