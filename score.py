@@ -27,6 +27,7 @@ class Score:
 
     def _remove_non_ascii(self, text):
         ''.join(i for i in text if ord(i)<128)
+
     def _company_info(self, company_name, api_key=""):
         print api_key
         company_name = self._remove_non_ascii(company_name)
@@ -72,12 +73,10 @@ class Score:
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
-        print "FIND IF OBJECT EXISTS"
-        print "FIND IF OBJECT EXISTS"
-        print "FIND IF OBJECT EXISTS"
-        print "FIND IF OBJECT EXISTS"
-        print "FIND IF OBJECT EXISTS"
-        print "FIND IF OBJECT EXISTS"
+        print "FIND IF OBJECT EXISTS", obj
+        print "FIND IF OBJECT EXISTS", obj
+        print "FIND IF OBJECT EXISTS", obj
+        print "FIND IF OBJECT EXISTS", obj
         if obj: 
             print "UPDATE OLD", class_name+'/'+obj[0]['objectId']
             print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
