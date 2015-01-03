@@ -73,15 +73,15 @@ class Score:
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
-        print "FIND IF OBJECT EXISTS", obj
-        print "FIND IF OBJECT EXISTS", obj
-        print "FIND IF OBJECT EXISTS", obj
-        print "FIND IF OBJECT EXISTS", obj
+        print "NEW FIND IF OBJECT EXISTS", obj
+        print "NEW FIND IF OBJECT EXISTS", obj
+        print "NEW FIND IF OBJECT EXISTS", obj
+        print "NEW FIND IF OBJECT EXISTS", obj
         if obj: 
-            print "UPDATE OLD", class_name+'/'+obj[0]['objectId']
+            print "NEW UPDATE OLD", class_name+'/'+obj[0]['objectId']
             print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
         else: 
-            print "CREATE NEW"
+            print "NEW CREATE NEW"
             print Parse().create(class_name, data).json()
 
     def _source_score(self, df):
