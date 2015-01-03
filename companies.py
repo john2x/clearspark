@@ -131,15 +131,15 @@ class Companies:
 
     def _research(self, company_name, api_key=""):
         # Primary Research - [scored]
-        q.enqueue(BusinessWeek()._company_profile, company_name, api_key)
-        q.enqueue(Zoominfo()._company_profile, company_name, api_key)
-        q.enqueue(Linkedin()._company_profile, company_name, api_key)
-        q.enqueue(YellowPages()._company_profile, company_name, api_key)
-        q.enqueue(Yelp()._company_profile, company_name, api_key)
-        q.enqueue(Forbes()._company_profile, company_name, api_key)
-        q.enqueue(GlassDoor()._company_profile, company_name, api_key)
-        q.enqueue(Hoovers()._company_profile, company_name, api_key)
-        q.enqueue(Crunchbase()._company_profile, company_name, api_key)
+        q.enqueue(BusinessWeek()._company_profile,company_name,api_key,timeout=6000)
+        q.enqueue(Zoominfo()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(Linkedin()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(YellowPages()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(Yelp()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(Forbes()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(GlassDoor()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(Hoovers()._company_profile, company_name, api_key,timeout=6000)
+        q.enqueue(Crunchbase()._company_profile, company_name, api_key,timeout=6000)
         # 9
         # whois
         # jigsaw
