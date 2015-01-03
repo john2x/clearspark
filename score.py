@@ -36,8 +36,10 @@ class Score:
         for col in crawls.columns:
             if col in ['score', 'source', 'createdAt']: continue
             df = crawls[[col, 'score', 'source', 'createdAt']]
-            if list(df[col].dropna()) == []: continue
-            if type(list(df[col].dropna())[0]) == list: df[col] = df[col].dropna().apply(tuple)
+            if df[col].dropna().empty: continue
+            if type(list(df[col].dropna())[0]) == list: 
+                df[col] = df[col].dropna().apply(tuple)
+                df[col] = df[df[col] != ()][col]
             df = df[df[col] != ""] if df[col].dtype != "float64" else df
             df = df[df[col].notnull()]
             df = [source[1].sort('createdAt').drop_duplicates(col, True)
@@ -46,7 +48,8 @@ class Score:
             df = [pd.DataFrame(columns=['score', col])] if len(df) is 0 else df
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
-        print final, crawls.industry
+        #print final#, crawls.industry
+        print final['industry']
         final['industry'] = final['industry'][0]
         final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
         final['address'] = FullContact()._normalize_location(final['address'])
