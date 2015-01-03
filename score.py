@@ -74,7 +74,10 @@ class Score:
             print Parse().create(class_name, data).json()
 
     def _source_score(self, df):
-        df.ix[df.source == "linkedin", 'score']    = 10
+        try:
+            df.ix[df.source == "linkedin", 'score']    = 10
+        except:
+            print df
         df.ix[df.source == "zoominfo", 'score']    = 9
         df.ix[df.source == "yelp", 'score']        = 2
         df.ix[df.source == "yellowpages", 'score'] = 3
