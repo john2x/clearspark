@@ -58,7 +58,7 @@ class Score:
         #print final#, crawls.industry
         #final['industry'] = final['industry'][0]
         #final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
-        final['address'] = FullContact()._normalize_location(final['address'])
+        #final['address'] = FullContact()._normalize_location(final['address'])
         self._find_if_object_exists('Company', 'company_name', company_name, final)
         final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
         # TODO - phone should be list of all the different numbers found
