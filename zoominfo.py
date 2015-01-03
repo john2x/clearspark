@@ -116,7 +116,7 @@ class Zoominfo:
         employee_count = company.find('p',{'class':'companyEmployeeCountText'})
         website = company.find('div',{'class':'website'})
         phone = company.find('span',{'class':'hq'})
-        industries = company.find('p', {'class':'industry'}).find_all('span')
+        industries = company.find('p', {'class':'industry'})
         industries = industries.find_all('span') if industries else []
         industries = [industry.text for industry in industries]
         

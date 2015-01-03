@@ -159,7 +159,8 @@ class Hoovers:
         name = bs.find('h1',{'itemprop':'name'}).text.split('Company ')[0]
         telephone = bs.find('span',{'itemprop':'telephone'}).text
         address = bs.find('p',{'itemprop':'address'}).text.split(telephone)[0].strip()
-        url = bs.find('p',{'itemprop':'address'}).find('a').text
+        url = bs.find('p',{'itemprop':'address'}).find('a')
+        url = url.text if url else ""
         cols = ["name","phone","address","website"]
         vals = [name, telephone, address, url]
         info = dict(zip(cols , vals))
