@@ -29,6 +29,9 @@ class Score:
         print api_key
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
+        if not crawls['results']: 
+            print company_name, "nothing found"
+            return company_name
         crawls = self._source_score(pd.DataFrame(crawls['results']))
         crawls = crawls[crawls.api_key == api_key]
         final = {}
