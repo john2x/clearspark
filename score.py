@@ -36,6 +36,7 @@ class Score:
         for col in crawls.columns:
             if col in ['score', 'source', 'createdAt']: continue
             df = crawls[[col, 'score', 'source', 'createdAt']]
+            if list(df[col].dropna()): continue
             if type(list(df[col].dropna())[0]) == list: df[col] = df[col].dropna().apply(tuple)
             df = df[df[col] != ""] if df[col].dtype != "float64" else df
             df = df[df[col].notnull()]
