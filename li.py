@@ -50,7 +50,10 @@ class Linkedin:
         return url if "/company/" in url else "not found"
 
     def _company_profile(self, company_name, api_key):
-        url = self._linkedin_profile_from_name(company_name)
+        qry = company_name+' site:linkedin.com/company'
+        google_results = Google().search(qry)
+        if google_results.empty: return CompanyInfoCrawl()._persist({}, 'linkedin', api_key)
+        url = google_results.ix[0].url
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
         info = json.loads(info.ix[0].to_json())
