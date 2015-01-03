@@ -48,6 +48,7 @@ class Score:
         final['address'] = FullContact()._normalize_location(final['address'])
         self._find_if_object_exists('Company', 'company_name', company_name, final)
         # TODO -phone should be list of all the different numbers found
+        print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final)
 
     def _webhook_should_be_called(self, crawls):
