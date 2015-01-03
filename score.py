@@ -56,7 +56,7 @@ class Score:
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
         #print final#, crawls.industry
-        final['industry'] = final['industry'][0]
+        #final['industry'] = final['industry'][0]
         final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
         final['address'] = FullContact()._normalize_location(final['address'])
         self._find_if_object_exists('Company', 'company_name', company_name, final)
