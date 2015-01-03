@@ -59,8 +59,14 @@ class Score:
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
         print obj
-        if obj: print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
-        else: print Parse().create(class_name, data).json()
+        print data
+        print "FIND IF OBJECT EXISTS"
+        if obj: 
+            print "UPDATE OLD", class_name+'/'+obj[0]['objectId']
+            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
+        else: 
+            print "CREATE NEW", class_name+'/'+obj[0]['objectId']
+            print Parse().create(class_name, data).json()
 
     def _source_score(self, df):
         df.ix[df.source == "linkedin", 'score']    = 10
