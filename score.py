@@ -25,8 +25,11 @@ class Score:
         # TODO - webhook should be called when all calls are complete
         if self._webhook_should_be_called(): Webhook()._post(api_key, final)
 
+    def _remove_non_ascii(self, text):
+        ''.join(i for i in text if ord(i)<128)
     def _company_info(self, company_name, api_key=""):
         print api_key
+        company_name = self._remove_non_ascii(company_name)
         qry = {'where':json.dumps({'company_name': company_name})}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()
         if not crawls['results']: 
@@ -52,7 +55,6 @@ class Score:
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
         #print final#, crawls.industry
-        print final['industry']
         final['industry'] = final['industry'][0]
         final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
         final['address'] = FullContact()._normalize_location(final['address'])
@@ -70,7 +72,11 @@ class Score:
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
-        print obj
+        print "FIND IF OBJECT EXISTS"
+        print "FIND IF OBJECT EXISTS"
+        print "FIND IF OBJECT EXISTS"
+        print "FIND IF OBJECT EXISTS"
+        print "FIND IF OBJECT EXISTS"
         print "FIND IF OBJECT EXISTS"
         if obj: 
             print "UPDATE OLD", class_name+'/'+obj[0]['objectId']
