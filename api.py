@@ -184,6 +184,7 @@ def score_email_pattern():
 @crossdomain(origin='*')
 def score_company_info():
     # Company Info objectId 
+    print request.args
     domain = json.loads(request.args['company_name'])['object']['company_name']
     api_key = json.loads(request.args['company_name'])['object']['api_key']
     #domain = "guidespark"
