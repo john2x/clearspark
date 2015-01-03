@@ -184,12 +184,10 @@ def score_email_pattern():
 @crossdomain(origin='*')
 def score_company_info():
     # Company Info objectId 
-    #domain = json.loads(request.args['company_name'])['object']['company_name']
-    #api_key = json.loads(request.args['company_name'])['object']['api_key']
-    domain, api_key = request.args['company_name'], request.args['api_key']
+    domain = json.loads(request.args['company_name'])['object']['company_name']
+    api_key = json.loads(request.args['company_name'])['object']['api_key']
     #domain = "guidespark"
     #api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
-    print domain
     q.enqueue(Score()._company_info, domain, api_key)
     return {'started': True}
 
