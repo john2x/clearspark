@@ -42,14 +42,16 @@ class Score:
             df = [source[1].sort('createdAt').drop_duplicates(col, True)
                   for source in df.groupby(col)]
             df = [_df for _df in df if _df is not None]
-            df = [pd.DataFrame()] if len(df) is 0 else df
+            df = [pd.DataFrame(columns=['score', col])] if len(df) is 0 else df
             df = pd.concat(df).sort('score')[col]
-            final[col] = list(df)[-1]
+            if list(df): final[col] = list(df)[-1]
         final['industry'] = final['industry'][0]
         final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
         final['address'] = FullContact()._normalize_location(final['address'])
         self._find_if_object_exists('Company', 'company_name', company_name, final)
-        # TODO -phone should be list of all the different numbers found
+        final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
+        # TODO - phone should be list of all the different numbers found
+        # TODO - add handles key which is an array of {source, handle}
         print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final)
 
@@ -61,13 +63,12 @@ class Score:
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
         print obj
-        print data
         print "FIND IF OBJECT EXISTS"
         if obj: 
             print "UPDATE OLD", class_name+'/'+obj[0]['objectId']
             print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
         else: 
-            print "CREATE NEW", class_name+'/'+obj[0]['objectId']
+            print "CREATE NEW"
             print Parse().create(class_name, data).json()
 
     def _source_score(self, df):
