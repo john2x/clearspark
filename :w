@@ -29,17 +29,15 @@ class Score:
         ''.join(i for i in text if ord(i)<128)
 
     def _company_info(self, company_name, api_key=""):
-        #company_name = "lol"
-        #company_name = self._remove_non_ascii(company_name)
-        qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
-        crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
-        print Parse().get('Webhook').json()['results']
-        if not crawls: 
+        print api_key
+        company_name = self._remove_non_ascii(company_name)
+        qry = {'where':json.dumps({'company_name': company_name})}
+        crawls = Parse().get('CompanyInfoCrawl', qry).json()
+        if not crawls['results']: 
             print company_name, "nothing found"
             return company_name
-        print len(crawls)
-        for i in crawls: '''print i'''
-        crawls = self._source_score(pd.DataFrame(crawls))
+        print pd.DataFrame(crawls['results']).columns
+        crawls = self._source_score(pd.DataFrame(crawls['results']))
         crawls = crawls[crawls.api_key == api_key]
         final = {}
         # TODO - filter crawls where crawled company is not at least 85 fuzzy score
@@ -59,12 +57,11 @@ class Score:
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
         #print final#, crawls.industry
-        if 'industry' in final.keys(): final['industry'] = final['industry'][0]
-        final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
-
-        if 'address' in final.keys():
-            final['address'] = FullContact()._normalize_location(final['address'])
+        #final['industry'] = final['industry'][0]
+        #final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
+        #final['address'] = FullContact()._normalize_location(final['address'])
         self._find_if_object_exists('Company', 'company_name', company_name, final)
+        print crawls['handle']
         final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
         # TODO - phone should be list of all the different numbers found
         # TODO - add handles key which is an array of {source, handle}
@@ -78,7 +75,6 @@ class Score:
     def _find_if_object_exists(self, class_name, column, value, data):
         qry = json.dumps({column: value})
         obj = Parse().get(class_name, {'where': qry}).json()['results']
-        print obj
         if obj: 
             print "NEW UPDATE OLD", class_name+'/'+obj[0]['objectId']
             print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
