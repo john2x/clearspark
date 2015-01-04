@@ -64,8 +64,8 @@ class Score:
 
         if 'address' in final.keys():
             final['address'] = FullContact()._normalize_location(final['address'])
-        self._find_if_object_exists('Company', 'company_name', company_name, final)
         final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
+        self._find_if_object_exists('Company', 'company_name', company_name, final)
         # TODO - phone should be list of all the different numbers found
         # TODO - add handles key which is an array of {source, handle}
         print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
