@@ -185,10 +185,10 @@ def score_email_pattern():
 def score_company_info():
     # Company Info objectId 
     print request.args
-    #domain = json.loads(request.args['company_name'])['object']['company_name']
+    domain = json.loads(request.args['company_name'])['object']['company_name']
     #api_key = json.loads(request.args['company_name'])['object']['api_key']
     #domain = "guidespark"
-    domain = request.args['company_name']
+    #domain = request.args['company_name']
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     q.enqueue(Score()._company_info, domain, api_key)
     return {'started': True}
