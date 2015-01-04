@@ -195,6 +195,13 @@ def score_company_info():
     q.enqueue(Score()._company_info, domain, api_key)
     return {'started': True}
 
+'''  ****************************************************
+
+          PreComputed Reports - ClearSpark Effectivness
+     
+****************************************************  '''
+
+
 '''  **************************
 
         Helper Functions

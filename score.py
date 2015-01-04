@@ -24,7 +24,7 @@ class Score:
         self._find_if_object_exists('EmailPattern','domain', domain, score)
         # TODO - add date crawled
         # TODO - webhook should be called when all calls are complete
-        if self._email_webhook_should_be_called(crawls): Webhook()._post(api_key, score)
+        if self._email_webhook_should_be_called(crawls): Webhook()._post(api_key, score, 'email_pattern')
 
     def _remove_non_ascii(self, text):
         ''.join(i for i in text if ord(i)<128)
@@ -70,7 +70,7 @@ class Score:
         # TODO - phone should be list of all the different numbers found
         # TODO - add handles key which is an array of {source, handle}
         print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-        if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final)
+        if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final, 'company_info')
 
     def _email_webhook_should_be_called(self, crawls):
         return True
