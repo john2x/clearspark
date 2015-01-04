@@ -174,8 +174,9 @@ def company_list_employees_webhook():
 @app.route('/v1/score/email_pattern',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def score_email_pattern():
-    domain = json.loads(request.args['domain'])['object']['domain']
+    #domain = json.loads(request.args['domain'])['object']['domain']
     #api_key = json.loads(request.args['domain'])['object']['api_key']
+    domain = request.args['domain']
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     print domain
     q.enqueue(Score()._email_pattern, domain, api_key)
