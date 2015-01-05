@@ -61,7 +61,7 @@ class Score:
             if list(df): final[col] = list(df)[-1]
         #print final#, crawls.industry
         if 'industry' in final.keys(): final['industry'] = final['industry'][0]
-        final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
+        #final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
 
         if 'address' in final.keys():
             final['address'] = FullContact()._normalize_location(final['address'])
