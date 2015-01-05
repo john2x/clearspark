@@ -59,7 +59,7 @@ class Score:
             df = [pd.DataFrame(columns=['score', col])] if len(df) is 0 else df
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
-        #print final#, crawls.industry
+        print final#, crawls.industry
         if 'industry' in final.keys(): final['industry'] = final['industry'][0]
         #final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
 
