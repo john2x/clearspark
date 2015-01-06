@@ -8,9 +8,11 @@ q = Queue(connection=conn)
 
 class MiningJob:
     def employee_webhook(self, company_name, user_id, company_id, qry="",limit=5, list_id=""):
+        print "the_employee_webhook"
         _user = Parse()._pointer('_User', user_id)
         _company = Parse()._pointer('Company', company_id)
         employees = Companies()._employees(company_name, qry)
+        print "the_employees_employee", employees.to_dict('records')
         company = Companies()._get_info(company_name)
         _user = Parse()._pointer('User', user_id)
         # partial token above 85
@@ -49,7 +51,7 @@ class MiningJob:
         _list_id = Prospecter().create('ProspectList', data).json()['objectId']
 
         for company in companies:
-            print company
+            print "789789", company
             q.enqueue(self.employee_webhook, company['name'], 
                            company['user']['objectId'], 
                            company['company']['objectId'], 
