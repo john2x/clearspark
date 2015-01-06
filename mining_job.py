@@ -26,6 +26,7 @@ class MiningJob:
             prospect['pos'] = row['title']
             prospect['city'] = row['locale']
             prospect['lists'] = [Parse()._pointer('ProspectList', list_id)]
+            company['industry'] = company['industry'][0]
             #del prospect['objectId']
             #del prospect['createdAt']
             #del prospect['updatedAt']
