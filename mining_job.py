@@ -26,9 +26,9 @@ class MiningJob:
             prospect['pos'] = row['title']
             prospect['city'] = row['locale']
             prospect['lists'] = [Parse()._pointer('ProspectList', list_id)]
-            del prospect['objectId']
-            del prospect['createdAt']
-            del prospect['updatedAt']
+            #del prospect['objectId']
+            #del prospect['createdAt']
+            #del prospect['updatedAt']
             r = Prospecter().create('Prospect', company)
             print "prospect_create_result", r.json()
             #if index > limit: break
