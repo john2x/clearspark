@@ -139,30 +139,22 @@ def email_research():
 @app.route('/v1/employees/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def employees_webhook():
-    ''' Employees '''
     args = request.args
-    q.enqueue(MiningJob().employee_webhook, args['company_name'], args['prospect_list'])
+    company, prospect_list = args['company_name'], args['prospect_list']
+    q.enqueue(MiningJob().employee_webhook, company, prospect_list)
     return {'started':True }
 
 @app.route('/v1/company_list/employees',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_list_employees_webhook():
-    ''' Employees - (Add Scoring) '''
-    qry = {"lists":Parse()._pointer("CompanyProspectList",request.args['company_list'])}
-    rr = Parse().get('CompanyProspect', {'where':json.dumps(qry),'order':'-createdAt'}, True)
-    _user = rr.json()['results'][0]['user']
-    _company = rr.json()['results'][0]['company']
-    data = {'name':request.args['prospect_list'], 
-            'user':_user, 'company':_company}
-    _list_id =Parse().create('ProspectList',data, True).json()['objectId']
-    for company in rr.json()['results']:
-        print company
-        q.enqueue(MiningJob().employee_webhook, company['name'], 
-                             company['user']['objectId'], 
-                             company['company']['objectId'], 
-                             request.args['qry'], 
-                             request.args['limit'], 
-                             _list_id) 
+    args = request.args
+    company_list_id, list_name = args['company_list'], args['list_name']
+    title_qry, limit = args['title_qry'], request.args['limit']
+    q.enqueue(MiningJob()._company_list_employee_webhook, 
+              company_list_id, 
+              list_name,
+              title_qry,
+              limit)
     return {'started':True }
 
 '''  **************************

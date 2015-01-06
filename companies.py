@@ -173,12 +173,12 @@ class Companies:
         patterns = EmailGuess().streaming_search(domain)
         return patterns
 
-    def _get_info(self, company_name):
-        profile = Linkedin()._company_profile(company_name)
+    def _get_info(self, company_name, api_key=""):
+        profile = Linkedin()._company_profile(company_name, api_key)
         if type(profile) is str: 
-            profile = Zoominfo().search(company_name)
+            profile = Zoominfo().search(company_name, api_key)
             logger.info("zoominfo company "+str(profile))
-        result = Parse()._add_company(profile, company_name)
+        #result = Parse()._add_company(profile, company_name)
         return profile
 
     def _get_long_info(self, company_name):

@@ -12,6 +12,7 @@ class Score:
         qry = {'where':json.dumps({'domain': domain})}
         crawls = Parse().get('CompanyEmailPatternCrawl', qry)
         crawls = pd.DataFrame(crawls.json()['results'])
+        if crawls.empty: return Webhook()._post(api_key, [], 'email_pattern')
         df = crawls[crawls.pattern.notnull()].drop_duplicates('email')
         df = df.pattern.value_counts()
 
@@ -68,9 +69,12 @@ class Score:
         final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
         self._find_if_object_exists('Company', 'company_name', company_name, final)
         # TODO - phone should be list of all the different numbers found
-        # TODO - add handles key which is an array of {source, handle}
+        # TODO - debug industry keywords
         print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-        if self._webhook_should_be_called(crawls): Webhook()._post(api_key, final, 'company_info')
+        # TODO - add RQueue for this
+        if self._webhook_should_be_called(crawls): 
+            Webhook()._post(api_key, final, 'company_info')
+            # TODO - research email domain pattern
 
     def _email_webhook_should_be_called(self, crawls):
         return True
