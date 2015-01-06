@@ -16,7 +16,8 @@ class MiningJob:
         # partial token above 85
         for index, row in employees.iterrows():
             data = row.to_dict()
-            print data
+            print "row_to_persist", data
+            print "company_to_persist", company
             company['user'], company['company'] = _user, _company
             prospect = company
             prospect['name'] = row['name']
@@ -27,7 +28,7 @@ class MiningJob:
             del prospect['createdAt']
             del prospect['updatedAt']
             r = Prospecter().create('Prospect', company)
-            print r.json()
+            print "prospect_create_result", r.json()
             #if index > limit: break
 
     def company_list_employee_webhook(self, company_list, qry="", limit=0,prospect_list=""):
