@@ -160,7 +160,7 @@ class Linkedin:
             company_info['logo'] =  img
             # new code not in other methods in different file
             company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
-            company_info['employee_count'] = int(c.find('a',{'class':'employee-count'}).text)
+            company_info['employee_count'] = int(c.find('a',{'class':'employee-count'}).text.replace(',',''))
 
             if 'headquarters' in company_info.columns:
                 company_info['address'] = company_info['headquarters']

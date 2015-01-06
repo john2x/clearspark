@@ -31,8 +31,7 @@ class Score:
         ''.join(i for i in text if ord(i)<128)
 
     def _company_info(self, company_name, api_key=""):
-        #company_name = "lol"
-        #company_name = self._remove_non_ascii(company_name)
+        company_name = self._remove_non_ascii(company_name)
         qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
         print Parse().get('Webhook').json()['results']
