@@ -26,10 +26,10 @@ class MiningJob:
             prospect['pos'] = row['title']
             prospect['city'] = row['locale']
             prospect['lists'] = [Parse()._pointer('ProspectList', list_id)]
-            company['industry'] = company['industry'][0]
-            #del prospect['objectId']
-            #del prospect['createdAt']
-            #del prospect['updatedAt']
+            if type(company['industry']) is list: 
+                company['industry'] = company['industry'][0]
+            # TODO - add linkedin_url
+            # TODO - prospect profile add prospect_profiles
             r = Prospecter().create('Prospect', company)
             print "prospect_create_result", r.json()
             #if index > limit: break

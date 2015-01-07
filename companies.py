@@ -104,7 +104,6 @@ class Companies:
         results = Google().search(qry, 1)
         results = Linkedin()._google_df_to_linkedin_df(results)
         company_name = '(?i){0}'.format(company_name)
-        #results = results[results.company.str.contains(company_name)]
         results['company_score'] = [fuzz.ratio(company_name, company) 
                                     for company in results.company]
         results['score'] = [fuzz.ratio(keyword, title) 
@@ -129,19 +128,26 @@ class Companies:
         # linkedin companies info 
         return related
 
-    def _research(self, company_name, api_key=""):
-        # Primary Research - [scored]
-        q.enqueue(BusinessWeek()._company_profile,company_name,api_key,timeout=6000)
-        q.enqueue(Zoominfo()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(Linkedin()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(YellowPages()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(Yelp()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(Forbes()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(GlassDoor()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(Hoovers()._company_profile, company_name, api_key,timeout=6000)
-        q.enqueue(Crunchbase()._company_profile, company_name, api_key,timeout=6000)
-        # 9
-        # whois
+    def _research(self, name, api_key=""):
+        # Primary Research
+        job = q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(Zoominfo()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(Linkedin()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(YellowPages()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(Yelp()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(Forbes()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(GlassDoor()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(Hoovers()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
+        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
         # jigsaw
 
         # Secondary Research - sometimes require location or domain
@@ -153,7 +159,6 @@ class Companies:
         #q.enqueue(Companies()._hiring, domain)
         #q.enqueue(Companies()._whois_info, domain)
 
-        #q.enqueue(Companies()._employees, company_name, domain)
         #q.enqueue(Companies()._indeed_profile, domain)
         #q.enqueue(Companies()._twitter, domain)
         #q.enqueue(Companies()._facebook, domain)
@@ -162,10 +167,7 @@ class Companies:
         #q.enqueue(Companies()._traffic_analysis, domain)
         #q.enqueue(Companies()._fundings, domain)
 
-        '''
-        q.enqueue(Facebook()._company_profile(company_name))
-        q.enqueue(Twitter()._company_profile(company_name))
-        '''
+        #q.enqueue(Companies()._employees, company_name, domain)
 
     ''' In Use Methods '''
     def _email_pattern(self, domain):

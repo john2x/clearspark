@@ -38,6 +38,7 @@ class Linkedin:
                              for name in results.title]
         final['title']  = [name.split(' at ')[0].split('-')[-1].strip()
                              for name in results.title]
+        final['linkedin_url'] = results.link
         return final
 
     def _linkedin_profile_from_name(self, company_name):

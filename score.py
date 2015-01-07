@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from webhook import Webhook
 from fullcontact import FullContact
+from email_guess import EmailGuess
 # Scoring 
 
 class Score:
@@ -25,7 +26,9 @@ class Score:
         self._find_if_object_exists('EmailPattern','domain', domain, score)
         # TODO - add date crawled
         # TODO - webhook should be called when all calls are complete
-        if self._email_webhook_should_be_called(crawls): Webhook()._post(api_key, score, 'email_pattern')
+        if self._email_webhook_should_be_called(crawls): 
+            Webhook()._post(api_key, score, 'email_pattern')
+
 
     def _remove_non_ascii(self, text):
         ''.join(i for i in text if ord(i)<128)
@@ -67,13 +70,17 @@ class Score:
             final['address'] = FullContact()._normalize_location(final['address'])
         final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
         self._find_if_object_exists('Company', 'company_name', company_name, final)
-        # TODO - phone should be list of all the different numbers found
+        # TODO - phone should be list of all the different numbers found + source
         # TODO - debug industry keywords
         print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-        # TODO - add RQueue for this
         if self._webhook_should_be_called(crawls): 
             Webhook()._post(api_key, final, 'company_info')
-            # TODO - research email domain pattern
+
+        if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
+            Webhook()._post(api_key, final, 'company_info')
+            for domain in crawls.domain.dropna().drop_duplicates():
+                q.enqueue(EmailGuess().search_sources, domain)
+            #TODO - start secondary research
 
     def _email_webhook_should_be_called(self, crawls):
         return True
