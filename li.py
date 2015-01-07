@@ -29,6 +29,7 @@ class Linkedin:
 
     def _google_df_to_linkedin_df(self, results):
         final = pd.DataFrame()
+        if results.empty: return final
         final['name'] = [name.split('|')[0].strip().split(',')[0] 
                          for name in results.link_text]
         final['locale']  = [name.split('-')[0].strip() 
