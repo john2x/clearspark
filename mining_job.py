@@ -15,25 +15,20 @@ class MiningJob:
         print "the_employees_employee", employees.to_dict('records')
         company = Companies()._get_info(company_name)
         _user = Parse()._pointer('User', user_id)
-        # partial token above 85
         for index, row in employees.iterrows():
             data = row.to_dict()
             print "row_to_persist", data
             print "company_to_persist", company
             company['user'], company['company'] = _user, _company
             prospect = company
-            prospect['name'] = row['name']
-            prospect['pos'] = row['title']
-            prospect['city'] = row['locale']
-            prospect['linkedin_url'] = row['linkedin_url']
+            prospect['name'], prospect['pos'] = row['name'], row['title']
+            prospect['city'], prospect['linkedin_url'] = row['locale'], row['linkedin_url']
             prospect['lists'] = [Parse()._pointer('ProspectList', list_id)]
             if type(company['industry']) is list: 
                 company['industry'] = company['industry'][0]
-            # TODO - add linkedin_url
             # TODO - prospect profile add prospect_profiles
             r = Prospecter().create('Prospect', company)
             print "prospect_create_result", r.json()
-            #if index > limit: break
 
     def company_list_employee_webhook(self, company_list, qry="", limit=0,prospect_list=""):
         qry = {"lists":Parse()._pointer("CompanyProspectList",company_list)}

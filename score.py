@@ -64,11 +64,15 @@ class Score:
             if list(df): final[col] = list(df)[-1]
         print final#, crawls.industry
         if 'industry' in final.keys(): final['industry'] = final['industry'][0]
-        #final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
+        try:
+          final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
+        except:
+          final['industry_keywords'] = []
 
         if 'address' in final.keys():
             final['address'] = FullContact()._normalize_location(final['address'])
         final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
+        final['phones'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
         self._find_if_object_exists('Company', 'company_name', company_name, final)
         # TODO - phone should be list of all the different numbers found + source
         # TODO - debug industry keywords
