@@ -25,6 +25,7 @@ class MiningJob:
             prospect['name'] = row['name']
             prospect['pos'] = row['title']
             prospect['city'] = row['locale']
+            prospect['linkedin_url'] = row['linkedin_url']
             prospect['lists'] = [Parse()._pointer('ProspectList', list_id)]
             if type(company['industry']) is list: 
                 company['industry'] = company['industry'][0]
