@@ -29,8 +29,8 @@ class MiningJob:
             print "prospect_create_result", r.json()
 
         if RQueue()._has_completed("{0}_{1}".format(_company_list, list_id)):
-            print "employee_webhook_has_completed"
-            print Parse("SignalReport/"+_report, {'done':arrow.now()}).json()
+            r = Prospecter().update("SignalReport/"+_report, {'done':arrow.now()})
+            print "employee_webhook_has_completed -->", r.json()
 
     def company_list_employee_webhook(self, company_list,qry="",limit=0,prospect_list=""):
         qry = {"lists": Parse()._pointer("CompanyProspectList",company_list)}
