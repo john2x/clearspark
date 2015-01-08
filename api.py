@@ -150,7 +150,7 @@ def company_list_employees_webhook():
     args = request.args
     company_list_id, list_name = args['company_list'], args['list_name']
     title_qry, limit = args['title_qry'], request.args['limit']
-    q.enqueue(MiningJob()._company_list_employee_webhook, 
+    q.enqueue(MiningJob()._company_list_employees, 
               company_list_id, 
               list_name,
               title_qry,

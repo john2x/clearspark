@@ -87,3 +87,9 @@ class Prospecter:
                         data=json.dumps(data),
                         headers=self._headers)
       return r
+
+  def update(self, className, data):
+      r = requests.put(self._url.format(className),
+                       data=json.dumps(data),
+                       headers=self._master_headers)
+      return r
