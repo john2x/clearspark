@@ -29,17 +29,18 @@ class MiningJob:
             print "prospect_create_result", r.json()
 
         if RQueue()._has_completed("{0}_{1}".format(_company_list, list_id)):
-            r = Prospecter().update("SignalReport/"+_report, {'done':arrow.now()})
+            data = {'done': arrow.now().timestamp}
+            r = Prospecter().update("SignalReport/"+_report, data)
             print "employee_webhook_has_completed -->", r.json()
 
     def company_list_employee_webhook(self, company_list,qry="",limit=0,prospect_list=""):
         qry = {"lists": Parse()._pointer("CompanyProspectList",company_list)}
         rr = Parse().get('CompanyProspect', {'where':json.dumps(qry)})
         for company in rr.json()['results']:
-           self.employee_webhook(company['name'], 
-                                 company['user']['objectId'], 
-                                 company['company']['objectId'], 
-                                 qry, limit, prospect_list) 
+             self.employee_webhook(company['name'], 
+                                   company['user']['objectId'], 
+                                   company['company']['objectId'], 
+                                   qry, limit, prospect_list) 
 
     def _add_reports(self, list_name, companies, company_list, _profile):
         company_list_id = company_list['objectId']
@@ -58,11 +59,6 @@ class MiningJob:
         rr = Prospecter().update('ProspectProfile/'+_profile['objectId'], _report)
         print r.json(), rr.json()
 
-        # TODO - create signal_report
-        # TODO - update company_prospectlist with mining job
-        # TODO - update prospectlist with parent company_prospectlist
-        # TODO - update companyprospectlist with child prospectlist
-        # TODO - update prospectprofile with signal_report
         return (signal_report['objectId'], _list_id)
     
     def _company_list_employees(self, company_list_id, list_name, title, limit):
