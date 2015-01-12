@@ -69,6 +69,7 @@ class Sources:
         CompanyEmailPatternCrawl()._persist(emails, "google_cache_search")
 
     def _whois_search(self, domain):
+        # TODO - fix this
         results = pythonwhois.get_whois(domain)
         try: emails = pythonwhois.get_whois(domain)
         except: return pd.DataFrame()

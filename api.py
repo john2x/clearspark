@@ -102,37 +102,16 @@ def search():
     EmailGuess().streaming_search(domain)
     return {'queued':True} if pattern['results'] else pattern
 
-@app.route('/v1/emails/webhook', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def find_email_address_webhook():
-    domain = request.args['domain']
-    objectId = request.args['objectId']
-    q.enqueue(EmailGuess().search_webhook, domain, objectId)
-    #pattern = check_if_email_pattern_exists(request.args)
-    return {'started': True}
-
-@app.route('/v1/new_emails/webhook', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def find_new_email_address_webhook():
-    website = request.args['domain']
-    domain = "{}.{}".format(tldextract.extract(website).domain,
-                            tldextract.extract(website).tld)
-    objectId = request.args['objectId'] if "objectId" in request.args.keys() else ""
-    name = request.args['name'] if "name" in request.args.keys() else ""
-    research = q.enqueue(EmailGuess().search_sources, domain, name,
-                         timeout=6000)
-    # what about sub jobs for this?
-    #pattern = check_if_email_pattern_exists(request.args)
-    return {'started': True}
-
 @app.route('/v1/email_pattern', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def email_research():
     website = request.args['domain']
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)
+    _domain = whois.whois(domain).domain
+    print "old --> {0} new --> {1}".format(domain, _domain)
     name = request.args['name'] if "name" in request.args.keys() else ""
-    q.enqueue(EmailGuess().search_sources, domain, name, timeout=6000)
+    q.enqueue(EmailGuess().search_sources, _domain, name, timeout=6000)
     return {'started': True}
 
 '''       Employee Stuff        '''
