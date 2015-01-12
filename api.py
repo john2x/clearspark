@@ -6,6 +6,7 @@ import json
 import tldextract
 import arrow
 from parse import Parse
+import whois
 from crossdomain import crossdomain
 from google import Google
 import toofr
