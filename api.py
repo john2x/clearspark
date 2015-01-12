@@ -109,11 +109,13 @@ def email_research():
     website = request.args['domain']
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)
-    _domain = whois.whois(domain).domain
-    print "old --> {0} new --> {1}".format(domain, _domain)
     name = request.args['name'] if "name" in request.args.keys() else ""
-    q.enqueue(EmailGuess().search_sources, _domain, name, timeout=6000)
-    return {'started': True}
+    pattern = Parse().get('EmailPattern', {'domain':domain}).json()['results']
+    if pattern:
+        return pattern[0]['company_email_pattern']
+    else:
+        q.enqueue(EmailGuess().search_sources, _domain, name, timeout=6000)
+        return {'started': True}
 
 '''       Employee Stuff        '''
 @app.route('/v1/employees/webhook', methods=['GET','OPTIONS','POST'])
