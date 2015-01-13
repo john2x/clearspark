@@ -104,7 +104,7 @@ class Score:
         domain_check = Parse().get(class_name, {'where': qry}).json()['results']
         qry = json.dumps({'company_name': company_name})
         name_check = Parse().get(class_name, {'where': qry}).json()['results']
-        if domain_check = [] and name_check == []: 
+        if domain_check == [] and name_check == []: 
             print "NEW CREATE NEW"
             print Parse().create(class_name, data).json()
         else: 
