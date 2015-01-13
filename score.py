@@ -42,7 +42,6 @@ class Score:
     def _company_info(self, company_name, api_key=""):
         #TODO - company_name = self._remove_non_ascii(company_name) add to save
         qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
-        qry['keys'] = 'address,company_name,description,domain,source,api_key'
         crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
 
         if not crawls: 
