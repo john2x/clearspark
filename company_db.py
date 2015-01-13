@@ -179,6 +179,7 @@ class Yelp:
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val['company_name'] = company_name
+        val['company_name'] = company_name
         print "Yelp", val
         CompanyInfoCrawl()._persist(val, "yelp", api_key)
 

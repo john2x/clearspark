@@ -1,10 +1,11 @@
-from parse import Parse
 import json
 import pandas as pd
 import requests
 from webhook import Webhook
 from fullcontact import FullContact
 from email_guess import EmailGuess
+from queue import RQueue
+from parse import Parse
 # Scoring 
 
 class Score:
@@ -38,13 +39,11 @@ class Score:
         company_name = self._remove_non_ascii(company_name)
         qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
         crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
-        print Parse().get('Webhook').json()['results']
         if not crawls: 
             print company_name, "nothing found"
             return company_name
-        print len(crawls)
-        for i in crawls: '''print i'''
         crawls = self._source_score(pd.DataFrame(crawls))
+        print crawls
         crawls = crawls[crawls.api_key == api_key]
         final = {}
         # TODO - filter crawls where crawled company is not at least 85 fuzzy score
@@ -63,7 +62,7 @@ class Score:
             df = [pd.DataFrame(columns=['score', col])] if len(df) is 0 else df
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
-        print final#, crawls.industry
+        print "FINAL ---> ", final#, crawls.industry
         if 'industry' in final.keys(): final['industry'] = final['industry'][0]
         try:
           final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
@@ -89,12 +88,9 @@ class Score:
         # TODO - phone should be list of all the different numbers found + source
         # TODO - debug industry keywords
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
-        print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-        if self._webhook_should_be_called(crawls): 
-            Webhook()._post(api_key, final, 'company_info')
-
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
-            Webhook()._post(api_key, final, 'company_info')
+            #print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+            #Webhook()._post(api_key, final, 'company_info')
             for domain in crawls.domain.dropna().drop_duplicates():
                 q.enqueue(EmailGuess().search_sources, domain)
             Companies()._secondary_research(company_name, domain, api_key)
