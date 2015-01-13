@@ -20,15 +20,16 @@ class Score:
         score = pd.DataFrame()
         score['pattern'], score['freq'] = df.index, df.values
         score['score'] = [freq / float(score.freq.sum()) for freq in score['freq']]
+        score['source'], score['tried'] = 'clearspark', False
         score = score.to_dict('records')
         print score, api_key
         score = {'domain':domain, 'company_email_pattern':score}
         self._find_if_object_exists('EmailPattern','domain', domain, score)
         # TODO - add date crawled
         # TODO - webhook should be called when all calls are complete
+        # TODO - Update company table too
         if self._email_webhook_should_be_called(crawls): 
             Webhook()._post(api_key, score, 'email_pattern')
-
 
     def _remove_non_ascii(self, text):
         ''.join(i for i in text if ord(i)<128)
@@ -71,11 +72,23 @@ class Score:
 
         if 'address' in final.keys():
             final['address'] = FullContact()._normalize_location(final['address'])
-        final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
-        final['phones'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
+        try:
+            final['handles'] = crawls[['source','handle']].dropna().drop_duplicates().to_dict('r')
+        except:
+            "lol"
+          
+        try:
+            final['phones'] = crawls[['source','phone']].dropna().drop_duplicates().to_dict('r')
+        except:
+            "lmao"
+        # TODO - if company_name exists update
+        # TODO - if domain exists under different company_name then update search queries
         self._find_if_object_exists('Company', 'company_name', company_name, final)
+        # also check if domain exists
+
         # TODO - phone should be list of all the different numbers found + source
         # TODO - debug industry keywords
+        # TODO - find main domain from domain -> ie canon.ca should be canon.com
         print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         if self._webhook_should_be_called(crawls): 
             Webhook()._post(api_key, final, 'company_info')
@@ -84,7 +97,20 @@ class Score:
             Webhook()._post(api_key, final, 'company_info')
             for domain in crawls.domain.dropna().drop_duplicates():
                 q.enqueue(EmailGuess().search_sources, domain)
-            #TODO - start secondary research
+            Companies()._secondary_research(company_name, domain, api_key)
+
+    def _company_check(self, company_name, domain, data, class_name="Company"):
+        qry = json.dumps({'domain': domain})
+        domain_check = Parse().get(class_name, {'where': qry}).json()['results']
+        qry = json.dumps({'company_name': company_name})
+        name_check = Parse().get(class_name, {'where': qry}).json()['results']
+        if domain_check = [] and name_check == []: 
+            print "NEW CREATE NEW"
+            print Parse().create(class_name, data).json()
+        else: 
+            print "NEW UPDATE OLD", class_name+'/'+domain_check[0]['objectId']
+            print Parse().update(class_name+'/'+domain_check[0]['objectId'], data).json()
+            # TODO - add search query
 
     def _email_webhook_should_be_called(self, crawls):
         return True

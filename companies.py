@@ -148,31 +148,30 @@ class Companies:
         job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
         job = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
         job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
-        # jigsaw
+        # TODO - jigsaw
 
+    def _secondary_research(self, name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain
-        #q.enqueue(Companies()._company_blog, domain)
-        #q.enqueue(Companies()._technologies, domain)
-        #q.enqueue(Companies()._glassdoor, domain)
-        #q.enqueue(Companies()._press, company_name, domain)
-        #q.enqueue(Companies()._news, company_name, domain)
-        #q.enqueue(Companies()._hiring, domain)
-        #q.enqueue(Companies()._whois_info, domain)
+        q.enqueue(Companies()._company_blog, domain)
+        q.enqueue(Companies()._technologies, domain)
+        q.enqueue(Glassdoor()._reviews, domain)
+        q.enqueue(Crunchbase()._fundings, domain)
+        q.enqueue(Companies()._press, company_name, domain)
+        q.enqueue(Companies()._news, company_name, domain)
+        q.enqueue(Companies()._hiring, domain)
+        q.enqueue(Companies()._employees, company_name, domain)
 
-        #q.enqueue(Companies()._indeed_profile, domain)
-        #q.enqueue(Companies()._twitter, domain)
-        #q.enqueue(Companies()._facebook, domain)
-        #q.enqueue(Companies()._related, domain)
-
+        q.enqueue(Companies()._indeed_profile, domain)
+        q.enqueue(Companies()._twitter, domain)
+        q.enqueue(Companies()._facebook, domain)
+        q.enqueue(Companies()._related, domain)
         #q.enqueue(Companies()._traffic_analysis, domain)
-        #q.enqueue(Companies()._fundings, domain)
-
-        #q.enqueue(Companies()._employees, company_name, domain)
+        #q.enqueue(Companies()._whois_info, domain)
 
     ''' In Use Methods '''
     def _email_pattern(self, domain):
         ''' ClearSpark '''
-        patterns = EmailGuess().streaming_search(domain)
+        patterns = EmailGuess().search_sources(domain)
         return patterns
 
     def _get_info(self, company_name, api_key=""):

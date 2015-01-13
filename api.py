@@ -44,57 +44,13 @@ def company_streaming_info():
         q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
         return company.ix[0].to_dict()
 
-@app.route('/v1/companies/info', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def company_info():
-    q.enqueue(Companies()._async_get_info, request.args['company_name'])
-    company = check_if_company_exists_in_db(request.args)
-    return company if company else {'': 'Your query has been queued.'}
-
-@app.route('/v1/app/companies/info', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def app_company_info():
-    q.enqueue(Companies()._async_get_info, company_name, request.args['objectId'])
-    company = check_if_company_exists_in_db(request.args)
-    return company if company else {'': 'Your query has been queued.'}
-    
-@app.route('/v1/companies/webhook', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def app_company_info_webhook():
-    company = check_if_company_exists_in_db(request.args)
-    q.enqueue(Companies()._get_info_webhook, request.args['company_name'], 
-                                             request.args['objectId'],
-                                             timeout=3600)
-    if company: 
-        r = Parse().update('CompanyProspect/'+request.args['objectId'], company[0], True)
-        rr = Parse().update('Prospect/'+request.args['objectId'], company[0], True)
-        print "RESULTS - ", r.json(), rr.json()
-    return company[0] if company else {'': 'Your query has been queued.'}
-
 @app.route('/v1/companies/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_research():
     q.enqueue(Companies()._research, request.args['company_name'], request.args['api_key'])
     return {'Research has started.': True}
 
-'''  **************************
-
-     Second Thing - EmailGuess
-     
-**************************  '''
-
-@app.route('/v1/companies/domain', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def find_email_address():
-    q.enqueue(EmailGuess().start_search, domain)
-    pattern = check_if_email_pattern_exists(request.args)['results']
-
-    if pattern == []: 
-        return {'queued': True}
-    elif pattern[0]['company_email_pattern']:
-        return {'Error': "Domain email could not be found. Retrying."}
-    else: 
-        return pattern[0]
+'''  ******************** Second Thing - EmailGuess **************************  '''
 
 @app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
@@ -117,7 +73,8 @@ def email_research():
         q.enqueue(EmailGuess().search_sources, _domain, name, timeout=6000)
         return {'started': True}
 
-'''       Employee Stuff        '''
+'''  ************************** Employee Stuff **************************  '''
+
 @app.route('/v1/employees/webhook', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def employees_webhook():
@@ -133,17 +90,10 @@ def company_list_employees_webhook():
     company_list_id, list_name = args['company_list'], args['list_name']
     title_qry, limit = args['title_qry'], request.args['limit']
     q.enqueue(MiningJob()._company_list_employees, 
-              company_list_id, 
-              list_name,
-              title_qry,
-              limit)
+              company_list_id, list_name, title_qry, limit)
     return {'started':True }
 
-'''  **************************
-
-          Scoring
-     
-**************************  '''
+'''  ************************** Scoring **************************  '''
 
 @app.route('/v1/score/email_pattern',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
