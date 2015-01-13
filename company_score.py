@@ -1,5 +1,17 @@
+import json
+import pandas as pd
+import requests
+from webhook import Webhook
+from fullcontact import FullContact
+from email_guess import EmailGuess
+from queue import RQueue
+from parse import Parse
+# Scoring 
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
+
 class CompanyScore:
-    ''' '''
     def _company_info(self, company_name, api_key=""):
         #TODO - company_name = self._remove_non_ascii(company_name) add to save
         qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
