@@ -18,6 +18,7 @@ from press_sources import PRNewsWire
 from press_sources import BusinessWire
 from email_guess import EmailGuess
 from companies import Companies
+from company_score import CompanyScore
 import pandas as pd
 import json
 import email_guess
