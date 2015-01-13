@@ -11,7 +11,6 @@ from crossdomain import crossdomain
 from google import Google
 import toofr
 import requests
-from parse import Parse
 from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName

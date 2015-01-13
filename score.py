@@ -7,6 +7,10 @@ from email_guess import EmailGuess
 from queue import RQueue
 from parse import Parse
 # Scoring 
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
+
 
 class Score:
     def _email_pattern(self, domain, api_key=""):
@@ -36,9 +40,11 @@ class Score:
         ''.join(i for i in text if ord(i)<128)
 
     def _company_info(self, company_name, api_key=""):
-        company_name = self._remove_non_ascii(company_name)
+        #TODO - company_name = self._remove_non_ascii(company_name) add to save
         qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
+        qry['keys'] = 'address,company_name,description,domain,source,api_key'
         crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
+
         if not crawls: 
             print company_name, "nothing found"
             return company_name
@@ -90,10 +96,10 @@ class Score:
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             #print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-            #Webhook()._post(api_key, final, 'company_info')
+            Webhook()._post(api_key, final, 'company_info')
             for domain in crawls.domain.dropna().drop_duplicates():
-                q.enqueue(EmailGuess().search_sources, domain)
-            Companies()._secondary_research(company_name, domain, api_key)
+                ''' q.enqueue(EmailGuess().search_sources, domain) '''
+            #Companies()._secondary_research(company_name, domain, api_key)
 
     def _company_check(self, company_name, domain, data, class_name="Company"):
         qry = json.dumps({'domain': domain})
