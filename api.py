@@ -121,7 +121,7 @@ def score_company_info():
 
 @app.route('/v1/test/score/company_info',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def score_company_info():
+def test_score_company_info():
     # Company Info objectId 
     print request.args
     #domain = json.loads(request.args['company_name'])['object']['company_name']
