@@ -6,7 +6,7 @@ from fullcontact import FullContact
 from email_guess import EmailGuess
 from queue import RQueue
 from parse import Parse
-# Scoring 
+
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
@@ -67,7 +67,7 @@ class CompanyScore:
         # TODO - debug industry keywords
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
-            #print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+            print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
             Webhook()._post(api_key, final, 'company_info')
             for domain in crawls.domain.dropna().drop_duplicates():
                 ''' q.enqueue(EmailGuess().search_sources, domain) '''
