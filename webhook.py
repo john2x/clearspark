@@ -7,7 +7,6 @@ class Webhook:
         print "WEBHOOK WEBHOOK WEBHOOK"
         qry = {'where':json.dumps({'api_key':api_key, 'hook_type' :hook_type})}
         webhooks = Parse().get('Webhook', qry).json()['results']
-        print webhooks, api_key
         for hook in webhooks:
             print hook['url']
             print data

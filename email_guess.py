@@ -73,12 +73,16 @@ class EmailGuess:
                 job.save()
         print len(q.jobs)
 
-    def search_sources(self, domain, name=""):
-        q.enqueue(Sources()._whois_search, domain)
-        q.enqueue(Sources()._google_span_search, domain)
-        q.enqueue(Sources()._press_search, domain)
-        q.enqueue(Sources()._zoominfo_search, domain)
+    def search_sources(self, domain, api_key, name=""):
+        job_1 = q.enqueue(Sources()._whois_search, domain)
+        job_2 = q.enqueue(Sources()._google_span_search, domain)
+        job_3 = q.enqueue(Sources()._press_search, domain)
+        job_4 = q.enqueue(Sources()._zoominfo_search, domain)
         #q.enqueue(Sources()._jigsaw_search, domain)
+        jobs = [job_1, job_2, job_3, job_4]
+        for job in jobs:
+            RQueue()._meta(job, "{0}_{1}".format(domain, api_key))
+
         if name != "":
             q.enqueue(Sources()._mx_server_check, name, domain)
             #q.enqueue(Sources()._linkedin_login_search, name, domain)

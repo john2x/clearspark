@@ -13,6 +13,10 @@ class RQueue:
         print len(jobs), " <-- queue jobs"
         return len(jobs) == 0
 
+    def _meta(self, job, queue_name, value=True):
+        job.meta[queue_name] = value
+        job.save()
+
     def _results(queue_name, domain=False):
         if domain:
             jobs = [job for job in q.jobs if "domain" in job.meta.keys()]

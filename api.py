@@ -25,6 +25,7 @@ import email_guess
 from sources import Sources
 from mining_job import MiningJob
 from score import Score
+from webhook import Webhook
 
 from rq import Queue
 from worker import conn
@@ -32,7 +33,7 @@ q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
 
-@app.route('/v1/companies/streaming/info', methods=['GET','OPTIONS','POST'])
+@app.route('/v1/companies/streaming', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_streaming_info():
     company = check_if_company_exists_in_db(request.args)
@@ -43,6 +44,20 @@ def company_streaming_info():
     else: 
         q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
         return company.ix[0].to_dict()
+
+@app.route('/v1/companies', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _company_research():
+    api_key, company_name = request.args['api_key'], request.args['company_name']
+    qry = {'where':json.dumps({'company_name':company_name})}
+    company = Parse().get('Company', qry).json()['results']
+    print company
+    if company:
+        Webhook()._post(api_key, company[0], 'company_info')
+        return company[0]
+    else:
+        q.enqueue(Companies()._research, company_name, api_key)
+        return {'Research has started.': True}
 
 @app.route('/v1/companies/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
@@ -67,10 +82,11 @@ def email_research():
                             tldextract.extract(website).tld)
     name = request.args['name'] if "name" in request.args.keys() else ""
     pattern = Parse().get('EmailPattern', {'domain':domain}).json()['results']
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     if pattern:
         return pattern[0]['company_email_pattern']
     else:
-        q.enqueue(EmailGuess().search_sources, _domain, name, timeout=6000)
+        q.enqueue(EmailGuess().search_sources, _domain, name, api_key, timeout=6000)
         return {'started': True}
 
 '''  ************************** Employee Stuff **************************  '''

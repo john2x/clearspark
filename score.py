@@ -34,7 +34,7 @@ class Score:
         # TODO - add date crawled
         # TODO - webhook should be called when all calls are complete
         # TODO - Update company table too
-        if self._email_webhook_should_be_called(crawls): 
+        if RQueue()._has_completed("{0}_{1}".format(domain, api_key)):
             Webhook()._post(api_key, score, 'email_pattern')
 
     def _remove_non_ascii(self, text):
