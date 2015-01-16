@@ -15,6 +15,7 @@ q = Queue(connection=conn)
 class Score:
     def _email_pattern(self, domain, api_key=""):
         print ''' Score email pattern based on number of occurrences '''
+        print 'domain'
         qry = {'where':json.dumps({'domain': domain})}
         crawls = Parse().get('CompanyEmailPatternCrawl', qry)
         crawls = pd.DataFrame(crawls.json()['results'])
@@ -44,6 +45,17 @@ class Score:
 
     def _company_prospect_score(self, data):
         ''' How hot a prospect they are based on a couple of factors '''
+
+    def _find_if_object_exists(self, class_name, column, value, data):
+        qry = json.dumps({column: value})
+        obj = Parse().get(class_name, {'where': qry}).json()['results']
+        print obj
+        if obj: 
+            print "NEW UPDATE OLD", class_name+'/'+obj[0]['objectId']
+            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
+        else: 
+            print "NEW CREATE NEW"
+            print Parse().create(class_name, data).json()
 
     def _score(self, patterns):
         ''' Old Scoring To Multiple Patterns '''
