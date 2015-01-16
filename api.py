@@ -26,6 +26,8 @@ from sources import Sources
 from mining_job import MiningJob
 from score import Score
 from webhook import Webhook
+import unicodedata
+from unidecode import unidecode
 
 from rq import Queue
 from worker import conn
@@ -45,10 +47,17 @@ def company_streaming_info():
         q.enqueue(Parse()._add_company, company.ix[0].to_dict(), company_name)
         return company.ix[0].to_dict()
 
+def remove_accents(input_str):
+    input_str = unicode(input_str, 'utf8')
+    nkfd_form = unicodedata.normalize('NFKD', input_str)
+    only_ascii = nkfd_form.encode('ASCII', 'ignore')
+    return only_ascii
+
 @app.route('/v1/companies', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def _company_research():
-    api_key, company_name = request.args['api_key'], request.args['company_name']
+    company_name = remove_accents(request.args['company_name'])
+    api_key = request.args['api_key']
     qry = {'where':json.dumps({'company_name':company_name})}
     company = Parse().get('Company', qry).json()['results']
     print company
@@ -81,10 +90,14 @@ def email_research():
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)
     name = request.args['name'] if "name" in request.args.keys() else ""
-    pattern = Parse().get('EmailPattern', {'domain':domain}).json()['results']
+    pattern = Parse().get('EmailPattern', {'domain':domain}).json()
+    try: pattern = pattern['results']
+    except: print pattern
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     if pattern:
-        return pattern[0]['company_email_pattern']
+        pattern = {'domain':domain, 'company_email_pattern': pattern[0]['company_email_pattern']}
+        Webhook()._post(api_key, pattern, 'email_pattern')
+        return pattern
     else:
         q.enqueue(EmailGuess().search_sources, _domain, name, api_key, timeout=6000)
         return {'started': True}
