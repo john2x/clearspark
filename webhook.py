@@ -9,6 +9,8 @@ class Webhook:
         webhooks = Parse().get('Webhook', qry).json()['results']
         print webhooks, api_key
         for hook in webhooks:
+            print hook['url']
+            print data
             headers = {'content-type': 'application/json'}
             r = requests.post(hook['url'], data=json.dumps(data), headers=headers)
             print 'webhook', r, data, r.text
