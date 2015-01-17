@@ -47,7 +47,8 @@ def company_streaming_info():
         return company.ix[0].to_dict()
 
 def remove_accents(input_str):
-    input_str = unicode(input_str, 'utf8')
+    try: input_str = unicode(input_str, 'utf8')
+    except: "lol"
     nkfd_form = unicodedata.normalize('NFKD', input_str)
     only_ascii = nkfd_form.encode('ASCII', 'ignore')
     return only_ascii
