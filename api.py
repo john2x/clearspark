@@ -27,7 +27,6 @@ from mining_job import MiningJob
 from score import Score
 from webhook import Webhook
 import unicodedata
-from unidecode import unidecode
 
 from rq import Queue
 from worker import conn
