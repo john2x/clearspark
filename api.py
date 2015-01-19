@@ -76,12 +76,16 @@ def company_research():
 
 '''  ******************** Second Thing - EmailGuess **************************  '''
 
-@app.route('/v1/companies/streaming/domain', methods=['GET','OPTIONS','POST'])
+@app.route('/v1/email/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def search():
-    pattern = check_if_email_pattern_exists(request.args)
-    EmailGuess().streaming_search(domain)
-    return {'queued':True} if pattern['results'] else pattern
+    website = request.args['domain']
+    domain = "{}.{}".format(tldextract.extract(website).domain,
+                            tldextract.extract(website).tld)
+    name = request.args['name'] if "name" in request.args.keys() else ""
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
+    return {'queued':True} 
 
 @app.route('/v1/email_pattern', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
@@ -99,7 +103,7 @@ def email_research():
         Webhook()._post(api_key, pattern, 'email_pattern')
         return pattern
     else:
-        q.enqueue(EmailGuess().search_sources, _domain, name, api_key, timeout=6000)
+        q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
         return {'started': True}
 
 '''  ************************** Employee Stuff **************************  '''

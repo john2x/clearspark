@@ -32,7 +32,8 @@ class EmailGuessHelper:
         person = self._name_to_email_variables(str(name).strip())
         person['domain'] = email.strip().split('@')[-1]
         for pattern in self._patterns():
-            _email = pattern.format(**person)
+            #_email = pattern.format(**person)
+            _email = pystache.render(pattern, person)
             if email.lower() == _email.lower(): return pattern
 
     def _bulk_find_email_pattern(self, domain, people):
@@ -40,7 +41,8 @@ class EmailGuessHelper:
         patterns = pd.DataFrame()
         for index, person in people.iterrows():
             for pattern in self._patterns():
-                email = pattern.format(**person)
+                #email = pattern.format(**person)
+                email = pystache.render(pattern, person)
                 if person['email'].lower() != email.lower(): continue
                 info = [pattern.strip(), 
                         person['domain'].strip(), 
@@ -51,41 +53,6 @@ class EmailGuessHelper:
                                             ignore_index=True)
         return patterns
 
-    def _patterns(self):
-        return ['{first_name}@{domain}', '{last_name}@{domain}',
-                '{first_initial}@{domain}', '{last_initial}@{domain}',
-                '{first_name}{last_name}@{domain}',
-                '{first_name}.{last_name}@{domain}',
-                '{first_initial}{last_name}@{domain}',
-                '{first_initial}.{last_name}@{domain}',
-                '{first_name}{last_initial}@{domain}',
-                '{first_name}.{last_initial}@{domain}',
-                '{first_initial}{last_initial}@{domain}',
-                '{first_initial}.{last_initial}@{domain}',
-                '{last_name}{first_name}@{domain}',
-                '{last_name}.{first_name}@{domain}',
-                '{last_name}{first_initial}@{domain}',
-                '{last_name}.{first_initial}@{domain}',
-                '{last_initial}{first_name}@{domain}',
-                '{last_initial}.{first_name}@{domain}',
-                '{last_initial}{first_initial}@{domain}',
-                '{last_initial}.{first_initial}@{domain}',
-                '{first_name}-{last_name}@{domain}',
-                '{first_initial}-{last_name}@{domain}',
-                '{first_name}-{last_initial}@{domain}',
-                '{first_initial}-{last_initial}@{domain}',
-                '{last_name}-{first_name}@{domain}',
-                '{last_name}-{first_initial}@{domain}',
-                '{last_initial}-{first_name}@{domain}',
-                '{last_initial}-{first_initial}@{domain}',
-                '{first_name}_{last_name}@{domain}',
-                '{first_initial}_{last_name}@{domain}',
-                '{first_name}_{last_initial}@{domain}',
-                '{first_initial}_{last_initial}@{domain}',
-                '{last_name}_{first_name}@{domain}',
-                '{last_name}_{first_initial}@{domain}',
-                '{last_initial}_{first_name}@{domain}',
-                '{last_initial}_{first_initial}@{domain}']
 
     def _email_crawl_pointers(self, qry):
         parse = Parse()
@@ -131,3 +98,75 @@ class EmailGuessHelper:
         contacts['last_initial'] = [self._remove_non_ascii(name).split(' ')[0][-1] 
                                     for name in contacts.name]
         return contacts
+
+    def _patterns(self):
+        return ['{{first_name}}@{{domain}}', '{{last_name}}@{{domain}}',
+                '{{first_initial}}@{domain}}', '{{last_initial}}@{{domain}}',
+                '{{first_name}}{{last_name}}@{{domain}}',
+                '{{first_name}}.{{last_name}}@{{domain}}',
+                '{{first_initial}}{{last_name}}@{{domain}}',
+                '{{first_initial}}.{{last_name}}@{{domain}}',
+                '{{first_name}}{{last_initial}}@{{domain}}',
+                '{{first_name}}.{{last_initial}}@{{domain}}',
+                '{{first_initial}}{{last_initial}}@{{domain}}',
+                '{{first_initial}}.{{last_initial}}@{{domain}}',
+                '{{last_name}}{{first_name}}@{{domain}}',
+                '{{last_name}}.{{first_name}}@{{domain}}',
+                '{{last_name}}{{first_initial}}@{{domain}}',
+                '{{last_name}}.{{first_initial}}@{{domain}}',
+                '{{last_initial}}{{first_name}}@{{domain}}',
+                '{{last_initial}}.{{first_name}}@{{domain}}',
+                '{{last_initial}}{{first_initial}}@{{domain}}',
+                '{{last_initial}}.{{first_initial}}@{{domain}}',
+                '{{first_name}}-{{last_name}}@{{domain}}',
+                '{{first_initial}}-{{last_name}}@{{domain}}',
+                '{{first_name}}-{{last_initial}}@{{domain}}',
+                '{{first_initial}}-{{last_initial}}@{{domain}}',
+                '{{last_name}}-{{first_name}}@{{domain}}',
+                '{{last_name}}-{{first_initial}}@{{domain}}',
+                '{{last_initial}}-{{first_name}}@{{domain}}',
+                '{{last_initial}}-{{first_initial}}@{{domain}}',
+                '{{first_name}}_{{last_name}}@{{domain}}',
+                '{{first_initial}}_{{last_name}}@{{domain}}',
+                '{{first_name}}_{{last_initial}}@{{domain}}',
+                '{{first_initial}}_{{last_initial}}@{{domain}}',
+                '{{last_name}}_{{first_name}}@{{domain}}',
+                '{{last_name}}_{{first_initial}}@{{domain}}',
+                '{{last_initial}}_{{first_name}}@{{domain}}',
+                '{{last_initial}}_{{first_initial}}@{{domain}}']
+
+    def _old_patterns(self):
+        return ['{first_name}@{domain}', '{last_name}@{domain}',
+                '{first_initial}@{domain}', '{last_initial}@{domain}',
+                '{first_name}{last_name}@{domain}',
+                '{first_name}.{last_name}@{domain}',
+                '{first_initial}{last_name}@{domain}',
+                '{first_initial}.{last_name}@{domain}',
+                '{first_name}{last_initial}@{domain}',
+                '{first_name}.{last_initial}@{domain}',
+                '{first_initial}{last_initial}@{domain}',
+                '{first_initial}.{last_initial}@{domain}',
+                '{last_name}{first_name}@{domain}',
+                '{last_name}.{first_name}@{domain}',
+                '{last_name}{first_initial}@{domain}',
+                '{last_name}.{first_initial}@{domain}',
+                '{last_initial}{first_name}@{domain}',
+                '{last_initial}.{first_name}@{domain}',
+                '{last_initial}{first_initial}@{domain}',
+                '{last_initial}.{first_initial}@{domain}',
+                '{first_name}-{last_name}@{domain}',
+                '{first_initial}-{last_name}@{domain}',
+                '{first_name}-{last_initial}@{domain}',
+                '{first_initial}-{last_initial}@{domain}',
+                '{last_name}-{first_name}@{domain}',
+                '{last_name}-{first_initial}@{domain}',
+                '{last_initial}-{first_name}@{domain}',
+                '{last_initial}-{first_initial}@{domain}',
+                '{first_name}_{last_name}@{domain}',
+                '{first_initial}_{last_name}@{domain}',
+                '{first_name}_{last_initial}@{domain}',
+                '{first_initial}_{last_initial}@{domain}',
+                '{last_name}_{first_name}@{domain}',
+                '{last_name}_{first_initial}@{domain}',
+                '{last_initial}_{first_name}@{domain}',
+                '{last_initial}_{first_initial}@{domain}']

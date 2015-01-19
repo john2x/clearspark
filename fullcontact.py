@@ -30,3 +30,9 @@ class FullContact:
         data = {'place':location, 'apiKey':'edbdfddbff83c6d8'}
         r = requests.get('https://api.fullcontact.com/v2/address/locationNormalizer.json',params=data) 
         return r.json()
+
+    def _batch_normalize_location(self, location_df):
+        ''' '''
+
+    def _normalize_location_webhook(self, location):
+        ''' '''
