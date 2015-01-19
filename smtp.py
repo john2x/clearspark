@@ -1,7 +1,7 @@
 import smtplib
 
 class SMTP:
-    def _mx_servers(domain):
+    def _mx_servers(self, domain):
         answers = dns.resolver.query(domain, 'MX')
         results = [(str(rdata.exchange), rdata.preference) 
                    for rdata in answers]

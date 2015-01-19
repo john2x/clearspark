@@ -11,6 +11,7 @@ from crawl import CompanyEmailPatternCrawl
 from email_guess_helper import EmailGuessHelper
 import time
 from fullcontact import FullContact
+import pystache
 
 from rq import Queue
 from worker import conn
@@ -47,7 +48,8 @@ class Sources:
             person = EmailGuessHelper()._name_to_email_variables(full_name)
             person['domain'] = email.split('@')[-1]
             for pattern in EmailGuessHelper()._patterns():
-                _email = pattern.format(**person)
+                #_email = pattern.format(**person)
+                _email = pystache.render(pattern, person)
                 if email.lower() == _email.lower():
                     person['pattern'], person['email'] = pattern, email
                     _emails = _emails.append(person, ignore_index=True)

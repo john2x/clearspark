@@ -92,11 +92,10 @@ class Google:
             link_text = lead.find('h3').text
             link = lead.find('a')['href'].split('=')[1].split('&')[0]
             url = lead.find('cite').text
-            link_span = lead.find('span',{'class':'st'}).text
-            try:
-                title = lead.find('div',{'class':'slp'}).text
-            except:
-                title = ""
+            link_span = lead.find('span',{'class':'st'})
+            link_span = link_span.text if link_span else ""
+            title = lead.find('div',{'class':'slp'})
+            title = title.text if title else title
 
             columns = ['link_text','url','title','link_span','link']
             values = [link_text, url,title,link_span, link]
