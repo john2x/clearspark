@@ -14,6 +14,13 @@ class Webhook:
             r = requests.post(hook['url'], data=json.dumps(data), headers=headers)
             print 'webhook', r, data, r.text
 
+    def remove_accents(self, input_str):
+        try: input_str = unicode(input_str, 'utf8')
+        except: "lol"
+        nkfd_form = unicodedata.normalize('NFKD', input_str)
+        only_ascii = nkfd_form.encode('ASCII', 'ignore')
+        return only_ascii
+
     def _update_company_info(self, data):
         company_name = self.remove_accents(data['company_name'])
         qry = {'where':json.dumps({'company_name':data['company_name']})}
