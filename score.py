@@ -27,6 +27,7 @@ class Score:
         score['pattern'], score['freq'] = df.index, df.values
         score['score'] = [freq / float(score.freq.sum()) for freq in score['freq']]
         score['source'], score['tried'] = 'clearspark', False
+        score = score.fillna("")
         score = score.to_dict('records')
         print score, api_key
         score = {'domain':domain, 'company_email_pattern':score}
