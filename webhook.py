@@ -1,6 +1,7 @@
 from parse import Prospecter as Parse
 import requests
 import json
+import unicodedata
 
 class Webhook:
     def _post(self, api_key, data, hook_type):
