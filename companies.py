@@ -128,6 +128,19 @@ class Companies:
         # linkedin companies info 
         return related
 
+    def _bulk(self, company_name, api_key):
+        api_key = request.args['api_key']
+        qry = {'where':json.dumps({'company_name':company_name})}
+        company = Parse().get('Company', qry).json()['results']
+        print company
+        if company:
+            #Webhook()._post(api_key, company[0], 'company_info')
+            Webhook()._update_company_info(company[0])
+            return company[0]
+        else:
+            q.enqueue(Companies()._research, company_name, api_key)
+            return {'Research has started.': True}
+
     def _research(self, name, api_key=""):
         # Primary Research
         job = q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)

@@ -72,7 +72,11 @@ def _company_research():
 @app.route('/v1/companies/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def company_research():
-    q.enqueue(Companies()._research, request.args['company_name'], request.args['api_key'])
+    if 'bulk' in request.args.keys():
+        q.enqueue(Companies()._bulk, request.args['company_name'], request.args['api_key'])
+    else:
+        q.enqueue(Companies()._research, request.args['company_name'], request.args['api_key'])
+      
     return {'Research has started.': True}
 
 '''  ******************** Second Thing - EmailGuess **************************  '''
