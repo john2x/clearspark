@@ -62,7 +62,8 @@ def _company_research():
     company = Parse().get('Company', qry).json()['results']
     print company
     if company:
-        Webhook()._post(api_key, company[0], 'company_info')
+        #Webhook()._post(api_key, company[0], 'company_info')
+        Webhook()._update_company_info(company[0] data):
         return company[0]
     else:
         q.enqueue(Companies()._research, company_name, api_key)
@@ -100,7 +101,8 @@ def email_research():
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     if pattern:
         pattern = {'domain':domain, 'company_email_pattern': pattern[0]['company_email_pattern']}
-        Webhook()._post(api_key, pattern, 'email_pattern')
+        Webhook()._update_company_email_pattern(pattern):
+        #Webhook()._post(api_key, pattern, 'email_pattern')
         return pattern
     else:
         q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
