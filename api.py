@@ -101,7 +101,7 @@ def email_research():
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     if pattern:
         pattern = {'domain':domain, 'company_email_pattern': pattern[0]['company_email_pattern']}
-        Webhook()._update_company_email_pattern(pattern):
+        Webhook()._update_company_email_pattern(pattern)
         #Webhook()._post(api_key, pattern, 'email_pattern')
         return pattern
     else:
