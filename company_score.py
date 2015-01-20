@@ -71,7 +71,7 @@ class CompanyScore:
             Webhook()._update_company_info(final)
             print final
             for domain in crawls.domain.dropna().drop_duplicates():
-                q.enqueue(EmailGuess().search_sources, domain, api_key)
+                ''' q.enqueue(EmailGuess().search_sources, domain, api_key) '''
           #Companies()._secondary_research(company_name, domain, api_key)
 
     def _company_check(self, company_name, domain, data, class_name="Company"):
