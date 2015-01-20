@@ -67,7 +67,8 @@ class CompanyScore:
         print "RQUEUE CHECK"
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-            Webhook()._post(api_key, final, 'company_info')
+            #Webhook()._post(api_key, final, 'company_info')
+            Webhook()._update_company_info(final)
             print final
             for domain in crawls.domain.dropna().drop_duplicates():
                 q.enqueue(EmailGuess().search_sources, domain, api_key)
