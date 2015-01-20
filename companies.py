@@ -218,7 +218,6 @@ class Companies:
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
         return profile
 
-
 class CompanyTrends:
     def linkedin_followers():
         ''' '''

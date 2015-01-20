@@ -40,7 +40,7 @@ class Webhook:
             print Parse().update('Company/'+company['objectId'], data).json()
 
             _company = Parse()._pointer('Company', company['objectId'])
-            classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
+            classes = ['Company','Prospect','CompanyProspect','PeopleSignal','CompanySignal']
             for _class in classes:
                 objects = Parse().get(_class, qry).json()['results']
                 for obj in objects:
