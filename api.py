@@ -63,7 +63,7 @@ def _company_research():
     print company
     if company:
         #Webhook()._post(api_key, company[0], 'company_info')
-        Webhook()._update_company_info(company[0]):
+        Webhook()._update_company_info(company[0])
         return company[0]
     else:
         q.enqueue(Companies()._research, company_name, api_key)
