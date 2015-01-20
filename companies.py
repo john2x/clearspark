@@ -128,8 +128,7 @@ class Companies:
         # linkedin companies info 
         return related
 
-    def _bulk(self, company_name, api_key):
-        api_key = request.args['api_key']
+    def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
         company = Parse().get('Company', qry).json()['results']
         print company
