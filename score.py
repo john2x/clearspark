@@ -38,7 +38,7 @@ class Score:
         if RQueue()._has_completed("{0}_{1}".format(domain, api_key)):
             #Webhook()._post(api_key, score, 'email_pattern')
             Webhook()._update_company_email_pattern(score)
-
+            # Parse.get('CompanyProfile', {}) || Pusher.update()
 
     def _remove_non_ascii(self, text):
         ''.join(i for i in text if ord(i)<128)

@@ -38,7 +38,7 @@ class CompanyScore:
             df = [pd.DataFrame(columns=['score', col])] if len(df) is 0 else df
             df = pd.concat(df).sort('score')[col]
             if list(df): final[col] = list(df)[-1]
-        print "FINAL ---> ", final#, crawls.industry
+        #print "FINAL ---> ", final#, crawls.industry
         if 'industry' in final.keys(): final['industry'] = final['industry'][0]
         try:
           final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
@@ -59,7 +59,7 @@ class CompanyScore:
         # TODO - if company_name exists update
         # TODO - if domain exists under different company_name then update search queries
         self._find_if_object_exists('Company', 'company_name', company_name, final)
-        # also check if domain exists
+        # TODO - also check if domain exists
 
         # TODO - phone should be list of all the different numbers found + source
         # TODO - debug industry keywords
@@ -69,10 +69,21 @@ class CompanyScore:
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
             #Webhook()._post(api_key, final, 'company_info')
             Webhook()._update_company_info(final)
-            print final
+            #print final
             for domain in crawls.domain.dropna().drop_duplicates():
                 ''' q.enqueue(EmailGuess().search_sources, domain, api_key) '''
           #Companies()._secondary_research(company_name, domain, api_key)
+
+    def _find_if_object_exists(self, class_name, column, value, data):
+        qry = json.dumps({column: value})
+        obj = Parse().get(class_name, {'where': qry}).json()['results']
+        #print obj
+        if obj: 
+            print "NEW UPDATE OLD", class_name+'/'+obj[0]['objectId']
+            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
+        else: 
+            print "NEW CREATE NEW"
+            print Parse().create(class_name, data).json()
 
     def _company_check(self, company_name, domain, data, class_name="Company"):
         qry = json.dumps({'domain': domain})
@@ -93,17 +104,6 @@ class CompanyScore:
     def _webhook_should_be_called(self, crawls):
         print crawls.source.drop_duplicates().shape[0]
         return True
-
-    def _find_if_object_exists(self, class_name, column, value, data):
-        qry = json.dumps({column: value})
-        obj = Parse().get(class_name, {'where': qry}).json()['results']
-        print obj
-        if obj: 
-            print "NEW UPDATE OLD", class_name+'/'+obj[0]['objectId']
-            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
-        else: 
-            print "NEW CREATE NEW"
-            print Parse().create(class_name, data).json()
 
     def _source_score(self, df):
         try:

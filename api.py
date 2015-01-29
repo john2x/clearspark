@@ -63,7 +63,7 @@ def _company_research():
     print company
     if company:
         #Webhook()._post(api_key, company[0], 'company_info')
-        Webhook()._update_company_info(company[0])
+        q.enqueue(Webhook()._update_company_info, company[0])
         return company[0]
     else:
         q.enqueue(Companies()._research, company_name, api_key)
@@ -105,7 +105,7 @@ def email_research():
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     if pattern:
         pattern = {'domain':domain, 'company_email_pattern': pattern[0]['company_email_pattern']}
-        Webhook()._update_company_email_pattern(pattern)
+        q.enqueue(Webhook()._update_company_email_pattern, pattern)
         #Webhook()._post(api_key, pattern, 'email_pattern')
         return pattern
     else:
@@ -137,9 +137,9 @@ def company_list_employees_webhook():
 @app.route('/v1/score/email_pattern',methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def score_email_pattern():
-    #domain = json.loads(request.args['domain'])['object']['domain']
+    domain = json.loads(request.args['domain'])['object']['domain']
     #api_key = json.loads(request.args['domain'])['object']['api_key']
-    domain = request.args['domain']
+    #domain = request.args['domain']
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     print domain
     q.enqueue(Score()._email_pattern, domain, api_key)
@@ -156,6 +156,15 @@ def score_company_info():
     #domain = request.args['company_name']
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     q.enqueue(CompanyScore()._company_info, domain, api_key)
+    return {'started': True}
+
+@app.route('/v1/test/score/email_pattern',methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def test_score_email_pattern():
+    domain = request.args['domain']
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    print domain
+    q.enqueue(Score()._email_pattern, domain, api_key)
     return {'started': True}
 
 @app.route('/v1/test/score/company_info',methods=['GET','OPTIONS','POST'])
