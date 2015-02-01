@@ -56,6 +56,7 @@ def remove_accents(input_str):
 @app.route('/v1/companies', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def _company_research():
+    #TODO - check if api key is valid and increment request count
     company_name = remove_accents(request.args['company_name'])
     api_key = request.args['api_key']
     qry = {'where':json.dumps({'company_name':company_name})}

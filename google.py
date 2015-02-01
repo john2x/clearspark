@@ -19,10 +19,13 @@ class Google:
             print page
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://www.google.com/search?'+ args
+            '''
             cloak = "https://crawlera.p.mashape.com/fetch"
             headers = {"X-Mashape-Key":
                 "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
             r = requests.get(cloak, params={'url':url}, headers=headers)
+            '''
+            r = requests.get(url)
             res = res.append(self._results_to_html_df(r.text))
             # filter only linkedin_url
         return res
