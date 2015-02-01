@@ -6,9 +6,9 @@ import unicodedata
 import pusher
 
 _pusher = pusher.Pusher(
-  app_id='70217',
-  key='1a68a96c8fde938fa75a',
-  secret='e60c9259d0618b479ec2'
+  app_id='105534',
+  key='950f66be1f764448120e',
+  secret='5c7a91f7e0da71c57dbf'
 )
 
 class Webhook:
@@ -53,7 +53,15 @@ class Webhook:
             print company
             companies = [Parse()._pointer('Company',company['objectId'])]
 
-        _pusher['customero'].trigger(data["company_name"], {'company': data})
+        _pusher = pusher.Pusher(
+          app_id='105534',
+          key='950f66be1f764448120e',
+          secret='5c7a91f7e0da71c57dbf'
+        )
+
+        print data["company_name"]
+        company_name = data["company_name"].replace(' ','-')
+        _pusher['customero'].trigger(company_name, {'company': data})
 
         print "__STARTED", len(companies)
         for company in companies:
@@ -95,13 +103,8 @@ class Webhook:
         qry = {'where':json.dumps({'domain': data['domain']})}
         companies = Parse().get('Company', qry).json()['results']
         # if email pattern is []: then guess
-        p = pusher.Pusher(
-          app_id='70217',
-          key='1a68a96c8fde938fa75a',
-          secret='e60c9259d0618b479ec2'
-        )
-        p['customero'].trigger(data["domain"], 
-                    {'email_pattern': data['company_email_pattern']})
+        pattern = {'email_pattern': data['company_email_pattern']}
+        _pusher['customero'].trigger(data["domain"], pattern)
         for company in companies:
             r = Parse().update('Company/'+company['objectId'], {'email_pattern':data['company_email_pattern']})
             # pusher -->
