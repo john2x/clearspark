@@ -38,10 +38,13 @@ class Google:
     def cache(self, url):
         url = url.replace('&', '%26')
         url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
+        '''
         cloak = "https://crawlera.p.mashape.com/fetch"
         headers = {"X-Mashape-Key": 
                    "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
         r = requests.get(cloak, params={'url':url}, headers=headers)
+        '''
+        r = requests.get(url)
         return r.text
 
     def ec2_search(self, qry, pages=1):
@@ -61,10 +64,13 @@ class Google:
             print page
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://news.google.com/'+ args
+            '''
             cloak = "https://crawlera.p.mashape.com/fetch"
             headers = {"X-Mashape-Key": 
                        "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
             r = requests.get(cloak, params={'url':url}, headers=headers)
+            '''
+            r = requests.get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res
 
@@ -81,10 +87,13 @@ class Google:
             qry = self._remove_non_ascii(qry)
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://www.google.com/search?'+ args
+            '''
             cloak = "https://crawlera.p.mashape.com/fetch"
             headers = {"X-Mashape-Key":
                 "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
             r = requests.get(cloak, params={'url':url}, headers=headers)
+            '''
+            r = requests.get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res
 
