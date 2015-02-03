@@ -141,26 +141,26 @@ class Companies:
             q.enqueue(Companies()._research, company_name, api_key)
             return {'Research has started.': True}
 
-    def _research(self, name, api_key=""):
+    def _research(self, name, api_key="", prospect_name=""):
         # Primary Research
         job = q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(Zoominfo()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(Linkedin()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(YellowPages()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(Yelp()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(Forbes()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(GlassDoor()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(Hoovers()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         job = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = True; job.save()
+        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
         # TODO - jigsaw
 
     def _secondary_research(self, name, domain, api_key=""):

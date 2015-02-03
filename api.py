@@ -2,6 +2,7 @@ from flask.ext.api import FlaskAPI
 import pusher
 from flask import request
 import requests
+from sources import Sources
 import json
 import tldextract
 import arrow
@@ -57,17 +58,18 @@ def remove_accents(input_str):
 @crossdomain(origin='*')
 def _company_research():
     #TODO - check if api key is valid and increment request count
+    #TODO - add name if name is present
     company_name = remove_accents(request.args['company_name'])
     api_key = request.args['api_key']
     qry = {'where':json.dumps({'company_name':company_name})}
     company = Parse().get('Company', qry).json()['results']
+    name = ""
     print company
     if company:
-        #Webhook()._post(api_key, company[0], 'company_info')
-        q.enqueue(Webhook()._update_company_info, company[0])
+        q.enqueue(Webhook()._update_company_info, company[0], api_key, name)
         return company[0]
     else:
-        q.enqueue(Companies()._research, company_name, api_key)
+        q.enqueue(Companies()._research, company_name, api_key, name)
         return {'Research has started.': True}
 
 @app.route('/v1/companies/research', methods=['GET','OPTIONS','POST'])
@@ -93,9 +95,16 @@ def search():
     q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
     return {'queued':True} 
 
+@app.route('/v1/mx_search', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def mx_search():
+    name, domain = request.args['name'], request.args['domain']
+    return Sources()._mx_server_check(name, domain)
+
 @app.route('/v1/email_pattern', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def email_research():
+    #TODO - add name support
     website = request.args['domain']
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)

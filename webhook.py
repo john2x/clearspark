@@ -39,7 +39,7 @@ class Webhook:
         
         return data
 
-    def _update_company_info(self, data):
+    def _update_company_info(self, data, api_key="", name=""):
         print data 
         company_name = self.remove_accents(data['company_name'])
         qry = {'where':json.dumps({'company_name':data['company_name']})}
@@ -71,6 +71,10 @@ class Webhook:
             classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
             for _class in classes:
                 objects = Parse().get(_class, qry).json()['results']
+                name = ""
+                if _class == 'Prospect':
+                    q.enqueue(EmailGuess().search_sources, domain, name, api_key)
+                # add name email guess
                 print "OBJECTS FOUND WITH COMPANY", objects
                 for obj in objects:
                     print "UPDATED", _class, obj
@@ -102,8 +106,9 @@ class Webhook:
         if not data: return 0
         qry = {'where':json.dumps({'domain': data['domain']})}
         companies = Parse().get('Company', qry).json()['results']
-        # if email pattern is []: then guess
         pattern = {'email_pattern': data['company_email_pattern']}
+        if data['company_email_pattern'] == []: 
+            pattern['email_guess'] = EmailGuess()._random()
         _pusher['customero'].trigger(data["domain"], pattern)
         for company in companies:
             r = Parse().update('Company/'+company['objectId'], {'email_pattern':data['company_email_pattern']})

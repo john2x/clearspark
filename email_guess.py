@@ -1,5 +1,6 @@
 import requests
 from parse import Parse
+from parse import Prospecter
 from google import Google
 from bs4 import BeautifulSoup
 from nameparser import HumanName
@@ -80,9 +81,23 @@ class EmailGuess:
         job_4 = q.enqueue(Sources()._zoominfo_search, domain)
         #q.enqueue(Sources()._jigsaw_search, domain)
         jobs = [job_1, job_2, job_3, job_4]
+        if name != "":
+            job_5 = q.enqueue(Sources()._mx_server_check, name, domain)
+            job_6 = q.enqueue(Sources()._linkedin_login_search, name, domain)
+            jobs = jobs + [job_5, job_6]
+
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(domain, api_key))
 
-        if name != "":
-            q.enqueue(Sources()._mx_server_check, name, domain)
-            #q.enqueue(Sources()._linkedin_login_search, name, domain)
+
+    def _random(self):
+      qry = {'order':'-createdAt'}
+      patterns= Prospecter().get('EmailPattern', qry).json()['results']
+      email_guesses = []
+      for count, pattern in enumerate(patterns):
+          data = {'pattern': pattern['pattern'],
+                 'tried': False,
+                 'source':'random_guess'}
+          email_guesses.append(data)
+      random.shuffle(email_guesses)
+      return email_guesses
