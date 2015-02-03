@@ -1,5 +1,5 @@
 import smtplib
-import dnspython
+#import dnspython
 
 class SMTP:
     def _mx_servers(self, domain):
