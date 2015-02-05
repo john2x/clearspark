@@ -5,6 +5,10 @@ import json
 import unicodedata
 import pusher
 
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
+
 _pusher = pusher.Pusher(
   app_id='105534',
   key='950f66be1f764448120e',
