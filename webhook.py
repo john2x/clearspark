@@ -4,6 +4,7 @@ import requests
 import json
 import unicodedata
 import pusher
+from email_guess import EmailGuess
 
 from rq import Queue
 from worker import conn
