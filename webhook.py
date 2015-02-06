@@ -78,7 +78,8 @@ class Webhook:
                 objects = Parse().get(_class, qry).json()['results']
                 name = ""
                 if _class == 'Prospect':
-                    q.enqueue(EmailGuess().search_sources, domain, name, api_key)
+                    domain = company["domain"]
+                    q.enqueue(EmailGuess().search_sources, domain, "", api_key)
                 # add name email guess
                 print "OBJECTS FOUND WITH COMPANY", objects
                 for obj in objects:

@@ -68,9 +68,13 @@ class CompanyScore:
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
             Webhook()._update_company_info(final)
+            job = q.enqueue(EmailGuess().search_sources, final["domain"],api_key,"")
+            job.meta["{0}_{1}".format(company_name, api_key)] = True
+            job.save()
             for domain in crawls.domain.dropna().drop_duplicates():
-                name = q.meta["{0}_{1}".format(company_name, api_key)]
-                q.enqueue(EmailGuess().search_sources, domain, api_key, name)
+                job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
+                job.meta["{0}_{1}".format(company_name, api_key)] = True
+                job.save()
           #Companies()._secondary_research(company_name, domain, api_key)
 
     def _find_if_object_exists(self, class_name, column, value, data):
