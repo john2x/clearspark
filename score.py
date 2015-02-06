@@ -38,7 +38,7 @@ class Score:
         if RQueue()._has_completed("{0}_{1}".format(domain, api_key)):
             #Webhook()._post(api_key, score, 'email_pattern')
             if score['company_email_pattern'] == []:
-                score['email_guess'] = EmailGuess().guess()
+                score['email_guess'] = EmailGuess()._random()
             Webhook()._update_company_email_pattern(score)
             # Parse.get('CompanyProfile', {}) || Pusher.update()
 
