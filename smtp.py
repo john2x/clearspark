@@ -1,18 +1,23 @@
 import smtplib
-#import dnspython
+import dns as dns
+from dns import resolver
 
 class SMTP:
     def _mx_servers(self, domain):
-        answers = dns.resolver.query(domain, 'MX')
+        answers = resolver.query(domain, 'MX')
         results = [(str(rdata.exchange), rdata.preference) 
                    for rdata in answers]
         return results
 
     def _smtp_auth(self, mx_servers):
-        smtp = smtplib.SMTP(mx_servers[0][0], 25)
-        smtp.helo()
-        smtp.docmd('mail from:<labnol@labnol.org>')
-        return smtp
+      for server in mx_servers:
+        try: 
+          smtp = smtplib.SMTP(server[0], 25)
+          smtp.helo()
+          smtp.docmd('mail from:<labnol@labnol.org>')
+          return smtp
+        except:
+          continue
     
     def find_valid_email_patterns(self, prospect, smtp):
         for pattern in _patterns():

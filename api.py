@@ -99,7 +99,8 @@ def search():
 @crossdomain(origin='*')
 def mx_search():
     name, domain = request.args['name'], request.args['domain']
-    return Sources()._mx_server_check(name, domain)
+    q.enqueue(Sources()._mx_server_check, name, domain)
+    return {'started': True}
 
 @app.route('/v1/email_pattern', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

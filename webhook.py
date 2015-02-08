@@ -76,17 +76,17 @@ class Webhook:
             classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
             for _class in classes:
                 objects = Parse().get(_class, qry).json()['results']
-                name = ""
-                if _class == 'Prospect':
-                    domain = company["domain"]
-                    q.enqueue(EmailGuess().search_sources, domain, "", api_key)
-                # add name email guess
                 print "OBJECTS FOUND WITH COMPANY", objects
                 for obj in objects:
                     print "UPDATED", _class, obj
                     _id = obj['objectId']
                     print Parse().update(_class+"/"+_id, {'company':_company}).json()
                         # pusher update with 
+                #TODO - add name email guess
+                name = ""
+                if _class == 'Prospect':
+                    domain = company["domain"]
+                    q.enqueue(EmailGuess().search_sources, domain, "", api_key)
 
         return "updated"
 

@@ -131,14 +131,19 @@ class Sources:
     def _mx_server_check(self, name, domain):
         print "START MX SERVER CHECK"
         mx_servers = SMTP()._mx_servers(domain)
+        print mx_servers
         smtp = SMTP()._smtp_auth(mx_servers)
+        print smtp
         try: 
             mx_servers = SMTP()._mx_servers(domain)
             smtp = SMTP()._smtp_auth(mx_servers)
         except: return pd.DataFrame()
 
+        print "vars"
         prospect = EmailGuessHelper()._name_to_email_variables(name)
+        print prospect
         prospect['domain'] = domain
+        print prospect
         results = pd.DataFrame()
         print prospect
         for pattern in EmailPattern()._patterns():
