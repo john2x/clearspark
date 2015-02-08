@@ -147,7 +147,7 @@ class Sources:
         results = pd.DataFrame()
         print prospect
         for pattern in EmailGuessHelper()._patterns():
-            email = pattern.format(**prospect)
+            email = pystache.render(pattern, prospect)
             try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
             except: continue
             prospect['smtp_result'] = result[1]
@@ -155,6 +155,7 @@ class Sources:
             if 'OK' in result[1]: 
                 prospect['email'] = email
                 results = results.append(prospect, ignore_index=True)
+                CompanyInfoCrawl()._persist({'pattern':pattern, source="mx_check"})
         # persist to parse
         return results
 
