@@ -151,12 +151,13 @@ class Sources:
             try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
             except: continue
             prospect['smtp_result'] = result[1]
+            prospect["pattern"] = pattern
             print result
             if 'OK' in result[1]: 
                 prospect['email'] = email
                 results = results.append(prospect, ignore_index=True)
-                CompanyInfoCrawl()._persist({'pattern':pattern, source="mx_check"})
         # persist to parse
+        CompanyEmailPatternCrawl()._persist(results, source="mx_check")
         return results
 
     #TODO - finish integrating these data sources
