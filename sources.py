@@ -146,7 +146,7 @@ class Sources:
         print prospect
         results = pd.DataFrame()
         print prospect
-        for pattern in EmailPattern()._patterns():
+        for pattern in EmailGuessHelper()._patterns():
             email = pattern.format(**prospect)
             try: result = smtp.docmd('rcpt to:<{0}>'.format(email))
             except: continue
