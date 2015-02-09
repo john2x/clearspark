@@ -12,6 +12,7 @@ from email_guess_helper import EmailGuessHelper
 import time
 from fullcontact import FullContact
 import pystache
+from splinter import Browser
 
 from rq import Queue
 from worker import conn
@@ -37,6 +38,15 @@ class Sources:
       emails = self._research_emails(emails)
       CompanyEmailPatternCrawl()._persist(emails, "google_span_search")
 
+    def _deduce_email_pattern(self, full_name, email):
+        person = EmailGuessHelper()._name_to_email_variables(full_name)
+        person['domain'] = email.split('@')[-1]
+        for pattern in EmailGuessHelper()._patterns():
+            _email = pystache.render(pattern, person)
+            if email.lower() == _email.lower():
+                person['pattern'], person['email'] = pattern, email
+                return person               
+
     def _research_emails(self, emails):
         _emails = pd.DataFrame()
         for email in emails:
@@ -48,7 +58,6 @@ class Sources:
             person = EmailGuessHelper()._name_to_email_variables(full_name)
             person['domain'] = email.split('@')[-1]
             for pattern in EmailGuessHelper()._patterns():
-                #_email = pattern.format(**person)
                 _email = pystache.render(pattern, person)
                 if email.lower() == _email.lower():
                     person['pattern'], person['email'] = pattern, email
@@ -161,6 +170,42 @@ class Sources:
         return results
 
     #TODO - finish integrating these data sources
+    def _jigsaw_search(self, company_name):
+        browser = Browser('chrome')
+        browser.visit('https://connect.data.com/login')
+        browser.find_by_css('#j_username').first.fill('robin@customerohq.com')
+        browser.find_by_css('#j_password').first.fill('951562nileppeZ')
+        browser.find_by_css('#login_btn').first.click()
+        browser.find_by_css('#homepageSBS').first.fill(company_name)
+        browser.find_by_css('.homepage-search-icon').first.click()
+
+        if len(browser.find_by_css('.companyName')):
+            time.sleep(1)
+            browser.find_by_css('.companyName').first.click()
+            time.sleep(1)
+            browser.find_by_css('.company-counts > a').first.click()
+            time.sleep(1)
+            #browser.find_by_name('directDial').first.click()
+            time.sleep(1)
+            browser.find_by_css('.td-name > a').first.click()
+            #browser.find_by_css('td.name').first.click()
+            time.sleep(1)
+            try:
+              ''' browser.find_by_css('#getDetailsLink').first.click() '''
+            except:
+              ''' lol '''
+            name = browser.find_by_css('.businesscard-contactinfo-name')[0].text
+            emails = browser.find_by_css('.businesscard-contactinfo-email')[0].text
+            print name, emails
+            print self._deduce_email_pattern(name, emails)
+        
+    def _domain_harvest(self, domain):
+        ''' Crawl Domain And Extract '''
+
+    # TODO - later
+    def _personal_mongo_check(self, domain):
+        ''' Personal DB Check '''
+
     def _linkedin_login_search(self, domain):
         ''' linkedin login search '''
 
@@ -170,11 +215,3 @@ class Sources:
     def _mass_mx_server_check(self, domain):
         ''' get employees then mx server check '''
 
-    def _jigsaw_search(self, domain):
-        ''' data.com browser automation '''
-        
-    def _personal_mongo_check(self, domain):
-        ''' Personal DB Check '''
-
-    def _domain_harvest(self, domain):
-        ''' Crawl Domain And Extract '''

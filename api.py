@@ -34,6 +34,12 @@ from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
+@app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def jigsaw_search():
+    company_name = request.args['company_name']
+    q.enqueue(Sources()._jigsaw_search, company_name)
+    return {'started': True}
 
 @app.route('/v1/companies/streaming', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

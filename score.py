@@ -32,9 +32,9 @@ class Score:
         print score, api_key
         score = {'domain':domain, 'company_email_pattern':score}
         self._find_if_object_exists('EmailPattern','domain', domain, score)
-        # TODO - add date crawled
-        # TODO - webhook should be called when all calls are complete
-        # TODO - Update company table too
+        # TODO - add date crawled to score
+        # TODO - factor in mx check and if theres over 10 false positives 
+        # don't weigh too heavily
         if RQueue()._has_completed("{0}_{1}".format(domain, api_key)):
             #Webhook()._post(api_key, score, 'email_pattern')
             if score['company_email_pattern'] == []:
