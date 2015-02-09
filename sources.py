@@ -172,7 +172,7 @@ class Sources:
     #TODO - finish integrating these data sources
     def _jigsaw_search(self, company_name):
         #browser = Browser('chrome')
-        browser = Browser()
+        browser = Browser('phantomjs')
         browser.visit('https://connect.data.com/login')
         browser.find_by_css('#j_username').first.fill('robin@customerohq.com')
         browser.find_by_css('#j_password').first.fill('951562nileppeZ')
