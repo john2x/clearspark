@@ -174,26 +174,16 @@ class Sources:
 
     #TODO - finish integrating these data sources
     def _jigsaw_search(self, company_name):
-        #browser = Browser('chrome')
-        browser = Browser('phantomjs')
+        browser = Browser('chrome')
+        #browser = Browser('phantomjs')
         browser.visit('https://connect.data.com/login')
         browser.find_by_css('#j_username').first.fill('robin@customerohq.com')
         browser.find_by_css('#j_password').first.fill('951562nileppeZ')
         print "started"
         browser.find_by_css('#login_btn').first.click()
-        #browser.find_by_css('#homepageSBS').first.fill(company_name)
-        #browser.find_by_css('.homepage-search-icon').first.click()
-        #browser.find_by_css('#findCompaniesTab').first.click()
-        browser.visit("https://connect.data.com/search#p=advancedsearch;;t=companies;;ss=tabchanged")
-        print "waiting"
-        time.sleep(1)
-        text = BeautifulSoup(browser.html).text
-        text = self._remove_non_ascii(text)
-        print text
-        '''
-        for i in browser.find_by_css('.company_name'):
-          print i.text
-        '''
+        browser.find_by_css('#homepageSBS').first.fill(company_name)
+        browser.find_by_css('.homepage-search-icon').first.click()
+        browser.find_by_css('#findCompaniesTab').first.click()
 
         if len(browser.find_by_css('.companyName')):
             time.sleep(1)
