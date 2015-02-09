@@ -1,4 +1,4 @@
-https://github.com/douglasjsellers/heroku-xvfb-buildpack.git
+https://github.com/jonnor/heroku-xvfb-buildpack.git
 https://github.com/tstachl/heroku-buildpack-selenium.git
 https://github.com/heroku/heroku-buildpack-nodejs
 https://github.com/stomita/heroku-buildpack-phantomjs.git
