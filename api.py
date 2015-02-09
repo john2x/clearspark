@@ -28,12 +28,24 @@ from mining_job import MiningJob
 from score import Score
 from webhook import Webhook
 import unicodedata
+import os
+from selenium import webdriver
 
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
+@app.route('/v1/selenium', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def selenium_search():
+    chromedriver = "/Users/adam/Downloads/chromedriver"
+    chromedriver = "/tmp/build_e0754c389f6b90273adfd1e157eb3205/vendor/selenium/bin/chromedriver"
+    os.environ["webdriver.chrome.driver"] = chromedriver
+    driver = webdriver.Chrome(chromedriver)
+    driver.get("http://stackoverflow.com")
+    driver.quit()
+  
 @app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def jigsaw_search():
