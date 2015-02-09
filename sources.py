@@ -169,6 +169,9 @@ class Sources:
         CompanyEmailPatternCrawl()._persist(results, source="mx_check")
         return results
 
+    def _remove_non_ascii(self, text):
+        return ''.join(i for i in text if ord(i)<128)
+
     #TODO - finish integrating these data sources
     def _jigsaw_search(self, company_name):
         #browser = Browser('chrome')
@@ -182,7 +185,9 @@ class Sources:
         browser.find_by_css('.homepage-search-icon').first.click()
         print "waiting"
         time.sleep(1)
-        print BeautifulSoup(browser.html).text
+        text = BeautifulSoup(browser.html).text
+        text = self._remove_non_ascii(text)
+        print text
         '''
         for i in browser.find_by_css('.company_name'):
           print i.text
