@@ -180,8 +180,13 @@ class Sources:
         browser.find_by_css('#login_btn').first.click()
         browser.find_by_css('#homepageSBS').first.fill(company_name)
         browser.find_by_css('.homepage-search-icon').first.click()
+        print "waiting"
+        time.sleep(1)
+        print BeautifulSoup(browser.html).text
+        '''
         for i in browser.find_by_css('.company_name'):
           print i.text
+        '''
 
         if len(browser.find_by_css('.companyName')):
             time.sleep(1)
