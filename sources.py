@@ -176,10 +176,11 @@ class Sources:
         browser.visit('https://connect.data.com/login')
         browser.find_by_css('#j_username').first.fill('robin@customerohq.com')
         browser.find_by_css('#j_password').first.fill('951562nileppeZ')
+        print "started"
         browser.find_by_css('#login_btn').first.click()
         browser.find_by_css('#homepageSBS').first.fill(company_name)
         browser.find_by_css('.homepage-search-icon').first.click()
-
+        print browser.html
         if len(browser.find_by_css('.companyName')):
             time.sleep(1)
             browser.find_by_css('.companyName').first.click()
