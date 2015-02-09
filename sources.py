@@ -181,9 +181,10 @@ class Sources:
         browser.find_by_css('#j_password').first.fill('951562nileppeZ')
         print "started"
         browser.find_by_css('#login_btn').first.click()
-        browser.find_by_css('#homepageSBS').first.fill(company_name)
-        browser.find_by_css('.homepage-search-icon').first.click()
-        browser.find_by_css('#findCompaniesTab').first.click()
+        #browser.find_by_css('#homepageSBS').first.fill(company_name)
+        #browser.find_by_css('.homepage-search-icon').first.click()
+        #browser.find_by_css('#findCompaniesTab').first.click()
+        browser.visit("https://connect.data.com/search#p=advancedsearch;;t=companies;;ss=tabchanged")
         print "waiting"
         time.sleep(1)
         text = BeautifulSoup(browser.html).text
