@@ -1,5 +1,6 @@
 https://github.com/peterkeen/heroku-buildpack-vendorbinaries.git
 https://github.com/rsimba/firefox-buildpack.git
+https://github.com/tstachl/heroku-buildpack-selenium.git
 https://github.com/rsimba/heroku-buildpack-phantomjs.git
 https://github.com/heroku/heroku-buildpack-nodejs
 https://github.com/stomita/heroku-buildpack-phantomjs.git
