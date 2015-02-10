@@ -47,7 +47,6 @@ def selenium_search():
     options = Options()
     options.add_argument("--no-sandbox")
     print Chrome(chrome_options = options)
-    #
   
 @app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
