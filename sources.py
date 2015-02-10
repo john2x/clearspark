@@ -13,6 +13,7 @@ import time
 from fullcontact import FullContact
 import pystache
 from splinter import Browser
+from pyvirtualdisplay import Display
 
 from rq import Queue
 from worker import conn
@@ -174,6 +175,9 @@ class Sources:
 
     #TODO - finish integrating these data sources
     def _jigsaw_search(self, company_name):
+        display = Display(visible=0, size=(800, 600))
+        display.start()
+
         browser = Browser('chrome')
         #browser = Browser('phantomjs')
         browser.visit('https://connect.data.com/login')
