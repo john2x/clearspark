@@ -1,4 +1,6 @@
 Flask==0.10.1
+PyVirtualDisplay==0.1.5
+EasyProcess==0.1.6
 python-whois==0.2
 pydns==2.3.6
 dnspython==1.12.0
