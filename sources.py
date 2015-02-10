@@ -39,13 +39,14 @@ class Sources:
       emails = self._research_emails(emails)
       CompanyEmailPatternCrawl()._persist(emails, "google_span_search")
 
-    def _deduce_email_pattern(self, full_name, email):
+    def _deduce_email_pattern(self, full_name, email, source=""):
         person = EmailGuessHelper()._name_to_email_variables(full_name)
         person['domain'] = email.split('@')[-1]
         for pattern in EmailGuessHelper()._patterns():
             _email = pystache.render(pattern, person)
             if email.lower() == _email.lower():
                 person['pattern'], person['email'] = pattern, email
+                CompanyEmailPatternCrawl._persist(pd.DataFrame(person), source)
                 return person               
 
     def _research_emails(self, emails):
@@ -173,41 +174,42 @@ class Sources:
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)
 
-    #TODO - finish integrating these data sources
-    def _jigsaw_search(self, company_name):
-        display = Display(visible=0, size=(800, 600))
-        display.start()
-
-        browser = Browser('chrome')
-        #browser = Browser('phantomjs')
+    def _jigsaw_login(self, company_name):
+        browser = Browser('phantomjs')
         browser.visit('https://connect.data.com/login')
         browser.find_by_css('#j_username').first.fill('robin@customerohq.com')
         browser.find_by_css('#j_password').first.fill('951562nileppeZ')
-        print "started"
         browser.find_by_css('#login_btn').first.click()
-        browser.find_by_css('#homepageSBS').first.fill(company_name)
-        browser.find_by_css('.homepage-search-icon').first.click()
-        browser.find_by_css('#findCompaniesTab').first.click()
+        time.sleep(1)
+        return browser
 
+    def _company_search(self, browser):
+        browser.visit("http://connect.data.com/search#p=advancedsearch;;t=companies;;ss=tabchanged")
+        browser.find_by_css("#findCompaniesTab").first.click()
+        browser.find_by_name("companies")[1].fill("guidespark")
+        time.sleep(1)
+        browser.find_by_css('.search-button')[-1].click()
+        browser.find_by_css('.companyName')
+        return browser
+
+    def _jigsaw_search(self, company_name):
+        browser = self._jigsaw_login(company_name)
+        browser = self._company_search(browser)
         if len(browser.find_by_css('.companyName')):
             time.sleep(1)
             browser.find_by_css('.companyName').first.click()
             time.sleep(1)
             browser.find_by_css('.company-counts > a').first.click()
             time.sleep(1)
-            #browser.find_by_name('directDial').first.click()
+            browser.find_by_name('directDial').first.click()
             time.sleep(1)
             browser.find_by_css('.td-name > a').first.click()
-            #browser.find_by_css('td.name').first.click()
             time.sleep(1)
-            try:
-              ''' browser.find_by_css('#getDetailsLink').first.click() '''
-            except:
-              ''' lol '''
-            name = browser.find_by_css('.businesscard-contactinfo-name')[0].text
-            emails = browser.find_by_css('.businesscard-contactinfo-email')[0].text
-            print name, emails
-            print self._deduce_email_pattern(name, emails)
+            #browser.find_by_css('#getDetailsLink').first.click()
+            name = browser.find_by_css('.businesscard-contactinfo-name').first
+            email = browser.find_by_css('.businesscard-contactinfo-email').first
+            print name.text, email.text
+            self._deduce_email_pattern(name, email, "jigsaw")
         
     def _domain_harvest(self, domain):
         ''' Crawl Domain And Extract '''
