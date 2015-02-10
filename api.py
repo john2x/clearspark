@@ -30,6 +30,9 @@ from webhook import Webhook
 import unicodedata
 import os
 from selenium import webdriver
+from selenium.webdriver import Chrome
+from pyvirtualdisplay import Display
+from selenium.webdriver.chrome.options import Options
 
 from rq import Queue
 from worker import conn
@@ -39,12 +42,11 @@ app = FlaskAPI(__name__)
 @app.route('/v1/selenium', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def selenium_search():
-    chromedriver = "/Users/adam/Downloads/chromedriver"
-    chromedriver = "/tmp/build_e0754c389f6b90273adfd1e157eb3205/vendor/selenium/bin/chromedriver"
-    os.environ["webdriver.chrome.driver"] = chromedriver
-    driver = webdriver.Chrome(chromedriver)
-    driver.get("http://stackoverflow.com")
-    driver.quit()
+    display = Display(visible=0, size=(800, 600))
+    display.start()
+    options = Options()
+    options.add_argument("--no-sandbox")
+    print Chrome(chrome_options = options)
   
 @app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
