@@ -122,6 +122,7 @@ def email_pattern_research():
     domain = "{}.{}".format(tldextract.extract(website).domain,
                             tldextract.extract(website).tld)
     api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    name = request.args['name'] if "name" in request.args.keys() else ""
     q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
     return {'email_research_started':True}
 
