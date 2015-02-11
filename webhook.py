@@ -5,6 +5,7 @@ import json
 import unicodedata
 import pusher
 from email_guess import EmailGuess
+import arrow
 
 from rq import Queue
 from worker import conn
@@ -80,9 +81,9 @@ class Webhook:
                 for obj in objects:
                     print "UPDATED", _class, obj
                     _id = obj['objectId']
-                    print Parse().update(_class+"/"+_id, {'company':_company}).json()
-                        # pusher update with 
-                #TODO - add name email guess
+                    data = {'company':_company, 'company_research': arrow().utcnow()}
+                    print Parse().update(_class+"/"+_id, data).json()
+                #TODO - add name email guess - what is this code below
                 name = ""
                 if _class == 'Prospect':
                     domain = company["domain"]
@@ -117,7 +118,9 @@ class Webhook:
             pattern['email_guess'] = EmailGuess()._random()
         _pusher['customero'].trigger(data["domain"], pattern)
         for company in companies:
-            r = Parse().update('Company/'+company['objectId'], {'email_pattern':data['company_email_pattern']})
+            data = {'email_pattern':data['company_email_pattern'], 
+                    'email_pattern_research': arrow().utcnow()}
+            r = Parse().update('Company/'+company['objectId'], data)
             # pusher -->
             print r.json()
 

@@ -13,8 +13,7 @@ import time
 from fullcontact import FullContact
 import pystache
 from splinter import Browser
-from pyvirtualdisplay import Display
-
+#from pyvirtualdisplay import Display
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
@@ -44,9 +43,10 @@ class Sources:
         person['domain'] = email.split('@')[-1]
         for pattern in EmailGuessHelper()._patterns():
             _email = pystache.render(pattern, person)
+            print email.lower(), _email.lower()
             if email.lower() == _email.lower():
                 person['pattern'], person['email'] = pattern, email
-                CompanyEmailPatternCrawl._persist(pd.DataFrame(person), source)
+                CompanyEmailPatternCrawl()._persist(pd.DataFrame([person]), source)
                 return person               
 
     def _research_emails(self, emails):
@@ -193,9 +193,12 @@ class Sources:
         return browser
 
     def _jigsaw_search(self, company_name):
+        print "init"
         browser = self._jigsaw_login(company_name)
         browser = self._company_search(browser)
+        print "finished"
         if len(browser.find_by_css('.companyName')):
+            print "started jigsaw search"
             time.sleep(1)
             browser.find_by_css('.companyName').first.click()
             time.sleep(1)
@@ -205,10 +208,13 @@ class Sources:
             time.sleep(1)
             browser.find_by_css('.td-name > a').first.click()
             time.sleep(1)
-            #browser.find_by_css('#getDetailsLink').first.click()
+            # TODO- BE CAREFUL Costs to click on this
+            # TODO - Develop recharge strategy
+            browser.find_by_css('#getDetailsLink').first.click()
             name = browser.find_by_css('.businesscard-contactinfo-name').first
             email = browser.find_by_css('.businesscard-contactinfo-email').first
-            print name.text, email.text
+            name, email = name.text, email.text
+            print name, email
             self._deduce_email_pattern(name, email, "jigsaw")
         
     def _domain_harvest(self, domain):

@@ -39,20 +39,13 @@ from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
-@app.route('/v1/selenium', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def selenium_search():
-    display = Display(visible=0, size=(800, 600))
-    display.start()
-    options = Options()
-    options.add_argument("--no-sandbox")
-    print Chrome(chrome_options = options)
   
 @app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def jigsaw_search():
     company_name = request.args['company_name']
     q.enqueue(Sources()._jigsaw_search, company_name)
+    #Sources()._jigsaw_search(company_name)
     return {'started': True}
 
 @app.route('/v1/companies/streaming', methods=['GET','OPTIONS','POST'])
@@ -121,6 +114,16 @@ def mx_search():
     name, domain = request.args['name'], request.args['domain']
     q.enqueue(Sources()._mx_server_check, name, domain)
     return {'started': True}
+
+@app.route('/v1/email_pattern_research', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def email_pattern_research():
+    website = request.args['domain']
+    domain = "{}.{}".format(tldextract.extract(website).domain,
+                            tldextract.extract(website).tld)
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
+    return {'email_research_started':True}
 
 @app.route('/v1/email_pattern', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

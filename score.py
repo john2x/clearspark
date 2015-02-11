@@ -6,6 +6,7 @@ from fullcontact import FullContact
 from email_guess import EmailGuess
 from queue import RQueue
 from parse import Parse
+from sources import Sources
 # Scoring 
 from rq import Queue
 from worker import conn
@@ -15,12 +16,15 @@ q = Queue(connection=conn)
 class Score:
     def _email_pattern(self, domain, api_key=""):
         print ''' Score email pattern based on number of occurrences '''
-        print 'domain'
         qry = {'where':json.dumps({'domain': domain})}
         crawls = Parse().get('CompanyEmailPatternCrawl', qry)
         crawls = pd.DataFrame(crawls.json()['results'])
-        if crawls.empty: return Webhook()._post(api_key, [], 'email_pattern')
+
         df = crawls[crawls.pattern.notnull()].drop_duplicates('email')
+        _df = df[df.crawl_source != "mx_check"]
+        df = df[df.crawl_source == "mx_check"].drop_duplicates('pattern')
+        if len(df.pattern) > 2: df = df[df.crawl_source != "mx_check"]
+        df = _df.append(df)
         df = df.pattern.value_counts()
 
         score = pd.DataFrame()
@@ -32,15 +36,13 @@ class Score:
         print score, api_key
         score = {'domain':domain, 'company_email_pattern':score}
         self._find_if_object_exists('EmailPattern','domain', domain, score)
+
         # TODO - add date crawled to score
-        # TODO - factor in mx check and if theres over 10 false positives 
-        # don't weigh too heavily
         if RQueue()._has_completed("{0}_{1}".format(domain, api_key)):
-            #Webhook()._post(api_key, score, 'email_pattern')
             if score['company_email_pattern'] == []:
                 score['email_guess'] = EmailGuess()._random()
+                q.enqueue(Sources()._jigsaw_search, domain)
             Webhook()._update_company_email_pattern(score)
-            # Parse.get('CompanyProfile', {}) || Pusher.update()
 
     def _remove_non_ascii(self, text):
         ''.join(i for i in text if ord(i)<128)
