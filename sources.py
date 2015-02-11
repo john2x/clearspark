@@ -205,7 +205,7 @@ class Sources:
             browser.find_by_css('.company-counts > a').first.click()
             time.sleep(1)
             browser.find_by_name('directDial').first.click()
-            time.sleep(1)
+            time.sleep(2)
             browser.find_by_css('.td-name > a').first.click()
             time.sleep(1)
             # TODO- BE CAREFUL Costs to click on this

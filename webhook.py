@@ -81,7 +81,7 @@ class Webhook:
                 for obj in objects:
                     print "UPDATED", _class, obj
                     _id = obj['objectId']
-                    data = {'company':_company, 'company_research': arrow().utcnow()}
+                    data = {'company':_company, 'company_research': arrow.utcnow().timestamp}
                     print Parse().update(_class+"/"+_id, data).json()
                 #TODO - add name email guess - what is this code below
                 name = ""
@@ -119,7 +119,7 @@ class Webhook:
         _pusher['customero'].trigger(data["domain"], pattern)
         for company in companies:
             data = {'email_pattern':data['company_email_pattern'], 
-                    'email_pattern_research': arrow().utcnow()}
+                    'email_pattern_research': arrow.utcnow().timestamp}
             r = Parse().update('Company/'+company['objectId'], data)
             # pusher -->
             print r.json()
