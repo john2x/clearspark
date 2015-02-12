@@ -28,7 +28,8 @@ class Twitter:
     def _html_to_dict(self, html):
         logo = BeautifulSoup(html).find('img',{'class':'ProfileAvatar-image '})['src']
         link = BeautifulSoup(html).find('h2',{'class':'ProfileHeaderCard-screenname'}).text.strip().lower()
-        link = "twitter.com/"+link.split('@')[0]
+        link = "twitter.com/"+link.split('@')[-1]
+        print link
         name = BeautifulSoup(html).find('h1',{'class':'ProfileHeaderCard-name'}).text.strip().lower()
         # add company_name
         return {'logo':logo, 'handle':link, 'name':name}

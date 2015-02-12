@@ -4,6 +4,8 @@ from google import Google
 import tldextract
 from crawl import CompanyInfoCrawl
 import urllib 
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 class GlassDoor:
     def _company_profile(self, name, api_key=""):
@@ -321,16 +323,24 @@ class YellowPages:
 
 class Indeed:
   def _company_profile(self, name, api_key=""):
-      df = Google().search('site:glassdoor.com/overview {0}'.format(name))
+      df = Google().search('site:indeed.com/cmp {0}'.format(name))
       if df.empty: 
           return CompanyInfoCrawl()._persist({'company_name': name}, "indeed", api_key)
+      df['_name'] = [i.split("Careers and Employment")[0].strip() 
+                     for i in df.link_text]
+      df["score"] = [fuzz.ratio(b, name) for b in df._name]
+      df = df[df.score > 70]
+      df = df.reset_index().drop('index',1)
       url = df.ix[0].link
       val = self._html_to_dict(url)
+      print "name"
+      val["handle"] = url
       val['company_name'] = name
+      print val
       CompanyInfoCrawl()._persist(val, "indeed", api_key)
 
   def _domain_search(self, domain, api_key="", name=""):
-      df = Google().search('site:glassdoor.com/overview {0}'.format(name))
+      df = Google().search('site:indeed.com/cmp {0}'.format(name))
       if df.empty: 
           return CompanyInfoCrawl()._persist({'company_name': name}, "indeed", api_key)
       url = df.ix[0].link
@@ -341,8 +351,7 @@ class Indeed:
           CompanyInfoCrawl()._persist(val, "indeed", api_key)
 
   def _html_to_dict(self, url):
-    ''' '''
-    r = requests.get(ur).text
+    r = requests.get(url).text
     name = BeautifulSoup(r).find('h1',{'id':'company_name'}).text
     desc= BeautifulSoup(r).find('span',{'id':'desc_short'}).text
 
