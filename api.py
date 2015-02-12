@@ -73,7 +73,8 @@ def _company_research():
     #TODO - check if api key is valid and increment request count
     #TODO - add name if name is present
     company_name = remove_accents(request.args['company_name'])
-    api_key = request.args['api_key']
+     #api_key = request.args['api_key']
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
     qry = {'where':json.dumps({'company_name':company_name})}
     company = Parse().get('Company', qry).json()['results']
     name = ""

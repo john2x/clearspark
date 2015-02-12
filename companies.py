@@ -16,7 +16,9 @@ from email_guess import EmailGuess
 from zoominfo import Zoominfo
 import random
 import toofr
+from queue import RQueue
 ''' RQ Setup '''
+from social import *
 from rq import Queue
 from worker import conn
 from fuzzywuzzy import fuzz
@@ -143,25 +145,46 @@ class Companies:
 
     def _research(self, name, api_key="", prospect_name=""):
         # Primary Research
-        job = q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(Zoominfo()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(Linkedin()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(YellowPages()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(Yelp()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(Forbes()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(GlassDoor()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(Hoovers()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
-        job = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
-        job.meta["{0}_{1}".format(name, api_key)] = prospect_name; job.save()
+        j9 = q.enqueue(Facebook()._company_profile, name, api_key,timeout=6000)
+        j10 = q.enqueue(Twitter()._company_profile, name, api_key,timeout=6000)
+        j11 = q.enqueue(Indeed()._company_profile, name, api_key,timeout=6000)
+        jobs = [j9,j10,j11]
+        '''
+        j0 =q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)
+        j1 = q.enqueue(Zoominfo()._company_profile, name, api_key,timeout=6000)
+        j2 = q.enqueue(Linkedin()._company_profile, name, api_key,timeout=6000)
+        j3 = q.enqueue(YellowPages()._company_profile, name, api_key,timeout=6000)
+        j4= q.enqueue(Yelp()._company_profile, name, api_key,timeout=6000)
+        j5 = q.enqueue(Forbes()._company_profile, name, api_key,timeout=6000)
+        j6 = q.enqueue(GlassDoor()._company_profile, name, api_key,timeout=6000)
+        j7 = q.enqueue(Hoovers()._company_profile, name, api_key,timeout=6000)
+        j8 = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
+        jobs = [j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
+        '''
+        for job in jobs:
+            RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
         # TODO - jigsaw
+        # TODO - google plus
+
+    def _domain_research(self, domain, api_key="", name="", prospect_name=""):
+        # Primary Research
+        if name == "": name=domain
+        x = 6000
+        j0 =q.enqueue(BusinessWeek()._domain_search, domain, api_key, name, timeout=x)
+        j1 = q.enqueue(Zoominfo()._domain_search, domain, api_key, name, timeout=x)
+        j2 = q.enqueue(Linkedin()._domain_search, domain, api_key,name,timeout=x)
+        j3 = q.enqueue(YellowPages()._domain_search, domain, api_key,name,timeout=x)
+        j4= q.enqueue(Yelp()._domain_search, domain, api_key, name,timeout=x)
+        j5 = q.enqueue(Forbes()._domain_search, domain, api_key, name,timeout=x)
+        j6 = q.enqueue(GlassDoor()._domain_search, domain, api_key, name,timeout=x)
+        j7 = q.enqueue(Hoovers()._domain_search, domain, api_key, name,timeout=x)
+        j8 = q.enqueue(Crunchbase()._domain_search, domain, api_key, name,timeout=x)
+        j9 = q.enqueue(Facebook()._domain_search, domain, api_key, name,timeout=x)
+        j10 = q.enqueue(Twitter()._domain_search, domain, api_key, name,timeout=x)
+        j11 = q.enqueue(Indeed()._domain_search, domain, api_key, name,timeout=x)
+        jobs = [j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
+        for job in jobs:
+            RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
 
     def _secondary_research(self, name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain

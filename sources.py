@@ -193,7 +193,7 @@ class Sources:
         return browser
 
     def _jigsaw_search(self, company_name):
-        print "init"
+        print "jigsaw init", company_name
         browser = self._jigsaw_login(company_name)
         browser = self._company_search(browser)
         print "finished"

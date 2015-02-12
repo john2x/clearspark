@@ -6,6 +6,7 @@ from fullcontact import FullContact
 from email_guess import EmailGuess
 from queue import RQueue
 from parse import Parse
+import companies
 
 from rq import Queue
 from worker import conn
@@ -68,6 +69,7 @@ class CompanyScore:
         self._add_to_clearspark_db('Company', 'company_name', company_name, final)
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
         # clean data - ie titleify fields, and lowercase domain
+        # TODO - start a domain search with the deduced domain and the company_name
         print "RQUEUE CHECK"
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
@@ -79,7 +81,7 @@ class CompanyScore:
                 job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
                 job.meta["{0}_{1}".format(company_name, api_key)] = True
                 job.save()
-          #Companies()._secondary_research(company_name, domain, api_key)
+            q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
 
     def _prettify_fields(self, final):
         final['domain'] = final['domain'].lower()

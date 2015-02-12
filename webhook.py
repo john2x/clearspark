@@ -123,6 +123,8 @@ class Webhook:
             r = Parse().update('Company/'+company['objectId'], data)
             # pusher -->
             print r.json()
-
-            print data["domain"]
+            try:
+              print data["domain"]
+            except:
+              print "wtf error ", data
             #ClearSpark().get('Company',{'where':json.dumps({})})

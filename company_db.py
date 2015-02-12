@@ -3,6 +3,7 @@ import requests
 from google import Google
 import tldextract
 from crawl import CompanyInfoCrawl
+import urllib 
 
 class GlassDoor:
     def _company_profile(self, name, api_key=""):
@@ -13,6 +14,17 @@ class GlassDoor:
         val = self._rename_vars(val)
         val['company_name'] = name
         CompanyInfoCrawl()._persist(val, "glassdoor", api_key)
+    
+    def _domain_search(self, domain, api_key="", name=""):
+        df = Google().search('site:glassdoor.com/overview {0}'.format(name))
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name': name}, "glassdoor", api_key)
+        for url in link:
+            val = self._html_to_dict(url)
+            val = self._rename_vars(val)
+            if val["domain"] != domain: continue
+            val['company_name'] = name
+            CompanyInfoCrawl()._persist(val, "glassdoor", api_key)
+            break
 
     def _reviews(self, name):
         ''' '''
@@ -43,6 +55,18 @@ class GlassDoor:
         return _info
 
 class BusinessWeek:
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = 'site:businessweek.com/research {0} inurl:snapshot'.format(name)
+        df = Google().search(qry)
+        if df.empty: 
+          return CompanyInfoCrawl()._persist({'company_name':name}, "businessweek", api_key)
+        for url in df.link:
+            val = self._html_to_dict(url)
+            val['company_name'] = name
+            if val["domain"] == domain:
+                CompanyInfoCrawl()._persist(val, "businessweek", api_key)
+                break
+
     def _company_profile(self, name, api_key=""):
         qry = 'site:businessweek.com/research {0} inurl:snapshot'.format(name)
         df = Google().search(qry)
@@ -82,6 +106,18 @@ class Forbes:
         val['company_name'] = name
         CompanyInfoCrawl()._persist(val, "forbes", api_key)
 
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = 'site:forbes.com/companies {0}'.format(name)
+        df = Google().search(qry)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "forbes", api_key)
+        for url in df.link:
+            val = self._html_to_dict(url)
+            val = self._rename_vars(val)
+            val['company_name'] = name
+            if val["domain"] != domain: continue
+            CompanyInfoCrawl()._persist(val, "forbes", api_key)
+            break
+
     def _html_to_dict(self, url):
         bs = BeautifulSoup(requests.get(url).text)
         info = bs.find('div',{'class':'ataglanz'}).text.split('\n')
@@ -117,6 +153,18 @@ class Crunchbase:
         val = self._rename_vars(val)
         val['company_name'] = name
         CompanyInfoCrawl()._persist(val, "crunchbase", api_key)
+
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = 'site:crunchbase.com/organization {0}'.format(name)
+        df = Google().search(qry)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "crunchbase", api_key)
+        for url in df.link:
+            val = self._html_to_dict(url)
+            val = self._rename_vars(val)
+            val['company_name'] = name
+            if val["domain"] != domain: continue
+            CompanyInfoCrawl()._persist(val, "crunchbase", api_key)
+            break
 
     def _html_to_dict(self, url):
         cb = Google().cache(url)
@@ -154,6 +202,18 @@ class Hoovers:
         val['company_name'] = name
         CompanyInfoCrawl()._persist(val, "hoovers", api_key)
 
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = 'site:http://www.hoovers.com {0} inurl:company-profile'.format(name)
+        df = Google().search(qry)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "hoovers", api_key)
+        for url in df.link:
+            val = self._html_to_dict(url)
+            val = self._rename_vars(val)
+            val['company_name'] = name
+            if val["domain"] != domain: continue
+            CompanyInfoCrawl()._persist(val, "hoovers", api_key)
+            break
+
     def _html_to_dict(self, url):
         bs = BeautifulSoup(requests.get(url).text)
         name = bs.find('h1',{'itemprop':'name'}).text.split('Company ')[0]
@@ -179,9 +239,17 @@ class Yelp:
         url = df.ix[0].link
         val = self._html_to_dict(url)
         val['company_name'] = company_name
-        val['company_name'] = company_name
-        print "Yelp", val
         CompanyInfoCrawl()._persist(val, "yelp", api_key)
+
+    def _domain_search(self, domain, api_key="", name=""):
+        df = Google().search('site:yelp.com {0}'.format(company_name))
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, "yelp", api_key)
+        for url in df.link:
+            val = self._html_to_dict(url)
+            val['company_name'] = company_name
+            if val["domain"] != domain: continue
+            CompanyInfoCrawl()._persist(val, "yelp", api_key)
+            break
 
     def _html_to_dict(self, url):
         r = requests.get(url).text
@@ -212,11 +280,18 @@ class YellowPages:
         val['company_name'] = company_name
         print "YellowPages", val
         CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
-        '''
+
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
+        df = Google().search(qry)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'yellowpages', api_key)
         for url in df.link:
-            val = self._html_to_dict(url, domain)
-            if val != {}: break
-        '''
+            val = self._html_to_dict(url)
+            val['company_name'] = company_name
+            print "YellowPages", val
+            if val["domain"] == domain: continue
+            CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
+            break
 
     def _html_to_dict(self, url):
         r = requests.get(url).text
@@ -243,3 +318,43 @@ class YellowPages:
         company["numbers"] = numbers
         company["handle"] = url
         return company
+
+class Indeed:
+  def _company_profile(self, name, api_key=""):
+      df = Google().search('site:glassdoor.com/overview {0}'.format(name))
+      if df.empty: 
+          return CompanyInfoCrawl()._persist({'company_name': name}, "indeed", api_key)
+      url = df.ix[0].link
+      val = self._html_to_dict(url)
+      val['company_name'] = name
+      CompanyInfoCrawl()._persist(val, "indeed", api_key)
+
+  def _domain_search(self, domain, api_key="", name=""):
+      df = Google().search('site:glassdoor.com/overview {0}'.format(name))
+      if df.empty: 
+          return CompanyInfoCrawl()._persist({'company_name': name}, "indeed", api_key)
+      url = df.ix[0].link
+      val = self._html_to_dict(url)
+      val['company_name'] = name
+      if val["domain"] == domain:
+          val["domain_search"] = True
+          CompanyInfoCrawl()._persist(val, "indeed", api_key)
+
+  def _html_to_dict(self, url):
+    ''' '''
+    r = requests.get("http://www.indeed.com/cmp/Coast-Inc").text
+    name = BeautifulSoup(r).find('h1',{'id':'company_name'}).text
+    desc= BeautifulSoup(r).find('span',{'id':'desc_short'}).text
+
+    content = BeautifulSoup(r).find_all('td',{'class':'metadata_content'})
+    links = []
+    for c in content:
+        links = links + c.find_all('a')
+    for i in links:
+        if "website" in i.text:
+            print i['href']
+            website = urllib.unquote(i['href']).split('=')[1]
+            website = website.split('?')[0].split('&')[0]
+            domain = "{}.{}".format(tldextract.extract(website).domain, 
+                                    tldextract.extract(website).tld)
+    return {'name':name, 'description':desc, 'website':website, 'domain':domain}
