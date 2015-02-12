@@ -28,9 +28,10 @@ class Twitter:
     def _html_to_dict(self, html):
         logo = BeautifulSoup(html).find('img',{'class':'ProfileAvatar-image '})['src']
         link = BeautifulSoup(html).find('h2',{'class':'ProfileHeaderCard-screenname'}).text.strip().lower()
+        link = "twitter.com/"+link.split('@')[0]
         name = BeautifulSoup(html).find('h1',{'class':'ProfileHeaderCard-name'}).text.strip().lower()
         # add company_name
-        return {'logo':logo, 'twitter_handle':link, 'name':name}
+        return {'logo':logo, 'handle':link, 'name':name}
 
 class Facebook:
     def _domain_search(self, domain, api_key="", name=""):
@@ -60,5 +61,5 @@ class Facebook:
         link = html.find('a',{'class':'profileLink'})['href']
         name = html.find('span',{'itemprop':'name'}).text
         # add company_name
-        return {'logo':logo, 'facebook_handle':link, 'name':name}
+        return {'logo':logo, 'handle':link, 'name':name}
         

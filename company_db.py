@@ -342,7 +342,7 @@ class Indeed:
 
   def _html_to_dict(self, url):
     ''' '''
-    r = requests.get("http://www.indeed.com/cmp/Coast-Inc").text
+    r = requests.get(ur).text
     name = BeautifulSoup(r).find('h1',{'id':'company_name'}).text
     desc= BeautifulSoup(r).find('span',{'id':'desc_short'}).text
 
