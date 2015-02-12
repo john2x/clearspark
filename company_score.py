@@ -7,6 +7,8 @@ from email_guess import EmailGuess
 from queue import RQueue
 from parse import Parse
 import companies
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 from rq import Queue
 from worker import conn
