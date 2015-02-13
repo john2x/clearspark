@@ -114,8 +114,11 @@ class Zoominfo:
                        for i in df.link_text]
         df["score"] = [fuzz.ratio(b, name) for b in df._name]
         df = df[df.score > 70]
-        df = df.reset_index().drop('index',1)
         df = df.sort('score',ascending=False)
+        if df.empty: 
+          data = {'company_name': name}
+          return CompanyInfoCrawl()._persist(data,"zoominfo",api_key)
+        df = df.reset_index().drop('index',1)
         url = df.ix[0].link
         print "ZOOMINFO URL", url
         html = Google().cache(url)

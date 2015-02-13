@@ -96,6 +96,7 @@ class Companies:
         pages = pd.DataFrame()
         df = Google()._results_html_to_df(browser.html)
         pages = pages.append(df)
+        print browser.find_by_css('td > a') 
         if browser.find_by_css('td > a') == []: 
             pages = pages.to_dict('r')
             pages = {'pages':pages, 'company_name':company_name}
@@ -231,7 +232,6 @@ class Companies:
         # Primary Research
         if name == "": name=domain
         x = 6000
-        j0 =q.enqueue(BusinessWeek()._domain_search, domain, api_key, name, timeout=x)
         j1 = q.enqueue(Zoominfo()._domain_search, domain, api_key, name, timeout=x)
         j2 = q.enqueue(Linkedin()._domain_search, domain, api_key,name,timeout=x)
         j3 = q.enqueue(YellowPages()._domain_search, domain, api_key,name,timeout=x)
@@ -243,10 +243,10 @@ class Companies:
         j9 = q.enqueue(Facebook()._domain_search, domain, api_key, name,timeout=x)
         j10 = q.enqueue(Twitter()._domain_search, domain, api_key, name,timeout=x)
         j11 = q.enqueue(Indeed()._domain_search, domain, api_key, name,timeout=x)
-        jobs = [j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
+        jobs = [j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
-        q.enqueu(Companies()._secondary_research, name, domain, api_key)
+        q.enqueue(Companies()._secondary_research, name, domain, api_key)
 
     def _secondary_research(self, company_name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain

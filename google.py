@@ -97,17 +97,16 @@ class Google:
         leads = pd.DataFrame()
         listings = BeautifulSoup(search_result_html).findAll('li',{'class':'g'})
         for lead in listings:
+            if lead == None: continue
+            #print lead
             link_text = lead.find('h3').text
-            link = lead.find('a')['href'].split('=')[-1].split('&')[0]
+            link = lead.find('a')['href'].split('=')[1].split('&')[0]
+            link_span = lead.find(attrs={'class':'st'}).text
             url = lead.find('cite')
             url = url.text if url else ""
-            link_span = lead.find('span',{'class':'st'})
-            link_span = link_span.text if link_span else ""
             title = lead.find('div',{'class':'slp'})
-            title = title.text if title else title
-
-            columns = ['link_text','url','title','link_span','link']
-            values = [link_text, url,title,link_span, link]
-            leads = leads.append(dict(zip(columns, values)), ignore_index=True)
+            title = title.text if title else ""
+            leads = leads.append(dict(zip(['link_text','url','title','link_span','link'],
+                                      [link_text, url,title,link_span, link])),
+                             ignore_index=True)
         return leads
-

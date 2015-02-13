@@ -29,10 +29,7 @@ from score import Score
 from webhook import Webhook
 import unicodedata
 import os
-from selenium import webdriver
-from selenium.webdriver import Chrome
-from pyvirtualdisplay import Display
-from selenium.webdriver.chrome.options import Options
+from company_db import *
 
 from rq import Queue
 from worker import conn
@@ -259,6 +256,19 @@ def get_job_count():
 
 @app.route('/', methods=['GET'])
 def test():
+    return {"test": "lol"}
+
+@app.route('/v1/domain_research', methods=['GET'])
+def domain_research():
+    name = request.args["name"]
+    domain = request.args["domain"]
+    q.enqueue(Companies()._domain_research, domain, "", name)
+    return {"test": "lol"}
+
+@app.route('/v1/glassdoor', methods=['GET'])
+def glassdoor():
+    name = request.args["name"]
+    q.enqueue(GlassDoor()._reviews, name)
     return {"test": "lol"}
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ class Twitter:
             r = requests.get(url).text
             link = BeautifulSoup(r).find('span',{'class':'ProfileHeaderCard-urlText'}).text.strip()
             if domain not in link: continue
-            val = self._html_to_dict(url, domain)
+            val = self._html_to_dict(r)
             break
         CompanyInfoCrawl()._persist(val, "twitter", api_key)
 
@@ -44,8 +44,8 @@ class Facebook:
             html = Google().cache(url)
             if domain not in BeautifulSoup(html).text: continue
             val = self._html_to_dict(html)
+            CompanyInfoCrawl()._persist(val, "facebook", api_key)
             break
-        CompanyInfoCrawl()._persist(val, "facebook", api_key)
 
     def _company_profile(self, name, api_key=""):
         df = Google().search('site:facebook.com {0}'.format(name))
@@ -60,7 +60,8 @@ class Facebook:
         html = BeautifulSoup(html)
         logo = html.find('img',{'class':'profilePic'})['src']
         link = html.find('a',{'class':'profileLink'})['href']
-        name = html.find('span',{'itemprop':'name'}).text
+        name = html.find('span',{'itemprop':'name'})
+        name = name.text if name else ""
         # add company_name
         return {'logo':logo, 'handle':link, 'name':name}
         
