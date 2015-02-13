@@ -86,7 +86,7 @@ class Companies:
         press = {'press':p.to_dict('records'), 'company_name':company_name}
         CompanyInfoCrawl()._persist(press, "press", api_key)
 
-    def _news(self, domain, api_key="", name=""):
+    def _news(self, domain, api_key="", company_name=""):
         # TODO - include general info links
         browser = Browser('phantomjs')
         browser.visit('http://google.com')

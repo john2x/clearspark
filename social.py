@@ -16,6 +16,8 @@ class Twitter:
             if domain not in link: continue
             val = self._html_to_dict(r)
             break
+        val["company_name"] = name
+        val["domain"] = domain
         CompanyInfoCrawl()._persist(val, "twitter", api_key)
 
     def _company_profile(self, name, api_key=""):
@@ -23,6 +25,7 @@ class Twitter:
         url = df.link.tolist()[0]
         html = requests.get(url).text
         val = self._html_to_dict(html)
+        val["company_name"] = name
         CompanyInfoCrawl()._persist(val, "twitter", api_key)
 
     def _html_to_dict(self, html):
@@ -44,6 +47,8 @@ class Facebook:
             html = Google().cache(url)
             if domain not in BeautifulSoup(html).text: continue
             val = self._html_to_dict(html)
+            val["company_name"] = name
+            val["domain"] = domain
             CompanyInfoCrawl()._persist(val, "facebook", api_key)
             break
 
@@ -54,6 +59,7 @@ class Facebook:
         #browser = Browser('phantomjs')
         #browser.visit(url)
         val = self._html_to_dict(html)
+        val["company_name"] = name
         CompanyInfoCrawl()._persist(val, "facebook", api_key)
 
     def _html_to_dict(self, html):

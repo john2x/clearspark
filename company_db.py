@@ -352,7 +352,7 @@ class YellowPages:
         print "YellowPages", val
         CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
 
-    def _domain_search(self, domain, api_key="", name="", location=""):
+    def _domain_search(self, domain, api_key="", company_name="",location=""):
         qry = '{0} {1} inurl:yellowpages inurl:/bus/ -inurl:search'.format(name, location)
         df = Google().search(qry)
         if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, 'yellowpages', api_key)
