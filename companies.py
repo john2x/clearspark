@@ -53,7 +53,7 @@ class Companies:
         data["company_name"] = name
         CompanyInfoCrawl()._persist(data, "blog_data", api_key)
 
-    def _hiring(self, domain, api_key="", name=""):
+    def _hiring(self, domain, api_key="", company_name=""):
         # paginate
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
         browser = Browser('phantomjs')
@@ -67,7 +67,7 @@ class Companies:
         jobs["jobs"] = Indeed()._search_results_html_to_df(pages).to_dict('r')
         CompanyInfoCrawl()._persist(jobs, "hiring", api_key)
 
-    def _press_releases(self, domain, api_key="", name=""):
+    def _press_releases(self, domain, api_key="", company_name=""):
         ''' Google News, PRNewsWire, BusinessWire '''
         pw = Google().search('"{0}" site:prnewswire.com'.format(company_name))
         bw = Google().search('"{0}" site:businesswire.com'.format(company_name))
@@ -160,7 +160,7 @@ class Companies:
         traffic = requests.get('https://alexa.com/siteinfo/'+domain)
         return traffic
 
-    def _technologies(self, domain, api_key="", name="", keyword=""):
+    def _employees(self, domain, api_key="", company_name="", keyword=""):
         ''' Linkedin Scrape'''
         args = '-inurl:"/dir/" -inurl:"/find/" -inurl:"/updates"'
         args = args+' -inurl:"job" -inurl:"jobs2" -inurl:"company"'
@@ -249,16 +249,17 @@ class Companies:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
         q.enqueue(Companies()._secondary_research, name, domain, api_key)
 
-    def _secondary_research(self, company_name, domain, api_key=""):
+    def _secondary_research(self, name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain
-        j0 = q.enqueue(Companies()._company_blog, domain)
-        j1 = q.enqueue(Companies()._technologies, domain)
-        j2 = q.enqueue(GlassDoor()._reviews, domain)
-        j3 = q.enqueue(Companies()._press_releases, company_name, domain)
-        j4 = q.enqueue(Companies()._news, company_name, domain)
-        j5 = q.enqueue(Companies()._hiring, domain)
-        j6 = q.enqueue(Companies()._employees, company_name, "", domain)
-        j7 = q.enqueue(Companies()._related, domain)
+        if name == "": name=domain
+        j0 = q.enqueue(Companies()._company_blog, domain, api_key, name)
+        j1 = q.enqueue(Companies()._technologies, domain, api_key, name)
+        j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name)
+        j3 = q.enqueue(Companies()._press_releases, domain, api_key, name)
+        j4 = q.enqueue(Companies()._news, domain, api_key, name)
+        j5 = q.enqueue(Companies()._hiring, domain, api_key, name)
+        j6 = q.enqueue(Companies()._employees, domain, api_key, name)
+        j7 = q.enqueue(Companies()._related, domain, api_key, name)
         jobs = [j0,j1,j2,j3,j4,j5,j6,j7]
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(company_name, api_key))

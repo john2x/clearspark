@@ -111,7 +111,7 @@ class Zoominfo:
         qry = 'site:zoominfo.com/c/ {0}'.format(domain)
         df = Google().search(qry)
         if df.empty: 
-            data = {'company_name': name}
+            data = {'company_name': name, "domain":domain}
             return CompanyInfoCrawl()._persist(data,"zoominfo",api_key)
         df['_name'] = [i.split("Company Profile")[0].strip() 
                        for i in df.link_text]
@@ -119,7 +119,7 @@ class Zoominfo:
         df = df[df.score > 70]
         df = df.sort('score',ascending=False)
         if df.empty: 
-          data = {'company_name': name}
+          data = {'company_name': name, "domain":domain}
           return CompanyInfoCrawl()._persist(data,"zoominfo",api_key)
         df = df.reset_index().drop('index',1)
         url = df.ix[0].link
@@ -131,6 +131,7 @@ class Zoominfo:
         zoominfo['company_name'] = name
         zoominfo['handle'] = url
         zoominfo["domain_search"] = True
+        zoominfo["domain"] = domain
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo, "zoominfo", api_key)
 

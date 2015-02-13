@@ -34,7 +34,7 @@ class GlassDoor:
             CompanyInfoCrawl()._persist(val, "glassdoor", api_key)
             break
 
-    def _reviews(self, name, api_key=""):
+    def _reviews(self, domain, api_key="", name=""):
         df = Google().search('site:glassdoor.com/reviews {0}'.format(name))
         url = df.ix[0].link
         r = BeautifulSoup(Google().cache(url))
@@ -53,8 +53,9 @@ class GlassDoor:
             vals = [val.text.strip() for val in vals]
             reviews = reviews.append(dict(zip(cols, vals)),ignore_index=True) 
         print reviews
-        data = {'glassdoor_reviews': reviews.to_dict('r'), 'name':name}
+        data = {'glassdoor_reviews': reviews.to_dict('r'), 'company_name':name}
         data['api_key'] = api_key
+        data['domain'] = api_key
         CompanyInfoCrawl()._persist(data, "glassdoor_reviews", api_key) 
 
     def _html_to_dict(self, url):
@@ -352,14 +353,14 @@ class YellowPages:
         print "YellowPages", val
         CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
 
-    def _domain_search(self, domain, api_key="", company_name="",location=""):
+    def _domain_search(self, domain, api_key="", name="",location=""):
         qry = '{0} {1} inurl:yellowpages inurl:/bus/ -inurl:search'.format(name, location)
         df = Google().search(qry)
         if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, 'yellowpages', api_key)
         for count, url in enumerate(df.link):
             if count > 9: break
             val = self._html_to_dict(url)
-            val['company_name'] = company_name
+            val['company_name'] = name
             print "YellowPages", val
             if "domain" not in val.keys(): continue
             if val["domain"] == domain: continue
