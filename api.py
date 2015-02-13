@@ -243,6 +243,14 @@ def check_if_email_pattern_exists(args):
     qry = {'where':qry, 'include':'company_email_pattern'}
     pattern = parse.get('CompanyEmailPattern', qry).json()
 
+@app.route('/v1/secondary_research', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def secondary_research():
+    name = "Coast Inc"
+    domain = "onecoast.com"
+    q.enqueue(Companies()._secondary_research, name, domain, timeout=600)
+    return {'started':True}
+
 @app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def get_job_count():

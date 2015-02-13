@@ -17,6 +17,7 @@ from zoominfo import Zoominfo
 import random
 import toofr
 from queue import RQueue
+import time
 ''' RQ Setup '''
 from social import *
 from rq import Queue
@@ -38,59 +39,87 @@ class Companies:
         ''' '''
 
     ''' Working '''
-    def _company_blog(self, domain):
-        ''' Find Company Blog '''
-        # Google().search("site:{0} inurl:blog".format(domain))
-        # get recent blog posts
+    def _company_blog(self, domain, api_key="", name=""):
+        #TODO get blog url
+        df = Google().search('inurl:blog site:{0}'.format(domain), 1)
+        print df
+        df["count"] = [len(url) for url in df.link]
+        df = df.reset_index().drop('index',1)
+        df = df.drop('title', 1)
+        url = df.sort('count').url.ix[0]
+        data = {'blog_posts': df.to_dict('r'), 'blog_url':url}
+        data["domain"] = domain
+        data["api_key"] = api_key
+        data["company_name"] = name
+        CompanyInfoCrawl()._persist(data, "blog_data", api_key)
 
-    def _technologies(self, domain):
-        ''' BuiltWith '''
-        technology = requests.get('https://builtwith.com/'+domain)
-        return technology
-
-    def _traffic_analysis(self, domain):
-        ''' Compete.com, Alexa, SimilarWeb '''
-        traffic = requests.get('https://similarweb.com/'+domain)
-        traffic = requests.get('https://alexa.com/siteinfo/'+domain)
-        return traffic
-
-    def _glassdoor(self, domain):
-        ''' site:glassdoor.com/overview "cascadia metals" inurl:overview '''
-
-    def _businessweek(self, domain):
-        ''' '''
-
-    def _forbes(self, domain):
-        ''' http://www.forbes.com/companies/guidespark/ '''
-
-    def _indeed_profile(self, domain):
-        ''' Get Profile and Scrape Info'''
-
-    def _hiring(self, company_name):
+    def _hiring(self, company_name, api_key=""):
         # paginate
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
-        return jobs
+        browser = Browser('phantomjs')
+        browser.visit(jobs)
+        pages = [browser.html]
+        while "Next" in BeautifulSoup(browser.html).text:
+            browser.find_by_css('.np')[-1].click()
+            time.sleep(1)
+            pages.append(browser.html)
+        jobs = {"company_name":company_name}
+        jobs["jobs"] = Indeed()._search_results_html_to_df(pages).to_dict('r')
+        CompanyInfoCrawl()._persist(jobs, "hiring", api_key)
 
-    def _social_reviews(self, company_name):
-        ''' Glassdoor, Twitter, Facebook, Linkedin, GetApp '''
-        return reviews
-
-    def _press(self, company_name):
+    def _press_releases(self, company_name, api_key=""):
         ''' Google News, PRNewsWire, BusinessWire '''
-        pw = Google().search("{0} site:prnewswire.com".format(company_name))
-        bw = Google().search("{0} site:businesswire.com".format(company_name))
-        # add marketwired, newswire.ca
-        # parse and return
-        #persist press
+        pw = Google().search('"{0}" site:prnewswire.com'.format(company_name))
+        bw = Google().search('"{0}" site:businesswire.com'.format(company_name))
+        mw = Google().search('"{0}" site:marketwired.com'.format(company_name))
+        nw = Google().search('"{0}" site:newswire.ca'.format(company_name))
+        rt = Google().search('"{0}" site:reuters.com'.format(company_name))
 
-    def _news(self, company_name):
-        gn = Google().news_search("{0}".format(company_name))
-        # persist news
+        p = pd.concat([pw, bw, mw, nw, rt])
+        p = p.drop_duplicates()
+        p['date'] = [span.split('Business Wire')[-1].split('...')[0].strip() for span in p.link_span]
+        p['description'] = ["".join(span.split('...')[1:]).strip() for span in p.link_span]
+        p['title'] = p['link_text']
+        p = p.drop('link_text',1)
+        p = p.drop('url',1)
+        p = p.drop('link_span',1)
+        press = {'press':p.to_dict('records'), 'company_name':company_name}
+        CompanyInfoCrawl()._persist(press, "press", api_key)
 
-    def _social_profiles(self, domain):
-        fb = Google().search("{0} site:facebook.com/".format(domain))
-        tw = Google().search("{0} site:twitter.com/".format(domain))
-        return social_profiles
+    def _news(self, company_name, api_key=""):
+        # TODO - include general info links
+        browser = Browser('phantomjs')
+        browser.visit('http://google.com')
+        browser.find_by_name('q').first.fill(company_name)
+        browser.find_by_name('btnG').first.click()
+        browser.find_link_by_text('News').first.click()
+        pages = pd.DataFrame()
+        df = Google()._results_html_to_df(browser.html)
+        pages = pages.append(df)
+        if browser.find_by_css('td > a') == []: 
+            pages = pages.to_dict('r')
+            pages = {'pages':pages, 'company_name':company_name}
+            CompanyInfoCrawl()._persist(pages, "general_news", api_key)
+        while "Next" in browser.find_by_css('td > a')[-1].text:
+            browser.find_by_css('td > a')[-1].click()
+            df = Google()._results_html_to_df(browser.html)
+            pages = pages.append(df)
+        pages = pages[~pages.title.str.contains("press release")]
+        pages = pages[pages.link_span.str.contains('(?i){0}'.format(company_name))]
+        pages.columns = ['link','description','title','info','']
+        pages['date'] = [i.split('-')[-1] for i in pages['info']]
+        pages['news_source'] = [i.split('-')[0] for i in pages['info']]
+        pages = pages.to_dict('r')
+        pages = {'pages':pages, 'company_name':company_name}
+        CompanyInfoCrawl()._persist(pages, "general_news", api_key)
+
+    def _related(self, domain, api_key="", name=""):
+        companies = Google().search("related:{0}".format(domain), 10)
+        companies = companies.drop_duplicates()
+        companies.columns = ['link','description','title','','']
+        data = {'similars':companies.to_dict('r'), "domain": domain, "company_name":name}
+        data["api_key"] = api_key
+        CompanyInfoCrawl()._persist(data, "similar", api_key)
 
     def _fundings(self, company_name):
         ''' Also find crunchbase handle '''
@@ -98,13 +127,49 @@ class Companies:
         # scrape funding rounds
         return fundings
 
-    def _employees(self, company_name, keyword=""):
+    def youtube_channel(self, company_name):
+        ''' '''
+
+    def _social_profiles(self, domain):
+        fb = Google().search("{0} site:facebook.com/".format(domain))
+        tw = Google().search("{0} site:twitter.com/".format(domain))
+        return social_profiles
+
+    def _technologies(self, domain, api_key=""):
+        ''' BuiltWith '''
+        html = requests.get('https://builtwith.com/'+domain).text
+        bs = BeautifulSoup(html)
+        technologies = []
+        for div in bs.find('div',{'class':'span8'}).find_all('div'):
+            if 'titleBox' in div.get('class'):
+                tech_name = div.text.split('View Global ')[0]
+                continue
+            tech_name = div.find('h3').text.strip()
+            tech_desc = div.find('p').text if div.find('p') else ""
+            logo = "http:"+div.find('img')['src']
+            vals = [tech_name, tech_desc, logo, tech_name]
+            names = ['tech_name', 'tech_desc', 'logo', 'tech_name']
+            technologies.append(dict(zip(names, vals)))
+        info = {'technologies':technologies, "domain":domain, "api_key":api_key}
+        CompanyInfoCrawl()._persist(info,"builtwith",api_key)
+
+    def _traffic_analysis(self, domain):
+        ''' Compete.com, Alexa, SimilarWeb '''
+        traffic = requests.get('https://similarweb.com/'+domain)
+        traffic = requests.get('https://alexa.com/siteinfo/'+domain)
+        return traffic
+
+    def _employees(self, company_name, keyword="", domain="", api_key=""):
         ''' Linkedin Scrape'''
         args = '-inurl:"/dir/" -inurl:"/find/" -inurl:"/updates"'
         args = args+' -inurl:"job" -inurl:"jobs2" -inurl:"company"'
         qry = '"at {0}" {1} {2} site:linkedin.com'
         qry = qry.format(company_name, args, keyword)
         results = Google().search(qry, 1)
+        if results.empty and domain == "": return results
+        if results.empty and domain != "":
+            results = Google().search(qry.format(domain, args, keyword))
+        results = results.dropna()
         results = Linkedin()._google_df_to_linkedin_df(results)
         company_name = '(?i){0}'.format(company_name)
         results['company_score'] = [fuzz.ratio(company_name, company) 
@@ -113,8 +178,9 @@ class Companies:
                             for title in results.title]
         results = results[results.company_score > 84]
         results = results[results.score > 75]
-        print results
-        return results
+        results = results.drop_duplicates()
+        data = {'employees': results.to_dict('r'), 'company_name':company_name}
+        CompanyInfoCrawl()._persist(data, "employees", api_key)
 
     def _whois_info(self, domain):
         ''' Glean Info From Here'''
@@ -125,11 +191,6 @@ class Companies:
     def _angellist_profile(self, company_name):
         ''' Angellist Profile '''
 
-    def _related(self, domain):
-        ''' Competitors, Similar Companies '''
-        companies = Google().search("related:{0}".format(domain), 10)
-        # linkedin companies info 
-        return related
 
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
@@ -185,22 +246,23 @@ class Companies:
         jobs = [j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
+        q.enqueu(Companies()._secondary_research, name, domain, api_key)
 
-    def _secondary_research(self, name, domain, api_key=""):
+    def _secondary_research(self, company_name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain
-        q.enqueue(Companies()._company_blog, domain)
-        q.enqueue(Companies()._technologies, domain)
-        q.enqueue(Glassdoor()._reviews, domain)
-        q.enqueue(Crunchbase()._fundings, domain)
-        q.enqueue(Companies()._press, company_name, domain)
-        q.enqueue(Companies()._news, company_name, domain)
-        q.enqueue(Companies()._hiring, domain)
-        q.enqueue(Companies()._employees, company_name, domain)
+        j0 = q.enqueue(Companies()._company_blog, domain)
+        j1 = q.enqueue(Companies()._technologies, domain)
+        j2 = q.enqueue(GlassDoor()._reviews, domain)
+        j3 = q.enqueue(Companies()._press_releases, company_name, domain)
+        j4 = q.enqueue(Companies()._news, company_name, domain)
+        j5 = q.enqueue(Companies()._hiring, domain)
+        j6 = q.enqueue(Companies()._employees, company_name, "", domain)
+        j7 = q.enqueue(Companies()._related, domain)
+        jobs = [j0,j1,j2,j3,j4,j5,j6,j7]
+        for job in jobs:
+            RQueue()._meta(job, "{0}_{1}".format(company_name, api_key))
 
-        q.enqueue(Companies()._indeed_profile, domain)
-        q.enqueue(Companies()._twitter, domain)
-        q.enqueue(Companies()._facebook, domain)
-        q.enqueue(Companies()._related, domain)
+        #q.enqueue(Crunchbase()._fundings, domain)
         #q.enqueue(Companies()._traffic_analysis, domain)
         #q.enqueue(Companies()._whois_info, domain)
 

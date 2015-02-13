@@ -87,13 +87,9 @@ class Google:
             qry = self._remove_non_ascii(qry)
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://www.google.com/search?'+ args
-            '''
             cloak = "https://crawlera.p.mashape.com/fetch"
-            headers = {"X-Mashape-Key":
-                "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
+            headers = {"X-Mashape-Key": "mEol4XmA3QmshtYIjvaaqvts9kyOp1DwvVvjsnoN02b6eKv98h"}
             r = requests.get(cloak, params={'url':url}, headers=headers)
-            '''
-            r = requests.get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res
 
@@ -102,8 +98,9 @@ class Google:
         listings = BeautifulSoup(search_result_html).findAll('li',{'class':'g'})
         for lead in listings:
             link_text = lead.find('h3').text
-            link = lead.find('a')['href'].split('=')[1].split('&')[0]
-            url = lead.find('cite').text
+            link = lead.find('a')['href'].split('=')[-1].split('&')[0]
+            url = lead.find('cite')
+            url = url.text if url else ""
             link_span = lead.find('span',{'class':'st'})
             link_span = link_span.text if link_span else ""
             title = lead.find('div',{'class':'slp'})

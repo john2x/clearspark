@@ -43,13 +43,29 @@ class Linkedin:
         return final
 
     def _linkedin_profile_from_name(self, company_name):
-        '''   '''
         qry = company_name+' site:linkedin.com/company'
         google_results = Google().search(qry)
         if google_results.empty: return "not found"
         url = google_results.ix[0].url
         # scrape cache
         return url if "/company/" in url else "not found"
+
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = 'site:linkedin.com/company {0}'.format(domain)
+        google_results = Google().search(qry)
+        if google_results.empty: 
+          return CompanyInfoCrawl()._persist({'company_name':name}, 'linkedin', api_key)
+        url = google_results.ix[0].url
+        html = Google().cache(url)
+        info = self._company_cache_html_to_df(html)
+        if type(info) is str: return CompanyInfoCrawl()._persist({'company_name':name}, 'linkedin', api_key)
+        info = json.loads(info.ix[0].to_json())
+        info['company_name'] = name
+        info['handle'] = url
+        info["domain_search"] = True
+        if info["domain"] == domain:
+            CompanyInfoCrawl()._persist(info, 'linkedin', api_key)
+            return info 
 
     def _company_profile(self, company_name, api_key):
         qry = company_name+' site:linkedin.com/company'

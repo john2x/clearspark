@@ -6,6 +6,7 @@ from crawl import CompanyInfoCrawl
 import urllib 
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+import pandas as pd
 
 class GlassDoor:
     def _company_profile(self, name, api_key=""):
@@ -24,12 +25,35 @@ class GlassDoor:
             val = self._html_to_dict(url)
             val = self._rename_vars(val)
             if val["domain"] != domain: continue
+            val["domain_search"] = True
             val['company_name'] = name
             CompanyInfoCrawl()._persist(val, "glassdoor", api_key)
             break
 
-    def _reviews(self, name):
-        ''' '''
+    def _reviews(self, name, api_key=""):
+        df = Google().search('site:glassdoor.com/reviews {0}'.format(name))
+        url = df.ix[0].link
+        r = BeautifulSoup(Google().cache(url))
+        rating = r.find('div',{'class':'ratingNum'})
+        rating = rating.text if rating else ""
+        # TODO - awards
+        print url
+        reviews = pd.DataFrame()
+        for review in r.find_all('li',{'class':'empReview'}):
+            print review.text
+            pros = review.find('p',{'class':'pros'})
+            cons = review.find('p',{'class':'cons'})
+            extra = review.find('p',{'class':'notranslate'})
+            summary = review.find('span',{'class':'summary'})
+            date = review.find('time',{'class':'date'})
+            vals = [pros, cons, extra, summary, date]
+            cols = ["pros", "cons", "extra", "summary", "date"]
+            vals = [val.text.strip() for val in vals]
+            reviews = reviews.append(dict(zip(cols, vals)),ignore_index=True) 
+        print reviews
+        data = {'glassdoor_reviews': reviews.to_dict('r'), 'name':name}
+        data['api_key'] = api_key
+        CompanyInfoCrawl(data, "glassdoor_reviews", api_key) 
 
     def _html_to_dict(self, url):
         r = BeautifulSoup(Google().cache(url))
@@ -66,6 +90,7 @@ class BusinessWeek:
             val = self._html_to_dict(url)
             val['company_name'] = name
             if val["domain"] == domain:
+                val["domain_search"] = True
                 CompanyInfoCrawl()._persist(val, "businessweek", api_key)
                 break
 
@@ -117,6 +142,7 @@ class Forbes:
             val = self._rename_vars(val)
             val['company_name'] = name
             if val["domain"] != domain: continue
+            val["domain_search"] = True
             CompanyInfoCrawl()._persist(val, "forbes", api_key)
             break
 
@@ -144,7 +170,6 @@ class Forbes:
         del info['headquarters']
         return info
 
-
 class Crunchbase:
     def _company_profile(self, name, api_key=""):
         qry = 'site:crunchbase.com/organization {0}'.format(name)
@@ -165,6 +190,7 @@ class Crunchbase:
             val = self._rename_vars(val)
             val['company_name'] = name
             if val["domain"] != domain: continue
+            val["domain_search"] = True
             CompanyInfoCrawl()._persist(val, "crunchbase", api_key)
             break
 
@@ -202,6 +228,7 @@ class Hoovers:
         val = self._html_to_dict(url)
         val = self._rename_vars(val)
         val['company_name'] = name
+        val["domain_search"] = True
         CompanyInfoCrawl()._persist(val, "hoovers", api_key)
 
     def _domain_search(self, domain, api_key="", name=""):
@@ -213,6 +240,7 @@ class Hoovers:
             val = self._rename_vars(val)
             val['company_name'] = name
             if val["domain"] != domain: continue
+            val["domain_search"] = True
             CompanyInfoCrawl()._persist(val, "hoovers", api_key)
             break
 
@@ -244,12 +272,13 @@ class Yelp:
         CompanyInfoCrawl()._persist(val, "yelp", api_key)
 
     def _domain_search(self, domain, api_key="", name=""):
-        df = Google().search('site:yelp.com {0}'.format(company_name))
-        if df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, "yelp", api_key)
+        df = Google().search('site:yelp.com {0}'.format(name))
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, "yelp", api_key)
         for url in df.link:
             val = self._html_to_dict(url)
             val['company_name'] = company_name
             if val["domain"] != domain: continue
+            val["domain_search"] = True
             CompanyInfoCrawl()._persist(val, "yelp", api_key)
             break
 
@@ -284,14 +313,15 @@ class YellowPages:
         CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
 
     def _domain_search(self, domain, api_key="", name=""):
-        qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(company_name, location)
+        qry = '{0} {1} inurl:yellowpages inurl:/bus/'.format(name, location)
         df = Google().search(qry)
-        if df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'yellowpages', api_key)
+        if df.empty: return CompanyInfoCrawl()._persist({'company_name':name}, 'yellowpages', api_key)
         for url in df.link:
             val = self._html_to_dict(url)
             val['company_name'] = company_name
             print "YellowPages", val
             if val["domain"] == domain: continue
+            val["domain_search"] = True
             CompanyInfoCrawl._persist(val, 'yellowpages', api_key)
             break
 
@@ -331,6 +361,7 @@ class Indeed:
       df["score"] = [fuzz.ratio(b, name) for b in df._name]
       df = df[df.score > 70]
       df = df.reset_index().drop('index',1)
+      df = df.sort('score',ascending=False)
       url = df.ix[0].link
       val = self._html_to_dict(url)
       print "name"
@@ -340,7 +371,7 @@ class Indeed:
       CompanyInfoCrawl()._persist(val, "indeed", api_key)
 
   def _domain_search(self, domain, api_key="", name=""):
-      df = Google().search('site:indeed.com/cmp {0}'.format(name))
+      df = Google().search('site:indeed.com/cmp {0}'.format(domain))
       if df.empty: 
           return CompanyInfoCrawl()._persist({'company_name': name}, "indeed", api_key)
       url = df.ix[0].link
@@ -367,3 +398,26 @@ class Indeed:
             domain = "{}.{}".format(tldextract.extract(website).domain, 
                                     tldextract.extract(website).tld)
     return {'name':name, 'description':desc, 'website':website, 'domain':domain}
+
+  def _search_results_html_to_df(self, html_arr):
+    '''
+        Input  : Indeed.com raw_html
+        Output : DF with relevant listing info
+    '''
+    jobs = pd.DataFrame(columns=['job_title','company_name','location','date','summary'])
+    for count, page in enumerate(html_arr):
+        soup = BeautifulSoup(page)
+        tmp = pd.DataFrame()
+
+        for row in soup.findAll('div',{'class':'row'}):
+            job_title = row.find(attrs={'class':'jobtitle'}).text.strip() if row.find(attrs={'class':'jobtitle'}) else ""
+            company = row.find('span',{'class':'company'}).text if row.find('span',{'class':'company'}) else ""
+            location = row.find('span',{'class':'location'}).text if row.findAll('span',{'class':'location'}) else ""
+            date = row.find('span',{'class':'date'}).text if row.findAll('span',{'class':'date'}) else ""
+            summary = row.find('span',{'class':'summary'}).text.strip() if row.findAll('span',{'class':'summary'}) else ""
+
+            cols = ['job_title','company_name','location','date','summary']
+
+            tmp = tmp.append(dict(zip(cols,[job_title,company,location,date,summary])), ignore_index=True)
+        jobs = jobs.append(tmp)
+    return jobs

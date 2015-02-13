@@ -9,6 +9,7 @@ from parse import Parse
 import companies
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+from companies import Companies
 
 from rq import Queue
 from worker import conn
@@ -37,7 +38,8 @@ class CompanyScore:
             if type(list(df[col].dropna())[0]) == list: 
                 df[col] = df[col].dropna().apply(tuple)
                 df[col] = df[df[col] != ()][col]
-            df = df[df[col] != ""] if df[col].dtype != "float64" else df
+            try: df = df[df[col] != ""]
+            except: "lol"
             df = df[df[col].notnull()]
             df = [source[1].sort('createdAt').drop_duplicates(col, True)
                   for source in df.groupby(col)]
@@ -68,6 +70,8 @@ class CompanyScore:
         # TODO - if company_name exists update
         # TODO - find if domain exists under different company_name then update 
         final = self._prettify_fields(final)
+        del final["name_score"]
+        print json.dumps(final)
         self._add_to_clearspark_db('Company', 'company_name', company_name, final)
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
         # clean data - ie titleify fields, and lowercase domain
@@ -76,14 +80,17 @@ class CompanyScore:
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
             Webhook()._update_company_info(final)
+            '''
             job = q.enqueue(EmailGuess().search_sources, final["domain"],api_key,"")
             job.meta["{0}_{1}".format(company_name, api_key)] = True
             job.save()
+            '''
             for domain in crawls.domain.dropna().drop_duplicates():
-                job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
-                job.meta["{0}_{1}".format(company_name, api_key)] = True
-                job.save()
-            q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
+                ''' '''
+                #job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
+                #job.meta["{0}_{1}".format(company_name, api_key)] = True
+                #job.save()
+            q.enqueue(Companies()._domain_research, company_name, domain, api_key)
 
     def _prettify_fields(self, final):
         final['domain'] = final['domain'].lower()

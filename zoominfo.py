@@ -104,6 +104,30 @@ class Zoominfo:
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo, "zoominfo", api_key)
 
+    def _domain_search(self, domain, api_key="", name=""):
+        qry = 'site:zoominfo.com/c/ {0}'.format(domain)
+        df = Google().search(qry)
+        if df.empty: 
+            data = {'company_name': name}
+            return CompanyInfoCrawl()._persist(data,"zoominfo",api_key)
+        df['_name'] = [i.split("Company Profile")[0].strip() 
+                       for i in df.link_text]
+        df["score"] = [fuzz.ratio(b, name) for b in df._name]
+        df = df[df.score > 70]
+        df = df.reset_index().drop('index',1)
+        df = df.sort('score',ascending=False)
+        url = df.ix[0].link
+        print "ZOOMINFO URL", url
+        html = Google().cache(url)
+        html = requests.get(url).text
+        html = self._remove_non_ascii(html)
+        zoominfo = self._cache_html_to_df(html)
+        zoominfo['company_name'] = name
+        zoominfo['handle'] = url
+        zoominfo["domain_search"] = True
+        print zoominfo
+        CompanyInfoCrawl()._persist(zoominfo, "zoominfo", api_key)
+
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)
 
