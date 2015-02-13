@@ -16,6 +16,7 @@ class GlassDoor:
         val = self._html_to_dict(url)
         val = self._rename_vars(val)
         val['company_name'] = name
+        val["domain"] = domain
         CompanyInfoCrawl()._persist(val, "glassdoor", api_key)
     
     def _domain_search(self, domain, api_key="", name=""):
@@ -29,6 +30,7 @@ class GlassDoor:
             if val["domain"] != domain: continue
             val["domain_search"] = True
             val['company_name'] = name
+            val["domain"] = domain
             CompanyInfoCrawl()._persist(val, "glassdoor", api_key)
             break
 

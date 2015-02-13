@@ -89,10 +89,12 @@ class Zoominfo:
                     return zoominfo_profile.to_dict()
         return "not found"
 
-    def _company_profile(self, company_name, api_key=""):
+    def _company_profile(self, company_name, api_key="", domain=""):
         qry = 'site:zoominfo.com/c/ {0}'.format(company_name)
         google_df = Google().search(qry)
-        if google_df.empty: return CompanyInfoCrawl()._persist({'company_name':company_name},"zoominfo",api_key)
+        data = {'company_name':company_name, "domain":domain}
+        if google_df.empty: 
+            return CompanyInfoCrawl()._persist(data,"zoominfo",api_key)
         url = google_df.ix[0].link
         print "ZOOMINFO URL", url
         html = Google().ec2_cache(url)
@@ -100,6 +102,7 @@ class Zoominfo:
         html = self._remove_non_ascii(html)
         zoominfo = self._cache_html_to_df(html)
         zoominfo['company_name'] = company_name
+        zoomninfo['domain'] = domain
         zoominfo['handle'] = url
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo, "zoominfo", api_key)

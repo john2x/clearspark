@@ -53,7 +53,7 @@ class Companies:
         data["company_name"] = name
         CompanyInfoCrawl()._persist(data, "blog_data", api_key)
 
-    def _hiring(self, company_name, api_key=""):
+    def _hiring(self, domain, api_key="", name=""):
         # paginate
         jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
         browser = Browser('phantomjs')
@@ -67,7 +67,7 @@ class Companies:
         jobs["jobs"] = Indeed()._search_results_html_to_df(pages).to_dict('r')
         CompanyInfoCrawl()._persist(jobs, "hiring", api_key)
 
-    def _press_releases(self, company_name, api_key=""):
+    def _press_releases(self, domain, api_key="", name=""):
         ''' Google News, PRNewsWire, BusinessWire '''
         pw = Google().search('"{0}" site:prnewswire.com'.format(company_name))
         bw = Google().search('"{0}" site:businesswire.com'.format(company_name))
@@ -86,7 +86,7 @@ class Companies:
         press = {'press':p.to_dict('records'), 'company_name':company_name}
         CompanyInfoCrawl()._persist(press, "press", api_key)
 
-    def _news(self, company_name, api_key=""):
+    def _news(self, domain, api_key="", name=""):
         # TODO - include general info links
         browser = Browser('phantomjs')
         browser.visit('http://google.com')
@@ -136,7 +136,7 @@ class Companies:
         tw = Google().search("{0} site:twitter.com/".format(domain))
         return social_profiles
 
-    def _technologies(self, domain, api_key=""):
+    def _technologies(self, domain, api_key="", name=""):
         ''' BuiltWith '''
         html = requests.get('https://builtwith.com/'+domain).text
         bs = BeautifulSoup(html)
@@ -160,7 +160,7 @@ class Companies:
         traffic = requests.get('https://alexa.com/siteinfo/'+domain)
         return traffic
 
-    def _employees(self, company_name, keyword="", domain="", api_key=""):
+    def _technologies(self, domain, api_key="", name="", keyword=""):
         ''' Linkedin Scrape'''
         args = '-inurl:"/dir/" -inurl:"/find/" -inurl:"/updates"'
         args = args+' -inurl:"job" -inurl:"jobs2" -inurl:"company"'
@@ -172,8 +172,8 @@ class Companies:
             results = Google().search(qry.format(domain, args, keyword))
         results = results.dropna()
         results = Linkedin()._google_df_to_linkedin_df(results)
-        company_name = '(?i){0}'.format(company_name)
-        results['company_score'] = [fuzz.ratio(company_name, company) 
+        _name = '(?i){0}'.format(company_name)
+        results['company_score'] = [fuzz.ratio(_name, company) 
                                     for company in results.company]
         results['score'] = [fuzz.ratio(keyword, title) 
                             for title in results.title]
@@ -181,6 +181,7 @@ class Companies:
         results = results[results.score > 75]
         results = results.drop_duplicates()
         data = {'employees': results.to_dict('r'), 'company_name':company_name}
+        data["domain"] = domain
         CompanyInfoCrawl()._persist(data, "employees", api_key)
 
     def _whois_info(self, domain):

@@ -54,7 +54,8 @@ class Linkedin:
         qry = 'site:linkedin.com/company {0}'.format(domain)
         google_results = Google().search(qry)
         if google_results.empty: 
-          return CompanyInfoCrawl()._persist({'company_name':name}, 'linkedin', api_key)
+          data = {'company_name':name, "domain":domain}
+          return CompanyInfoCrawl()._persist(data, 'linkedin', api_key)
         url = google_results.ix[0].url
         html = Google().cache(url)
         info = self._company_cache_html_to_df(html)
