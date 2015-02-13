@@ -152,6 +152,7 @@ class Companies:
             names = ['tech_name', 'tech_desc', 'logo', 'tech_name']
             technologies.append(dict(zip(names, vals)))
         info = {'technologies':technologies, "domain":domain, "api_key":api_key}
+        info["company_name"] = name
         CompanyInfoCrawl()._persist(info,"builtwith",api_key)
 
     def _traffic_analysis(self, domain):

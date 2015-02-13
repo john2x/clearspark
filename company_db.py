@@ -290,6 +290,9 @@ class Hoovers:
         vals = [name, telephone, address, url]
         info = dict(zip(cols , vals))
         info['handle'] = url
+        if "website" in info.keys():
+          tld = tldextract(info["website"])
+          info['domain'] = "{}.{}".format(tld.domain, tld.tld)
         return info
 
     def _rename_vars(self, info):
