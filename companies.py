@@ -258,14 +258,15 @@ class Companies:
     def _secondary_research(self, name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain
         if name == "": name = domain
-        j0 = q.enqueue(Companies()._company_blog, domain, api_key, name)
-        j1 = q.enqueue(Companies()._technologies, domain, api_key, name)
-        j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name)
-        j3 = q.enqueue(Companies()._press_releases, domain, api_key, name)
-        j4 = q.enqueue(Companies()._news, domain, api_key, name)
-        j5 = q.enqueue(Companies()._hiring, domain, api_key, name)
-        j6 = q.enqueue(Companies()._employees, domain, api_key, name)
-        j7 = q.enqueue(Companies()._related, domain, api_key, name)
+        x = 6000
+        j0 = q.enqueue(Companies()._company_blog, domain, api_key, name, timeout=x)
+        j1 = q.enqueue(Companies()._technologies, domain, api_key, name, timeout=x)
+        j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name, timeout=x)
+        j3 = q.enqueue(Companies()._press_releases, domain, api_key, name, timeout=x)
+        j4 = q.enqueue(Companies()._news, domain, api_key, name, timeout=x)
+        j5 = q.enqueue(Companies()._hiring, domain, api_key, name, timeout=x)
+        j6 = q.enqueue(Companies()._employees, domain, api_key, name, timeout=x)
+        j7 = q.enqueue(Companies()._related, domain, api_key, name, timeout=x)
         jobs = [j0,j1,j2,j3,j4,j5,j6,j7]
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key))
