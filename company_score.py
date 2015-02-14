@@ -77,6 +77,8 @@ class CompanyScore:
         # clean data - ie titleify fields, and lowercase domain
         # TODO - start a domain search with the deduced domain and the company_name
         print "RQUEUE CHECK"
+        #q.enqueue(Companies()._domain_research, domain, api_key, company_name)
+        #q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
             Webhook()._update_company_info(final)
@@ -90,8 +92,6 @@ class CompanyScore:
                 #job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
                 #job.meta["{0}_{1}".format(company_name, api_key)] = True
                 #job.save()
-            q.enqueue(Companies()._domain_research, domain, api_key, company_name)
-            q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
 
     def _prettify_fields(self, final):
         final['domain'] = final['domain'].lower()
