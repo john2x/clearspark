@@ -123,7 +123,7 @@ class Companies:
     def _related(self, domain, api_key="", name=""):
         companies = Google().search("related:{0}".format(domain), 10)
         companies = companies.drop_duplicates()
-        companies.columns = ['link','description','title','','']
+        companies.columns = ['link','description','title','lol','lmao']
         data = {'data':companies.to_dict('r'), "domain": domain, "company_name":name}
         data["api_key"] = api_key
         CompanyExtraInfoCrawl()._persist(data, "similar", api_key)
