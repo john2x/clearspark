@@ -44,13 +44,13 @@ class CompanyEmailPatternCrawl:
 
 class CompanyExtraInfoCrawl:
     def _persist(self, data, source, api_key=""):
-        if "source" == "blog_data": source = "CompanyBlogPost"
-        elif "source" == "builtwith": source = "CompanyTechnology"
-        elif "source" ==  "press": source = "CompanyPressRelease"
-        elif "source" ==  "employees": source = "CompanyEmployee"
-        elif "source" ==  "glassdoor_reviews": source = "CompanyGlassdoorReview"
-        elif "source" ==  "similar": source = "CompanySimilar"
-        elif "source" ==  "hiring": source = "CompanyHiring"
+        if source == "blog_data": source = "CompanyBlogPost"
+        elif source == "builtwith": source = "CompanyTechnology"
+        elif source ==  "press": source = "CompanyPressRelease"
+        elif source ==  "employees": source = "CompanyEmployee"
+        elif source ==  "glassdoor_reviews": source = "CompanyGlassdoorReview"
+        elif source ==  "similar": source = "CompanySimilar"
+        elif source ==  "hiring": source = "CompanyHiring"
         #TODO - CompanySocialMedia - Linkedin Posts, Tweets, Facebook Posts
         #TODO - prevent duplicates
         #TODO - batch create data
