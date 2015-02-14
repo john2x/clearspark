@@ -6,6 +6,7 @@ import unicodedata
 import pusher
 from email_guess import EmailGuess
 import arrow
+import pandas as pd
 
 from rq import Queue
 from worker import conn
@@ -59,12 +60,6 @@ class Webhook:
             print company
             companies = [Parse()._pointer('Company',company['objectId'])]
 
-        _pusher = pusher.Pusher(
-          app_id='105534',
-          key='950f66be1f764448120e',
-          secret='5c7a91f7e0da71c57dbf'
-        )
-
         print data["company_name"]
         company_name = data["company_name"].replace(' ','-')
         _pusher['customero'].trigger(company_name, {'company': data})
@@ -75,14 +70,19 @@ class Webhook:
             print Parse().update('Company/'+company['objectId'], data).json()
             _company = Parse()._pointer('Company', company['objectId'])
             classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
+            objects = []
+            df = pd.DataFrame()
             for _class in classes:
                 objects = Parse().get(_class, qry).json()['results']
-                print "OBJECTS FOUND WITH COMPANY", objects
-                for obj in objects:
-                    print "UPDATED", _class, obj
-                    _id = obj['objectId']
-                    data = {'company':_company, 'company_research': arrow.utcnow().timestamp}
-                    print Parse().update(_class+"/"+_id, data).json()
+                data = {'company':_company, 'company_research': arrow.utcnow().timestamp}
+                df["objectId"] = [i["objectId"] for i in objects]
+                Parse()._batch_df_update(_class, df, data)
+
+            #TODO - batch update
+            for obj in objects:
+                print "UPDATED", _class, obj
+                _id = obj['objectId']
+                print Parse().update(_class+"/"+_id, data).json()
                 #TODO - add name email guess - what is this code below
                 name = ""
                 if _class == 'Prospect':

@@ -218,8 +218,6 @@ class Companies:
         j9 = q.enqueue(Facebook()._company_profile, name, api_key,timeout=6000)
         j10 = q.enqueue(Twitter()._company_profile, name, api_key,timeout=6000)
         j11 = q.enqueue(Indeed()._company_profile, name, api_key,timeout=6000)
-        jobs = [j9,j10,j11]
-        '''
         j0 =q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)
         j1 = q.enqueue(Zoominfo()._company_profile, name, api_key,timeout=6000)
         j2 = q.enqueue(Linkedin()._company_profile, name, api_key,timeout=6000)
@@ -230,7 +228,6 @@ class Companies:
         j7 = q.enqueue(Hoovers()._company_profile, name, api_key,timeout=6000)
         j8 = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
         jobs = [j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
-        '''
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
         # TODO - jigsaw

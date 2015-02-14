@@ -69,6 +69,31 @@ class Parse:
                          headers=self._master_headers)
         return r
 
+    def _batch_df_update(self, className, df, body):
+        responses = []
+        df = df.reset_index().drop('index', 1)
+        for i in range(int(math.ceil(df.shape[0]/50.0))):
+            #TODO - fill nan with something
+            #TODO - remove keyword columns
+            error = True
+            while error:
+                a, b, data = i*50, (i+1)*50-1, pd.DataFrame()
+                tmp = df.ix[a:b]
+                data['path']    = ["/1/classes/"+className+"/"+_id for _id in tmp.objectId]
+                data['body']    = [body for i in tmp.index]
+                data['method']  = "PUT"
+                data            = {"requests" : data.to_dict('r')}
+                r = requests.post(self._batch_url,
+                                  data=json.dumps(data),
+                                  headers=self._headers)
+                print r.json()
+                error = type(r.json()) is dict
+                if error:
+                    print "batch df update error occurred. retrying"
+                    time.sleep(10)
+            responses = responses+r.json()
+        return responses
+
     ''' ClearSpark Specific Methods '''
     def _add_company(self, company, company_qry):
         ''' '''
@@ -149,3 +174,27 @@ class Prospecter:
                        data=json.dumps(data),
                        headers=self._master_headers)
       return r
+  def _batch_df_update(self, className, df, body):
+      responses = []
+      df = df.reset_index().drop('index', 1)
+      for i in range(int(math.ceil(df.shape[0]/50.0))):
+          #TODO - fill nan with something
+          #TODO - remove keyword columns
+          error = True
+          while error:
+              a, b, data = i*50, (i+1)*50-1, pd.DataFrame()
+              tmp = df.ix[a:b]
+              data['path']    = ["/1/classes/"+className+"/"+_id for _id in tmp.objectId]
+              data['body']    = [body for i in tmp.index]
+              data['method']  = "PUT"
+              data            = {"requests" : data.to_dict('r')}
+              r = requests.post(self._batch_url,
+                                data=json.dumps(data),
+                                headers=self._headers)
+              print r.json()
+              error = type(r.json()) is dict
+              if error:
+                  print "batch df update error occurred. retrying"
+                  time.sleep(10)
+          responses = responses+r.json()
+      return responses
