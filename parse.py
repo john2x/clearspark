@@ -1,9 +1,12 @@
 import requests
 import json
+import math
+import pandas as pd
 
 class Parse:
     def __init__(self):
         self._url = 'https://api.parse.com/1/classes/{0}'
+        self._batch_url = 'https://api.parse.com/1/batch'
         self._headers = {
           'Content-Type': 'application/json',
           'X-Parse-Application-Id': 'aBbOmPBkUou54VeIrtHhIU7a6PQSKEkXLCjm6cJf',
@@ -83,6 +86,7 @@ class Parse:
 class Prospecter:
   def __init__(self):
     self._url = 'https://api.parse.com/1/classes/{0}'
+    self._batch_url = 'https://api.parse.com/1/batch'
     self._headers = {
       "X-Parse-Application-Id": "N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ",
       "X-Parse-REST-API-Key": "VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb",

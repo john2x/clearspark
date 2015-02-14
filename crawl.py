@@ -5,7 +5,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 import tldextract
-from parse import Parse
+from parse import *
 import pandas as pd
 
 class CompanyInfoCrawl:
@@ -58,5 +58,5 @@ class CompanyExtraInfoCrawl:
         _data["company_name"] = data["company_name"]
         _data["api_key"] = api_key
         _data["domain"] = data["domain"]
-        print Prospecter()._batch_df_create(source, data)
-        print Parse()._batch_df_create(source, data)
+        print Prospecter()._batch_df_create(source, _data)
+        print Parse()._batch_df_create(source, _data)
