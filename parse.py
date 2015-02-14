@@ -1,6 +1,7 @@
 import requests
 import json
 import math
+import time
 import pandas as pd
 
 class Parse:
