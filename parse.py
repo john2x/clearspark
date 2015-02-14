@@ -33,6 +33,32 @@ class Parse:
                            headers=self._master_headers)
           return r
 
+    def _batch_df_create(self, className, df):
+        print "BATCH DF STARTED"
+        responses = []
+        df = df.reset_index().drop('index', 1)
+        for i in range(int(math.ceil(df.shape[0]/50.0))):
+            #TODO - fill nan with something
+            #TODO - remove keyword columns
+            error = True
+            while error:
+                a, b, data = i*50, (i+1)*50-1, pd.DataFrame()
+                tmp = df.ix[a:b]
+                data['body']    = tmp.to_dict('r')
+                data['method']  = ["POST" for i in tmp.index]
+                data['path']    = ["/1/classes/"+className for i in tmp.index]
+                data            = {"requests" : data.to_dict('r')}
+                r = requests.post(self._batch_url,
+                                  data=json.dumps(data),
+                                  headers=self._headers)
+                error = type(r.json()) is dict
+                print "IS ERROR??? --> ", r.json(), error
+                if error:
+                    time.sleep(10)
+                    print "batch df error occurred. retrying"
+            responses = responses+r.json()
+        return responses
+
     def update(self, className, data):
         r = requests.put(self._url.format(className),
                          data=json.dumps(data),
@@ -73,6 +99,32 @@ class Prospecter:
                      params=qry,
                      headers=self._headers)
     return r
+
+  def _batch_df_create(self, className, df):
+      print "BATCH DF STARTED"
+      responses = []
+      df = df.reset_index().drop('index', 1)
+      for i in range(int(math.ceil(df.shape[0]/50.0))):
+          #TODO - fill nan with something
+          #TODO - remove keyword columns
+          error = True
+          while error:
+              a, b, data = i*50, (i+1)*50-1, pd.DataFrame()
+              tmp = df.ix[a:b]
+              data['body']    = tmp.to_dict('r')
+              data['method']  = ["POST" for i in tmp.index]
+              data['path']    = ["/1/classes/"+className for i in tmp.index]
+              data            = {"requests" : data.to_dict('r')}
+              r = requests.post(self._batch_url,
+                                data=json.dumps(data),
+                                headers=self._headers)
+              error = type(r.json()) is dict
+              print "IS ERROR??? --> ", r.json(), error
+              if error:
+                  time.sleep(10)
+                  print "batch df error occurred. retrying"
+          responses = responses+r.json()
+      return responses
 
   def _pointer(self, className, objectId):
       return {

@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import tldextract
 from parse import Parse
+import pandas as pd
 
 class CompanyInfoCrawl:
     def _persist(self, data, source="", api_key=""):
@@ -40,3 +41,22 @@ class CompanyEmailPatternCrawl:
             print row.to_dict()
             r  = Parse().create('CompanyEmailPatternCrawl', row.to_dict()).json()
             print r
+
+class CompanyExtraInfoCrawl:
+    def _persist(self, data, source, api_key=""):
+        if "source" == "blog_data": source = "CompanyBlogPost"
+        elif "source" == "builtwith": source = "CompanyTechnology"
+        elif "source" ==  "press": source = "CompanyPressRelease"
+        elif "source" ==  "employees": source = "CompanyEmployee"
+        elif "source" ==  "glassdoor_reviews": source = "CompanyGlassdoorReview"
+        elif "source" ==  "similar": source = "CompanySimilar"
+        elif "source" ==  "hiring": source = "CompanyHiring"
+        #TODO - CompanySocialMedia - Linkedin Posts, Tweets, Facebook Posts
+        #TODO - prevent duplicates
+        #TODO - batch create data
+        _data = pd.DataFrame(data['data'])
+        _data["company_name"] = data["company_name"]
+        _data["api_key"] = api_key
+        _data["domain"] = data["domain"]
+        print Prospecter()._batch_df_create(source, data)
+        print Parse()._batch_df_create(source, data)

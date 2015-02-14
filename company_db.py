@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from google import Google
 import tldextract
-from crawl import CompanyInfoCrawl
+from crawl import *
 import urllib 
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
@@ -53,10 +53,10 @@ class GlassDoor:
             vals = [val.text.strip() for val in vals]
             reviews = reviews.append(dict(zip(cols, vals)),ignore_index=True) 
         print reviews
-        data = {'glassdoor_reviews': reviews.to_dict('r'), 'company_name':name}
+        data = {'data': reviews.to_dict('r'), 'company_name':name}
         data['api_key'] = api_key
         data['domain'] = domain
-        CompanyInfoCrawl()._persist(data, "glassdoor_reviews", api_key) 
+        CompanyExtraInfoCrawl()._persist(data, "glassdoor_reviews", api_key) 
 
     def _html_to_dict(self, url):
         r = BeautifulSoup(Google().cache(url))

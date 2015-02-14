@@ -22,31 +22,36 @@ class CompanyScore:
     def _company_info(self, company_name, api_key=""):
         #TODO - company_name = self._remove_non_ascii(company_name) add to save
         qry = {'where':json.dumps({'company_name': company_name}), 'limit':1000}
+        qry['order'] = '-createdAt'
         crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
 
         if not crawls: return company_name
         crawls = self._source_score(pd.DataFrame(crawls))
-        crawls = crawls[crawls.api_key == api_key]
-        final = {}
+        #crawls = crawls[crawls.api_key == api_key]
         crawls['name_score'] = [fuzz.token_sort_ratio(row['name'], row.company_name) 
                                 for index, row in crawls.iterrows()]
-        crawls = crawls[crawls.name_score > 70]
+        crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
+        #crawls = crawls[["press", 'source_score', 'source', 'createdAt', 'domain']]
+        final = {}
+        #print crawls.press.dropna()
         for col in crawls.columns:
             if col in ['source_score', 'source', 'createdAt']: continue
             df = crawls[[col, 'source_score', 'source', 'createdAt']]
             if df[col].dropna().empty: continue
             if type(list(df[col].dropna())[0]) == list: 
                 df[col] = df[col].dropna().apply(tuple)
-                df[col] = df[df[col] != ()][col]
             try: df = df[df[col] != ""]
             except: "lol"
-            df = df[df[col].notnull()]
-            df = [source[1].sort('createdAt').drop_duplicates(col, True)
-                  for source in df.groupby(col)]
-            df = [_df for _df in df if _df is not None]
-            df = [pd.DataFrame(columns=['source_score',col])] if len(df) is 0 else df
-            df = pd.concat(df).sort('source_score')[col]
-            if list(df): final[col] = list(df)[-1]
+            try:
+                df = df[df[col].notnull()]
+                df = [source[1].sort('createdAt').drop_duplicates(col, True)
+                          for source in df.groupby(col)]
+                df = [_df for _df in df if _df is not None]
+                df = [pd.DataFrame(columns=['source_score',col])] if len(df) is 0 else df
+                df = pd.concat(df).sort('source_score')[col]
+                if list(df): final[col] = list(df)[-1]
+            except: "lol"
+
 
         if 'industry' in final.keys(): final['industry'] = final['industry'][0]
         try:
@@ -77,11 +82,12 @@ class CompanyScore:
         # clean data - ie titleify fields, and lowercase domain
         # TODO - start a domain search with the deduced domain and the company_name
         print "RQUEUE CHECK"
-        #q.enqueue(Companies()._domain_research, domain, api_key, company_name)
-        #q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
+        domain = final["domain"]
+        q.enqueue(Companies()._domain_research, domain, api_key, company_name)
+        q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-            Webhook()._update_company_info(final)
+            #Webhook()._update_company_info(final)
             '''
             job = q.enqueue(EmailGuess().search_sources, final["domain"],api_key,"")
             job.meta["{0}_{1}".format(company_name, api_key)] = True

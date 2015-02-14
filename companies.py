@@ -25,6 +25,7 @@ from worker import conn
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from company_db import *
+from crawl import *
 
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
@@ -47,11 +48,11 @@ class Companies:
         df = df.reset_index().drop('index',1)
         df = df.drop('title', 1)
         url = df.sort('count').url.ix[0]
-        data = {'blog_posts': df.to_dict('r'), 'blog_url':url}
+        data = {'data': df.to_dict('r'), 'blog_url':url}
         data["domain"] = domain
         data["api_key"] = api_key
         data["company_name"] = name
-        CompanyInfoCrawl()._persist(data, "blog_data", api_key)
+        CompanyExtraInfoCrawl()._persist(data, "blog_data", api_key)
 
     def _hiring(self, domain, api_key="", company_name=""):
         # paginate
@@ -64,8 +65,10 @@ class Companies:
             time.sleep(1)
             pages.append(browser.html)
         jobs = {"company_name":company_name}
-        jobs["jobs"] = Indeed()._search_results_html_to_df(pages).to_dict('r')
-        CompanyInfoCrawl()._persist(jobs, "hiring", api_key)
+        jobs["data"] = Indeed()._search_results_html_to_df(pages).to_dict('r')
+        jobs["domain"] = domain
+        jobs["api_key"] = api_key
+        CompanyExtraInfoCrawl()._persist(jobs, "hiring", api_key)
 
     def _press_releases(self, domain, api_key="", company_name=""):
         ''' Google News, PRNewsWire, BusinessWire '''
@@ -83,8 +86,9 @@ class Companies:
         p = p.drop('link_text',1)
         p = p.drop('url',1)
         p = p.drop('link_span',1)
-        press = {'press':p.to_dict('records'), 'company_name':company_name}
-        CompanyInfoCrawl()._persist(press, "press", api_key)
+        press = {'data':p.to_dict('records'), 'company_name':company_name}
+        press["domain"] = domain
+        CompanyExtraInfoCrawl()._persist(press, "press", api_key)
 
     def _news(self, domain, api_key="", company_name=""):
         # TODO - include general info links
@@ -99,9 +103,9 @@ class Companies:
         print browser.find_by_css('td > a') 
         if browser.find_by_css('td > a') == []: 
             pages = pages.to_dict('r')
-            pages = {'pages':pages, 'company_name':company_name}
+            pages = {'data':pages, 'company_name':company_name}
             pages["domain"] = domain
-            CompanyInfoCrawl()._persist(pages, "general_news", api_key)
+            CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
         while "Next" in browser.find_by_css('td > a')[-1].text:
             browser.find_by_css('td > a')[-1].click()
             df = Google()._results_html_to_df(browser.html)
@@ -113,16 +117,16 @@ class Companies:
         pages['news_source'] = [i.split('-')[0] for i in pages['info']]
         pages = pages.to_dict('r')
         pages = pages.drop_duplicates()
-        pages = {'pages':pages, 'company_name':company_name}
-        CompanyInfoCrawl()._persist(pages, "general_news", api_key)
+        pages = {'data':pages, 'company_name':company_name}
+        CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
 
     def _related(self, domain, api_key="", name=""):
         companies = Google().search("related:{0}".format(domain), 10)
         companies = companies.drop_duplicates()
         companies.columns = ['link','description','title','','']
-        data = {'similars':companies.to_dict('r'), "domain": domain, "company_name":name}
+        data = {'data':companies.to_dict('r'), "domain": domain, "company_name":name}
         data["api_key"] = api_key
-        CompanyInfoCrawl()._persist(data, "similar", api_key)
+        CompanyExtraInfoCrawl()._persist(data, "similar", api_key)
 
     def _fundings(self, company_name):
         ''' Also find crunchbase handle '''
@@ -153,9 +157,9 @@ class Companies:
             vals = [tech_name, tech_desc, logo, tech_name]
             names = ['tech_name', 'tech_desc', 'logo', 'tech_name']
             technologies.append(dict(zip(names, vals)))
-        info = {'technologies':technologies, "domain":domain, "api_key":api_key}
+        info = {'data':technologies, "domain":domain, "api_key":api_key}
         info["company_name"] = name
-        CompanyInfoCrawl()._persist(info,"builtwith",api_key)
+        CompanyExtraInfoCrawl()._persist(info,"builtwith",api_key)
 
     def _traffic_analysis(self, domain):
         ''' Compete.com, Alexa, SimilarWeb '''
@@ -183,9 +187,9 @@ class Companies:
         results = results[results.company_score > 84]
         results = results[results.score > 75]
         results = results.drop_duplicates()
-        data = {'employees': results.to_dict('r'), 'company_name':company_name}
+        data = {'data': results.to_dict('r'), 'company_name':company_name}
         data["domain"] = domain
-        CompanyInfoCrawl()._persist(data, "employees", api_key)
+        CompanyExtraInfoCrawl()._persist(data, "employees", api_key)
 
     def _whois_info(self, domain):
         ''' Glean Info From Here'''
