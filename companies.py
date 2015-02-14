@@ -100,6 +100,7 @@ class Companies:
         if browser.find_by_css('td > a') == []: 
             pages = pages.to_dict('r')
             pages = {'pages':pages, 'company_name':company_name}
+            pages["domain"] = domain
             CompanyInfoCrawl()._persist(pages, "general_news", api_key)
         while "Next" in browser.find_by_css('td > a')[-1].text:
             browser.find_by_css('td > a')[-1].click()
@@ -111,6 +112,7 @@ class Companies:
         pages['date'] = [i.split('-')[-1] for i in pages['info']]
         pages['news_source'] = [i.split('-')[0] for i in pages['info']]
         pages = pages.to_dict('r')
+        pages = pages.drop_duplicates()
         pages = {'pages':pages, 'company_name':company_name}
         CompanyInfoCrawl()._persist(pages, "general_news", api_key)
 
@@ -252,7 +254,7 @@ class Companies:
 
     def _secondary_research(self, name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain
-        if name == "": name=domain
+        if name == "": name = domain
         j0 = q.enqueue(Companies()._company_blog, domain, api_key, name)
         j1 = q.enqueue(Companies()._technologies, domain, api_key, name)
         j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name)
@@ -263,7 +265,7 @@ class Companies:
         j7 = q.enqueue(Companies()._related, domain, api_key, name)
         jobs = [j0,j1,j2,j3,j4,j5,j6,j7]
         for job in jobs:
-            RQueue()._meta(job, "{0}_{1}".format(company_name, api_key))
+            RQueue()._meta(job, "{0}_{1}".format(name, api_key))
 
         #q.enqueue(Crunchbase()._fundings, domain)
         #q.enqueue(Companies()._traffic_analysis, domain)

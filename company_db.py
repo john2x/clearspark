@@ -55,7 +55,7 @@ class GlassDoor:
         print reviews
         data = {'glassdoor_reviews': reviews.to_dict('r'), 'company_name':name}
         data['api_key'] = api_key
-        data['domain'] = api_key
+        data['domain'] = domain
         CompanyInfoCrawl()._persist(data, "glassdoor_reviews", api_key) 
 
     def _html_to_dict(self, url):
@@ -291,7 +291,7 @@ class Hoovers:
         info = dict(zip(cols , vals))
         info['handle'] = url
         if "website" in info.keys():
-          tld = tldextract(info["website"])
+          tld = tldextract.extract(info["website"])
           info['domain'] = "{}.{}".format(tld.domain, tld.tld)
         return info
 
