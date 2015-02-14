@@ -250,7 +250,6 @@ class Companies:
         jobs = [j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11]
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key), prospect_name)
-        q.enqueue(Companies()._secondary_research, name, domain, api_key)
 
     def _secondary_research(self, name, domain, api_key=""):
         # Secondary Research - sometimes require location or domain
