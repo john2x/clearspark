@@ -30,6 +30,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class PRNewsWire:
+    def _recent_to_dict():
+        ''' '''
+
+    def _article_to_dict():
+        ''' '''
+
     def _extract_contacts(self, html):
         names, emails, contact = [], [], BeautifulSoup(html)
         for paragraph in contact.findAll('p',attrs={"itemprop" : "articleBody"}):
@@ -76,6 +82,12 @@ class PRNewsWire:
         CompanyEmailPatternCrawl()._persist(contacts)
 
 class BusinessWire:
+    def _recent_to_dict():
+      ''' '''
+
+    def _article_to_dict():
+      ''' '''
+
     def _extract_contacts(self, html):
         contacts = BeautifulSoup(html)
         contacts = contacts.find('div',{'class': 'bw-release-contact'})
@@ -124,3 +136,19 @@ class BusinessWire:
         contacts = EmailGuessHelper()._add_email_variables(contacts)
         contacts = EmailGuessHelper()._bulk_find_email_pattern(domain, contacts)
         CompanyEmailPatternCrawl()._persist(contacts)
+
+class NewsWire:
+    def _recent_to_dict():
+      ''' '''
+
+    def _article_to_dict():
+      ''' '''
+
+class MarketWire:
+    def _recent_to_dict():
+      ''' '''
+
+    def _article_to_dict():
+      ''' '''
+
+

@@ -82,7 +82,8 @@ class CompanyScore:
         # clean data - ie titleify fields, and lowercase domain
         # TODO - start a domain search with the deduced domain and the company_name
         print "RQUEUE CHECK"
-        domain = final["domain"]
+        if "domain" in final["domain"]:
+            domain = final["domain"]
 
         if len(RQueue()._results("{0}_{1}".format(company_name, api_key))) == 1:
             q.enqueue(Companies()._domain_research, domain, api_key, company_name)

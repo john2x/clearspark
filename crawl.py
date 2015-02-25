@@ -51,6 +51,11 @@ class CompanyExtraInfoCrawl:
         elif source ==  "employees": source = "CompanyEmployee"
         elif source ==  "similar": source = "CompanySimilar"
         elif source ==  "hiring": source = "CompanyHiring"
+        elif source ==  "general_news": source = "CompanyNews"
+        elif source ==  "linkedin_posts": source = "CompanyLinkedinPost"
+        elif source ==  "facebook_posts": source = "CompanyFacebookPost"
+        elif source ==  "tweets": source = "CompanyTweet"
+        #TODO news
         #TODO - CompanySocialMedia - Linkedin Posts, Tweets, Facebook Posts
         #TODO - prevent duplicates
         #TODO - batch create data

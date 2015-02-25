@@ -12,9 +12,39 @@ import json
 from google import Google
 from bs4 import BeautifulSoup
 import string
-from crawl import CompanyInfoCrawl
+from crawl import *
 
 class Linkedin:
+    def _signal(self, link, api_key=""):
+        html = Google().cache(link)
+        info = self._html_to_dict(html)
+        posts = self._company_posts(html)
+        CompanyInfoCrawl()._persist(info, "linkedin", api_key)
+        for post in posts:
+          CompanyExtraInfoCrawl()._persist(post, "linkedin_posts", api_key)
+
+    def _recent(self):
+        df = Google().search("site:linkedin.com/company", period="h")
+        for link in df.link:
+            q.enqueue(Linkedin()._signal, link)
+
+    def _pulse_posts():
+        ''' '''
+
+    def _company_posts(self, url, api_key=""):
+        #url = "https://linkedin.com/company/guidespark"
+        html = Google().cache(url)
+        li = BeautifulSoup(html)
+
+        posts = []
+        for post in li.find_all("li",{"class":"feed-item"}):
+            img = post.find("img")["src"]
+            post = post.find("span",{"class":"commentary"})
+            link = [i.text for i in post.find_all("a")]
+            data = {"img":img, "post":post.text, "link":link}
+            posts.append(data)
+            CompanyExtraInfoCrawl()._persist(posts, "linkedin_posts", api_key)
+
     def _parse_google_span_for_title_and_company(self, link_span):
         ''' Parse Google Search Linkedin Text For Current Position '''
         res = [span for span in link_span.split('...') if "Current." in span]

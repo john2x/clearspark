@@ -9,6 +9,19 @@ from fuzzywuzzy import process
 import pandas as pd
 
 class GlassDoor:
+    def _signal(self, link, api_key=""):
+        html = Google().cache(link)
+        info = self._html_to_dict(html)
+        posts = self._reviews(html)
+        CompanyInfoCrawl()._persist(info, "glassdoor", api_key)
+        for post in posts:
+          CompanyExtraInfoCrawl()._persist(post, "glassdoor_reviews", api_key)
+
+    def _recent(self):
+        df = Google().search("site:glassdoor.com/reviews", period="h")
+        for link in df.link:
+            q.enqueue(GlassDoor()._signal, link)
+
     def _company_profile(self, name, api_key=""):
         df = Google().search('site:glassdoor.com/overview {0}'.format(name))
         if df.empty: return CompanyInfoCrawl()._persist({'company_name': name}, "glassdoor", api_key)

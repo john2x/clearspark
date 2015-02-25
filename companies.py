@@ -268,6 +268,7 @@ class Companies:
         for job in jobs:
             RQueue()._meta(job, "{0}_{1}".format(name, api_key))
 
+        #TODO - mixrank ads research
         #q.enqueue(Crunchbase()._fundings, domain)
         #q.enqueue(Companies()._traffic_analysis, domain)
         #q.enqueue(Companies()._whois_info, domain)
