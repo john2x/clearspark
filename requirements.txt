@@ -1,5 +1,7 @@
 Flask==0.10.1
+redis==2.10.1
 PyVirtualDisplay==0.1.5
+beautifulsoup4==4.3.2
 EasyProcess==0.1.6
 python-whois==0.2
 pydns==2.3.6
@@ -55,7 +57,6 @@ pytz==2012d
 pyzmq==14.1.1
 queuelib==1.1.1
 rauth==0.7.0
-redis==2.10.1
 requests==2.3.0
 requests-oauthlib==0.4.0
 rq==0.4.6
