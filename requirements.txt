@@ -34,7 +34,6 @@ macholib==1.5
 mechanize==0.2.5
 modulegraph==0.10.1
 ndg-httpsclient==0.3.2
-numpy==1.6.2
 oauth2==1.5.211
 oauthlib==0.6.1
 pandas==0.13.1
