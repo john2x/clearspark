@@ -71,10 +71,11 @@ class Webhook:
             _company = Parse()._pointer('Company', company['objectId'])
             classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
             objects = []
-            df = pd.DataFrame()
             for _class in classes:
+                df = pd.DataFrame()
                 objects = Parse().get(_class, qry).json()['results']
-                data = {'company':_company, 'company_research': arrow.utcnow().timestamp}
+                data = {'company':_company, 
+                        'company_research': arrow.utcnow().timestamp}
                 df["objectId"] = [i["objectId"] for i in objects]
                 Parse()._batch_df_update(_class, df, data)
 

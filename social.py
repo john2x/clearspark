@@ -62,7 +62,8 @@ class Twitter:
 
     def _html_to_dict(self, html):
         html = BeautifulSoup(html)
-        logo = html.find('img',{'class':'ProfileAvatar-image '})['src']
+        logo = html.find('img',{'class':'ProfileAvatar-image '})
+        logo = logo['src'] if logo else ""
         link = html.find('h2',{'class':'ProfileHeaderCard-screenname'})
         link = link.text.strip().lower()
         link = "twitter.com/"+link.split('@')[-1]
@@ -152,7 +153,7 @@ class Facebook:
         likes = html.find('span',{'id':'PagesLikesCountDOMID'})
         data = {'logo':logo, 'handle':link, 'name':name}
         if likes:
-          data["likes"] = likes.text.split(' likes')[0].replace(',')
+          data["likes"] = likes.text.split(' likes')[0].replace(',', "")
           data["likes"] = int(data["likes"])
         return data
         

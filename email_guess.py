@@ -78,7 +78,7 @@ class EmailGuess:
     def search_sources(self, domain, api_key, name=""):
         job_1 = q.enqueue(Sources()._whois_search, domain)
         job_2 = q.enqueue(Sources()._google_span_search, domain)
-        job_3 = q.enqueue(Sources()._press_search, domain)
+        job_3 = q.enqueue(Sources()._press_search, domain, api_key)
         job_4 = q.enqueue(Sources()._zoominfo_search, domain)
         #q.enqueue(Sources()._jigsaw_search, domain)
         jobs = [job_1, job_2, job_3, job_4]

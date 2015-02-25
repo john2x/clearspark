@@ -95,17 +95,6 @@ def company_research():
 
 '''  ******************** Second Thing - EmailGuess **************************  '''
 
-@app.route('/v1/email/research', methods=['GET','OPTIONS','POST'])
-@crossdomain(origin='*')
-def search():
-    website = request.args['domain']
-    domain = "{}.{}".format(tldextract.extract(website).domain,
-                            tldextract.extract(website).tld)
-    name = request.args['name'] if "name" in request.args.keys() else ""
-    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
-    q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
-    return {'queued':True} 
-
 @app.route('/v1/mx_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def mx_search():
@@ -113,7 +102,7 @@ def mx_search():
     q.enqueue(Sources()._mx_server_check, name, domain)
     return {'started': True}
 
-@app.route('/v1/email_pattern_research', methods=['GET','OPTIONS','POST'])
+@app.route('/v1/email_pattern/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def email_pattern_research():
     website = request.args['domain']

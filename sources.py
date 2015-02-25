@@ -96,26 +96,27 @@ class Sources:
             emails.ix[index, 'pattern'] = pattern
         CompanyEmailPatternCrawl()._persist(emails, "whois_search")
 
-    def _press_search(self, domain):
+    def _press_search(self, domain, api_key):
         pw = Google().search('"{0}" site:prnewswire.com'.format(domain))
         bw = Google().search('"{0}" site:businesswire.com'.format(domain))
         #job_queue_lol = objectId+str(arrow.now().timestamp)
+        print bw, pw
         pw = pw if not pw.empty else pd.DataFrame(columns=["link"])
         bw = pw if not bw.empty else pd.DataFrame(columns=["link"])
         queue = "press-check-"+domain
-        '''
         for link in pw.link: 
             job = q.enqueue(PRNewsWire()._email, domain, link, timeout=3600)
-            job.meta[queue] = True; job.save()
+            RQueue()._meta(job, "{0}_{1}".format(domain, api_key))
 
         for link in bw.link: 
             job = q.enqueue(BusinessWire()._email, domain, link, timeout=3600)
-            job.meta[queue] = True; job.save()
+            RQueue()._meta(job, "{0}_{1}".format(domain, api_key))
         '''
         bw = pd.concat([BusinessWire()._email(domain, link) for link in bw.link])
         pw = pd.concat([PRNewsWire()._email(domain, link) for link in pw.link])
         emails = bw.append(pw)
         CompanyEmailPatternCrawl()._persist(emails, "press_search")
+        '''
 
     def _zoominfo_search(self, domain):
         qry = 'site:zoominfo.com/p/ "@{0}"'.format(domain)

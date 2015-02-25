@@ -298,8 +298,8 @@ class Hoovers:
           address = bs.find('p',{'itemprop':'address'}).text.split(telephone)[0].strip()
         except:
           address = ""
-        url = bs.find('p',{'itemprop':'address'}).find('a')
-        url = url.text if url else ""
+        url = bs.find('p',{'itemprop':'address'})
+        url = url.find('a').text if url else ""
         cols = ["name","phone","address","website"]
         vals = [name, telephone, address, url]
         info = dict(zip(cols , vals))
