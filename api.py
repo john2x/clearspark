@@ -268,6 +268,5 @@ https://github.com/rsimba/heroku-xvfb-buildpack.git
 https://github.com/tstachl/heroku-buildpack-selenium.git
 https://github.com/srbartlett/heroku-buildpack-phantomjs-2.0.git
 https://github.com/leesei/heroku-buildpack-casperjs.git
-
 '''
 # lol
