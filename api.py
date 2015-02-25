@@ -278,6 +278,6 @@ if __name__ == "__main__":
 https://github.com/rsimba/heroku-xvfb-buildpack.git
 https://github.com/tstachl/heroku-buildpack-selenium.git
 https://github.com/rsimba/heroku-buildpack-phantomjs.git
-https://github.com/leesei/heroku-buildpack-casperjs.git
+https://github.com/srbartlett/heroku-buildpack-phantomjs-2.0.git
 '''
 # lol
