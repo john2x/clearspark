@@ -143,8 +143,10 @@ class Facebook:
 
     def _html_to_dict(self, html):
         html = BeautifulSoup(html)
-        logo = html.find('img',{'class':'profilePic'})['src']
-        link = html.find('a',{'class':'profileLink'})['href']
+        logo = html.find('img',{'class':'profilePic'})
+        link = html.find('a',{'class':'profileLink'})
+        link = link["href"] if link else ""
+        logo = logo["src"] if logo else ""
         name = html.find('span',{'itemprop':'name'})
         name = name.text if name else ""
         likes = html.find('span',{'id':'PagesLikesCountDOMID'})

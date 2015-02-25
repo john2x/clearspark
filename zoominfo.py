@@ -102,7 +102,7 @@ class Zoominfo:
         html = self._remove_non_ascii(html)
         zoominfo = self._cache_html_to_df(html)
         zoominfo['company_name'] = company_name
-        zoomninfo['domain'] = domain
+        zoominfo['domain'] = domain
         zoominfo['handle'] = url
         print zoominfo
         CompanyInfoCrawl()._persist(zoominfo, "zoominfo", api_key)

@@ -192,7 +192,9 @@ class Forbes:
         if "industry" in info.keys():
           info['industry'] = [info['industry']]
         if "employees" in info.keys():
-          info['employee_count'] = int(info['employees'].replace(',',''))
+          info['employee_count'] = info['employees'].replace(',','')
+          info['employee_count'] = info['employees'].replace('.','')
+          info["employee_count"] = int(info["employee_count"])
           del info['employees']
         info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
         if 'ceo' in info.keys(): del info['ceo']
