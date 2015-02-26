@@ -9,6 +9,7 @@ import rq
 from queue import RQueue
 from rq import Queue
 from worker import conn
+from crawl import *
 
 q = Queue(connection=conn)
 
