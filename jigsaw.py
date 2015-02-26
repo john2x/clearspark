@@ -74,9 +74,11 @@ class Jigsaw:
         print "UPLOAD || UPLOAD || UPLOAD"
         print "UPLOAD || UPLOAD || UPLOAD"
         data = self._company_profile(company_name)
-        self._employee_db(data)
+        self._employee_df(data)
         browser = self._login()
-        browser.visit("https://connect.data.com/contact/options?bulkUpload=true&bulkOnly=true")
+        url = "https://connect.data.com/contact/"
+        url = url + "options?bulkUpload=true&bulkOnly=true"
+        browser.visit(url)
         browser.attach_file("file","/tmp/emp.csv")
 
     def _company_profile(company_name):
