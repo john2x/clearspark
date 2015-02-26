@@ -17,8 +17,8 @@ class LinkedinTitleDir:
   def _search(self, company_name, api_key=""):
     qry = 'site:linkedin.com inurl:"at-{0}" inurl:title -inurl:job'
     #TODO - remove, all [".","'",","]
-    company_name = company_name.strip().lower().replace(" ","-")
-    dirs = Google().search(qry.format(company_name), 10)
+    name = company_name.strip().lower().replace(" ","-")
+    dirs = Google().search(qry.format(name), 10)
     for url in dirs.url:
       q.enqueue(LinkedinTitleDir().parse, url, company_name)
 
@@ -27,19 +27,34 @@ class LinkedinTitleDir:
     soup = BeautifulSoup(cache)
     p = []
 
-
     for i in soup.find_all("div",{"class":"entityblock"}):
-        img = i.find("img")
-        img = img["data-delayed-url"] if img else ""
+        try:
+          img = i.find("img")["data-delayed-url"]
+        except:
+          img = i.find("img")["src"]
         profile = i.find("a")["href"]
-        name = i.find("h3",{"class":"name"}).text
-        title = i.find("p",{"class":"headline"}).text
+        name = i.find("h3",{"class":"name"})
+        name = name.text if name else ""
+        title = i.find("p",{"class":"headline"})
+        title = title.text if title else ""
         city = i.find("dd")
         city = city.text if city else ""
         cols = ["img","profile","name","title","city"]
         vals = [img, profile, name, title, city]
+        print vals
         p.append(dict(zip(cols, vals)))
-    data = {'data': p, 'company_name':company_name}
+    print p
+    results = p
+    if " " in company_name:
+        results['company_score'] = [fuzz.partial_ratio(company_name, 
+                                                       company.split("at "[-1]))
+                                    for company in results.full_title]
+    else:
+        results['company_score'] = [fuzz.ratio(company_name, 
+                                               company.split("at "[-1]))
+                                    for company in results.full_title]
+    results = results[(results.company_score > 64)
+    data = {'data': results.to_dict("r"), 'company_name':company_name}
     CompanyExtraInfoCrawl()._persist(data, "employees", "")
 
     job = rq.get_current_job()

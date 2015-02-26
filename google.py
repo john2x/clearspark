@@ -35,18 +35,6 @@ class Google:
         url='http://webcache.googleusercontent.com/search?q=cache:'+url
         return requests.get(url).text
 
-    def cache(self, url):
-        url = url.replace('&', '%26')
-        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
-        '''
-        cloak = "https://crawlera.p.mashape.com/fetch"
-        headers = {"X-Mashape-Key": 
-                   "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
-        r = requests.get(cloak, params={'url':url}, headers=headers)
-        '''
-        r = requests.get(url)
-        return r.text
-
     def ec2_search(self, qry, pages=1):
         res = pd.DataFrame()
         for page in range(pages):
@@ -79,6 +67,15 @@ class Google:
     
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)
+
+    def cache(self, url):
+        url = url.replace('&', '%26')
+        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
+        cloak = "https://crawlera.p.mashape.com/fetch"
+        headers = {"X-Mashape-Key": "mEol4XmA3QmshtYIjvaaqvts9kyOp1DwvVvjsnoN02b6eKv98h"}
+        r = requests.get(cloak, params={'url':url}, headers=headers)
+        #r = requests.get(url)
+        return r.text
 
     def search(self, qry, pages=1, period=""):
         res = pd.DataFrame()
