@@ -60,10 +60,11 @@ class Jigsaw:
         ''' Run Title Mining Job and Upload to Jigsaw'''
         #TODO - Turn domain into company_name
         queue_name = "{0}_{1}".format(company_name, uuid.uuid1())
-        job_1 = q.enqueue(GoogleSearch()._employees, company_name)
+        #job_1 = q.enqueue(GoogleSearch()._employees, company_name)
         job_2 = q.enqueue(LinkedinTitleDir()._search, company_name)
         #jobs = [job_1]
-        jobs = [job_1, job_2]
+        jobs = [job_2]
+        #jobs = [job_1, job_2]
         for job in jobs:
             RQueue()._meta(job, queue_name, "queue_name")
             RQueue()._meta(job, company_name, "company_name")

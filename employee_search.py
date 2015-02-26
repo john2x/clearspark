@@ -19,7 +19,7 @@ class LinkedinTitleDir:
     qry = 'site:linkedin.com inurl:"at-{0}" inurl:title -inurl:job'
     #TODO - remove, all [".","'",","]
     name = company_name.strip().lower().replace(" ","-")
-    dirs = Google().search(qry.format(name), 10)
+    dirs = Google().search(qry.format(name), 1)
     for url in dirs.url:
       q.enqueue(LinkedinTitleDir().parse, url, company_name)
 
@@ -38,22 +38,22 @@ class LinkedinTitleDir:
         name = name.text if name else ""
         title = i.find("p",{"class":"headline"})
         title = title.text if title else ""
+        company = title.split("at ")[-1]
+        title = title.split(" at ")[0]
         city = i.find("dd")
         city = city.text if city else ""
-        cols = ["img","profile","name","title","city"]
-        vals = [img, profile, name, title, city]
+        cols = ["img","profile","name","title","city", "company"]
+        vals = [img, profile, name, title, city, company]
         print vals
         p.append(dict(zip(cols, vals)))
     print p
-    results = p
+    results = pd.DataFrame(p)
     if " " in company_name:
-        results['company_score'] = [fuzz.partial_ratio(company_name, 
-                                                       company.split("at "[-1]))
-                                    for company in results.full_title]
+        results['company_score'] = [fuzz.partial_ratio(company_name, company)
+                                    for company in results.company]
     else:
-        results['company_score'] = [fuzz.ratio(company_name, 
-                                               company.split("at "[-1]))
-                                    for company in results.full_title]
+        results['company_score'] = [fuzz.ratio(company_name, company)
+                                    for company in results.company]
     results = results[(results.company_score > 64)]
     data = {'data': results.to_dict("r"), 'company_name':company_name}
     CompanyExtraInfoCrawl()._persist(data, "employees", "")
