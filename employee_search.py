@@ -10,6 +10,7 @@ from queue import RQueue
 from rq import Queue
 from worker import conn
 from crawl import *
+from fuzzywuzzy import fuzz
 
 q = Queue(connection=conn)
 
@@ -65,7 +66,7 @@ class LinkedinTitleDir:
     return p
 
 class GoogleSearch:
-    def _employees(self, domain, api_key="", company_name="", keyword=""):
+    def _employees(self, company_name="", keyword=""):
         ''' Linkedin Scrape '''
         # TODO - add linkedin directory search
         ''' Linkedin Scrape'''
@@ -74,11 +75,6 @@ class GoogleSearch:
         qry = '"at {0}" {1} {2} site:linkedin.com'
         qry = qry.format(company_name, args, keyword)
         results = Google().search(qry, 10)
-        if results.empty: 
-            if domain == "": 
-                ''' return results '''
-            else:
-                results = Google().search(qry.format(domain, args, keyword))
         results = results.dropna()
         results = Google()._google_df_to_linkedin_df(results)
         _name = '(?i){0}'.format(company_name)
@@ -96,8 +92,7 @@ class GoogleSearch:
         results = results[results.company_score > 64]
         results = results.drop_duplicates()
         data = {'data': results.to_dict('r'), 'company_name':company_name}
-        data["domain"] = domain
-        CompanyExtraInfoCrawl()._persist(data, "employees", api_key)
+        CompanyExtraInfoCrawl()._persist(data, "employees", "")
 
         job = rq.get_current_job()
         if "queue_name" in job.meta.keys():
