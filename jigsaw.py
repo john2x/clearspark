@@ -99,7 +99,7 @@ class Jigsaw:
                                            tldextract.extract(_data["website"]).tld)
         return _data
         
-    def _employee_df(self, data)
+    def _employee_df(self, data):
         qry = {"where":json.dumps({"domain": data["domain"]})}
         r = Parse().get("EmailPattern", qry).json()["results"][0]
         pattern = r["company_email_pattern"][0]["pattern"]
