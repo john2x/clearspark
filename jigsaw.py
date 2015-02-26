@@ -68,7 +68,63 @@ class Jigsaw:
             RQueue()._meta(job, company_name, "company_name")
 
     def _upload_csv():
-        ''' '''
-        # collect
-        # format columns
-        # self.upload_csv()
+        print "UPLOAD || UPLOAD || UPLOAD"
+        print "UPLOAD || UPLOAD || UPLOAD"
+        print "UPLOAD || UPLOAD || UPLOAD"
+        print "UPLOAD || UPLOAD || UPLOAD"
+        print "UPLOAD || UPLOAD || UPLOAD"
+        data = self._company_profile(company_name)
+        self._employee_db(data)
+        browser = self._login()
+        browser.visit("https://connect.data.com/contact/options?bulkUpload=true&bulkOnly=true")
+        browser.attach_file("file","/tmp/emp.csv")
+
+    def _company_profile(company_name):
+        companies = Google().search("site:data.com/company/view {0}".format(company_name))
+        bs = BeautifulSoup(Google().cache(companies.ix[0].link))
+        data = {}
+        for row in bs.find("table").find_all("tr"):
+            data[row.find_all("td")[0].text] = row.find_all("td")[-1].text.strip()
+        
+        print data["Website"]
+        cols = ["Address Line1", "City", "Postal Code", "Country"]
+        vals = [remove_non_ascii(i).strip().split("\r")[0] 
+                for i in data["Headquarters"].split("  ") if i.strip() != ""]
+        _data = dict(zip(cols, vals))
+        _data["website"] = data["Website"]
+        _data["State"] = us.states.lookup(_data["City"].split(", ")[-1]).name
+        _data["City"] = _data["City"].split(",")[0]
+        _data["Phone"] = data["Phone"]
+        _data["domain"] = "{0}.{1}".format(tldextract.extract(_data["website"]).domain, 
+                                           tldextract.extract(_data["website"]).tld)
+        return _data
+        
+    def _employee_df(self, data)
+        qry = {"where":json.dumps({"domain": data["domain"]})}
+        r = Parse().get("EmailPattern", qry).json()["results"][0]
+        pattern = r["company_email_pattern"][0]["pattern"]
+        
+        employees = Parse().get("CompanyEmployee", {"limit":1000}).json()["results"]
+        employees = pd.DataFrame(employees)
+        employees.drop_duplicates("name").shape
+        
+        employees["First Name"] = [name.split(" ")[0] for name in employees.name]
+        employees["Last Name"] = [name.split(" ")[-1] for name in employees.name]
+        employees["first_name"] = [name.split(" ")[0] for name in employees.name]
+        employees["last_name"] = [name.split(" ")[-1] for name in employees.name]
+        employees["first_initial"] = [name.split(" ")[0][0] for name in employees.name]
+        employees["last_initial"] = [name.split(" ")[-1][0] for name in employees.name]
+        employees["Job Title"] = [title for title in employees.title]
+        
+        employees = employees.join(pd.DataFrame([data]*employees.shape[0]))
+        employees["Email Address"] = [pystache.render(pattern, row.to_dict()).lower().replace("'","")
+                                      for i, row in employees.iterrows()]
+        employees["Company"] = company_name
+        # upload csv to 
+        employees = employees[['Email Address', 'First Name','Last Name' ,'Job Title',
+                               'Address Line1','City','Company','Country',
+                               'Phone','Postal Code','State']]
+        employees = employees.drop_duplicates()
+        employees.to_csv("/tmp/emp.csv",index=False,encoding="utf-8")
+
+
