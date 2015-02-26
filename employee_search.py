@@ -40,7 +40,7 @@ class LinkedinTitleDir:
         vals = [img, profile, name, title, city]
         p.append(dict(zip(cols, vals)))
     data = {'data': p, 'company_name':company_name}
-    CompanyExtraInfoCrawl()._persist(data, "employees", api_key)
+    CompanyExtraInfoCrawl()._persist(data, "employees", "")
 
     job = rq.get_current_job()
     if "queue_name" in job.meta.keys():

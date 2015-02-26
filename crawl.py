@@ -61,8 +61,10 @@ class CompanyExtraInfoCrawl:
         #TODO - batch create data
         print source
         _data = pd.DataFrame(data['data'])
-        _data["company_name"] = data["company_name"]
+        if "company_name" in data.keys():
+          _data["company_name"] = data["company_name"]
         _data["api_key"] = api_key
-        _data["domain"] = data["domain"]
+        if "domain" in data.keys():
+          _data["domain"] = data["domain"]
         print Prospecter()._batch_df_create(source, _data)
         print Parse()._batch_df_create(source, _data)
