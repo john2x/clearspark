@@ -16,6 +16,7 @@ from splinter import Browser
 #from pyvirtualdisplay import Display
 from rq import Queue
 from worker import conn
+from jigsaw import Jigsaw
 q = Queue(connection=conn)
 
 class Sources:
@@ -43,8 +44,9 @@ class Sources:
         person['domain'] = email.split('@')[-1]
         for pattern in EmailGuessHelper()._patterns():
             _email = pystache.render(pattern, person)
-            print email.lower(), _email.lower()
+            print email.lower(), _email.lower() 
             if email.lower() == _email.lower():
+                print email.lower(), _email.lower(), pattern
                 person['pattern'], person['email'] = pattern, email
                 CompanyEmailPatternCrawl()._persist(pd.DataFrame([person]), source)
                 return person               
@@ -132,6 +134,7 @@ class Sources:
         patterns = []
         for index, row in emails.iterrows():
             name = FullContact()._normalize_name(row['name']).strip()
+            print row.email
             email = row.email.strip()
             if email[-1] is ".": email = email[:-1]
             pattern = EmailGuessHelper()._find_email_pattern(name, email)
@@ -172,51 +175,12 @@ class Sources:
         CompanyEmailPatternCrawl()._persist(results, source="mx_check")
         return results
 
+    def _jigsaw_search(self, company_name):
+        name, email = Jigsaw()._search(company_name)
+        self._deduce_email_pattern(name, email, "jigsaw")
+
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)
-
-    def _jigsaw_login(self, company_name):
-        browser = Browser('phantomjs')
-        browser.visit('https://connect.data.com/login')
-        browser.find_by_css('#j_username').first.fill('robin@customerohq.com')
-        browser.find_by_css('#j_password').first.fill('951562nileppeZ')
-        browser.find_by_css('#login_btn').first.click()
-        time.sleep(1)
-        return browser
-
-    def _company_search(self, browser):
-        browser.visit("http://connect.data.com/search#p=advancedsearch;;t=companies;;ss=tabchanged")
-        browser.find_by_css("#findCompaniesTab").first.click()
-        browser.find_by_name("companies")[1].fill("guidespark")
-        time.sleep(1)
-        browser.find_by_css('.search-button')[-1].click()
-        browser.find_by_css('.companyName')
-        return browser
-
-    def _jigsaw_search(self, company_name):
-        print "jigsaw init", company_name
-        browser = self._jigsaw_login(company_name)
-        browser = self._company_search(browser)
-        print "finished"
-        if len(browser.find_by_css('.companyName')):
-            print "started jigsaw search"
-            time.sleep(1)
-            browser.find_by_css('.companyName').first.click()
-            time.sleep(1)
-            browser.find_by_css('.company-counts > a').first.click()
-            time.sleep(1)
-            browser.find_by_name('directDial').first.click()
-            time.sleep(2)
-            browser.find_by_css('.td-name > a').first.click()
-            time.sleep(1)
-            # TODO- BE CAREFUL Costs to click on this
-            # TODO - Develop recharge strategy
-            browser.find_by_css('#getDetailsLink').first.click()
-            name = browser.find_by_css('.businesscard-contactinfo-name').first
-            email = browser.find_by_css('.businesscard-contactinfo-email').first
-            name, email = name.text, email.text
-            print name, email
-            self._deduce_email_pattern(name, email, "jigsaw")
         
     def _domain_harvest(self, domain):
         ''' Crawl Domain And Extract '''

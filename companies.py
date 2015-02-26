@@ -12,7 +12,7 @@ import re, string
 import logging
 from address import AddressParser, Address
 import zoominfo
-from email_guess import EmailGuess
+#from email_guess import EmailGuess
 from zoominfo import Zoominfo
 import random
 import toofr
@@ -20,12 +20,13 @@ from queue import RQueue
 import time
 ''' RQ Setup '''
 from social import *
-from rq import Queue
-from worker import conn
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from company_db import *
 from crawl import *
+from rq import Queue
+from worker import conn
+from jigsaw import *
 
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
@@ -168,28 +169,44 @@ class Companies:
         return traffic
 
     def _employees(self, domain, api_key="", company_name="", keyword=""):
+        ''' Linkedin Scrape '''
+        # TODO - add linkedin directory search
         ''' Linkedin Scrape'''
         args = '-inurl:"/dir/" -inurl:"/find/" -inurl:"/updates"'
         args = args+' -inurl:"job" -inurl:"jobs2" -inurl:"company"'
         qry = '"at {0}" {1} {2} site:linkedin.com'
         qry = qry.format(company_name, args, keyword)
-        results = Google().search(qry, 1)
-        if results.empty and domain == "": return results
-        if results.empty and domain != "":
-            results = Google().search(qry.format(domain, args, keyword))
+        results = Google().search(qry, 10)
+        if results.empty: 
+            if domain == "": 
+                ''' return results '''
+            else:
+                results = Google().search(qry.format(domain, args, keyword))
         results = results.dropna()
-        results = Linkedin()._google_df_to_linkedin_df(results)
+        results = Google()._google_df_to_linkedin_df(results)
         _name = '(?i){0}'.format(company_name)
-        results['company_score'] = [fuzz.ratio(_name, company) 
-                                    for company in results.company]
-        results['score'] = [fuzz.ratio(keyword, title) 
-                            for title in results.title]
-        results = results[results.company_score > 84]
-        results = results[results.score > 75]
+        if " " in company_name:
+            results['company_score'] = [fuzz.partial_ratio(_name, company) 
+                                        for company in results.company]
+        else:
+            results['company_score'] = [fuzz.ratio(_name, company) 
+                                        for company in results.company]
+        if keyword != "":
+            results['score'] = [fuzz.ratio(keyword, title) 
+                                for title in results.title]
+            results = results[results.score > 75]
+
+        results = results[results.company_score > 64]
         results = results.drop_duplicates()
         data = {'data': results.to_dict('r'), 'company_name':company_name}
         data["domain"] = domain
         CompanyExtraInfoCrawl()._persist(data, "employees", api_key)
+
+        job = rq.get_current_job()
+        if "queue_name" in job.meta.keys():
+          if RQueue()._has_completed(job.meta["queue_name"]):
+            q.enqueue(Jigsaw()._upload_csv, job.meta["company_name"])
+        return results
 
     def _whois_info(self, domain):
         ''' Glean Info From Here'''

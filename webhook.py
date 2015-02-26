@@ -4,7 +4,7 @@ import requests
 import json
 import unicodedata
 import pusher
-from email_guess import EmailGuess
+#from email_guess import EmailGuess
 import arrow
 import pandas as pd
 
@@ -111,22 +111,22 @@ class Webhook:
                 p['customero'].trigger(data["company_name"], {'company': data})
 
     def _update_company_email_pattern(self, data):
-        print data
         if not data: return 0
         qry = {'where':json.dumps({'domain': data['domain']})}
         companies = Parse().get('Company', qry).json()['results']
         pattern = {'email_pattern': data['company_email_pattern']}
         if data['company_email_pattern'] == []: 
-            pattern['email_guess'] = EmailGuess()._random()
+            pattern['email_guess'] = []
         _pusher['customero'].trigger(data["domain"], pattern)
         for company in companies:
+            #print data
             data = {'email_pattern':data['company_email_pattern'], 
                     'email_pattern_research': arrow.utcnow().timestamp}
             r = Parse().update('Company/'+company['objectId'], data)
             # pusher -->
             print r.json()
             try:
-              print data["domain"]
+              ''' print data["domain"] '''
             except:
-              print "wtf error ", data
+              ''' print "wtf error ", data '''
             #ClearSpark().get('Company',{'where':json.dumps({})})

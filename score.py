@@ -16,7 +16,7 @@ q = Queue(connection=conn)
 class Score:
     def _email_pattern(self, domain, api_key=""):
         print ''' Score email pattern based on number of occurrences '''
-        qry = {'where':json.dumps({'domain': domain})}
+        qry = {'where':json.dumps({'domain': domain}),'limit':1000}
         crawls = Parse().get('CompanyEmailPatternCrawl', qry)
         crawls = pd.DataFrame(crawls.json()['results'])
 
@@ -33,7 +33,9 @@ class Score:
         score['source'], score['tried'] = 'clearspark', False
         score = score.fillna("")
         score = score.to_dict('records')
-        print score, api_key
+        #print score, api_key
+        print "SCORE"
+        print score
         score = {'domain':domain, 'company_email_pattern':score}
         self._find_if_object_exists('EmailPattern','domain', domain, score)
 
@@ -41,7 +43,7 @@ class Score:
         if RQueue()._has_completed("{0}_{1}".format(domain, api_key)):
             if score['company_email_pattern'] == []:
                 score['email_guess'] = EmailGuess()._random()
-                q.enqueue(Sources()._jigsaw_search, domain)
+                #q.enqueue(Sources()._jigsaw_search, domain)
             Webhook()._update_company_email_pattern(score)
 
     def _remove_non_ascii(self, text):

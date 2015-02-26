@@ -30,6 +30,7 @@ from webhook import Webhook
 import unicodedata
 import os
 from company_db import *
+from jigsaw import Jigsaw
 
 from rq import Queue
 from worker import conn
@@ -246,6 +247,12 @@ def get_job_count():
 @app.route('/', methods=['GET'])
 def test():
     return {"test": "lol"}
+  
+@app.route('/v1/replenish', methods=['GET'])
+def replenish_research():
+  company_name = "Electronic Arts"
+  q.enqueue(Jigsaw()._replenish, company_name)
+  return {"started": True}
 
 @app.route('/v1/domain_research', methods=['GET'])
 def domain_research():

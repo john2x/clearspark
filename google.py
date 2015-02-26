@@ -85,7 +85,7 @@ class Google:
         for page in range(pages):
             print page
             qry = self._remove_non_ascii(qry)
-            args = {'q':qry,'start':page*100,'num':100}
+            args = {'q':qry,'start':page*100,'num':100,"filter":0}
             if period != "":
               args["tbs"] = "qdr:{0},sbd:1".format(period)
             args = urllib.urlencode(args)
