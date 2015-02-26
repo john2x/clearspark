@@ -53,7 +53,7 @@ class LinkedinTitleDir:
         results['company_score'] = [fuzz.ratio(company_name, 
                                                company.split("at "[-1]))
                                     for company in results.full_title]
-    results = results[(results.company_score > 64)
+    results = results[(results.company_score > 64)]
     data = {'data': results.to_dict("r"), 'company_name':company_name}
     CompanyExtraInfoCrawl()._persist(data, "employees", "")
 
