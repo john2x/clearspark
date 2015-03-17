@@ -50,6 +50,7 @@ class Sources:
                 person['pattern'], person['email'] = pattern, email
                 CompanyEmailPatternCrawl()._persist(pd.DataFrame([person]), source)
                 return person               
+        return {}
 
     def _research_emails(self, emails):
         _emails = pd.DataFrame()
@@ -177,7 +178,10 @@ class Sources:
 
     def _jigsaw_search(self, company_name):
         name, email = Jigsaw()._search(company_name)
-        self._deduce_email_pattern(name, email, "jigsaw")
+        email_pattern = self._deduce_email_pattern(name, email, "jigsaw")
+        if email_pattern != {}:
+            q.enqueue(Jigsaw.replenish, company_name)
+        return email_pattern
 
     def _remove_non_ascii(self, text):
         return ''.join(i for i in text if ord(i)<128)

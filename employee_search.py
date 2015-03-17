@@ -11,10 +11,20 @@ from rq import Queue
 from worker import conn
 from crawl import *
 from fuzzywuzzy import fuzz
+from jigsaw import *
 
 q = Queue(connection=conn)
 
 class LinkedinTitleDir:
+  def test(self, company_name):
+      job = rq.get_current_job()
+      print job.meta.keys()
+      if "queue_name" in job.meta.keys():
+        print RQueue()._has_completed(job.meta["queue_name"])
+        print RQueue()._has_completed("queue_name")
+        if RQueue()._has_completed(job.meta["queue_name"]):
+          q.enqueue(Jigsaw()._upload_csv, job.meta["company_name"])
+
   def _search(self, company_name, api_key=""):
     qry = 'site:linkedin.com inurl:"at-{0}" inurl:title -inurl:job'
     #TODO - remove, all [".","'",","]
@@ -59,13 +69,24 @@ class LinkedinTitleDir:
     CompanyExtraInfoCrawl()._persist(data, "employees", "")
 
     job = rq.get_current_job()
+    print job.meta.keys()
     if "queue_name" in job.meta.keys():
       if RQueue()._has_completed(job.meta["queue_name"]):
         q.enqueue(Jigsaw()._upload_csv, job.meta["company_name"])
 
     return p
 
+
 class GoogleSearch:
+    def test(self, company_name):
+        job = rq.get_current_job()
+        print job.meta.keys()
+        if "queue_name" in job.meta.keys():
+          print RQueue()._has_completed(job.meta["queue_name"])
+          print RQueue()._has_completed("queue_name")
+          if RQueue()._has_completed(job.meta["queue_name"]):
+            q.enqueue(Jigsaw()._upload_csv, job.meta["company_name"])
+
     def _employees(self, company_name="", keyword=""):
         ''' Linkedin Scrape '''
         # TODO - add linkedin directory search
@@ -95,6 +116,7 @@ class GoogleSearch:
         CompanyExtraInfoCrawl()._persist(data, "employees", "")
 
         job = rq.get_current_job()
+        print job.meta.keys()
         if "queue_name" in job.meta.keys():
           if RQueue()._has_completed(job.meta["queue_name"]):
             q.enqueue(Jigsaw()._upload_csv, job.meta["company_name"])

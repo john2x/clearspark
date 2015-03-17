@@ -1,7 +1,6 @@
 from splinter import Browser
 import time
 import uuid
-from companies import Companies
 from employee_search import *
 #from sources import Sources
 
@@ -55,19 +54,25 @@ class Jigsaw:
             email = browser.find_by_css('.businesscard-contactinfo-email').first
             name, email = name.text, email.text 
             return name, email
+  
 
     def _replenish(self, company_name):
         ''' Run Title Mining Job and Upload to Jigsaw'''
         #TODO - Turn domain into company_name
         queue_name = "{0}_{1}".format(company_name, uuid.uuid1())
+        '''
         job_1 = q.enqueue(GoogleSearch()._employees, company_name)
         job_2 = q.enqueue(LinkedinTitleDir()._search, company_name)
+        '''
+        job_1 = q.enqueue(GoogleSearch().test, company_name)
+        job_2 = q.enqueue(LinkedinTitleDir().test, company_name)
         jobs = [job_1, job_2]
         for job in jobs:
-            RQueue()._meta(job, queue_name, "queue_name")
-            RQueue()._meta(job, company_name, "company_name")
+            RQueue()._meta(job, "queue_name", queue_name)
+            RQueue()._meta(job, queue_name)
+            RQueue()._meta(job, "company_name", company_name)
 
-    def _upload_csv():
+    def _upload_csv(self, company_name):
         print "UPLOAD || UPLOAD || UPLOAD"
         print "UPLOAD || UPLOAD || UPLOAD"
         print "UPLOAD || UPLOAD || UPLOAD"
@@ -80,6 +85,7 @@ class Jigsaw:
         url = url + "options?bulkUpload=true&bulkOnly=true"
         browser.visit(url)
         browser.attach_file("file","/tmp/emp.csv")
+        return False
 
     def _company_profile(company_name):
         companies = Google().search("site:data.com/company/view {0}".format(company_name))
@@ -88,7 +94,6 @@ class Jigsaw:
         for row in bs.find("table").find_all("tr"):
             data[row.find_all("td")[0].text] = row.find_all("td")[-1].text.strip()
         
-        print data["Website"]
         cols = ["Address Line1", "City", "Postal Code", "Country"]
         vals = [remove_non_ascii(i).strip().split("\r")[0] 
                 for i in data["Headquarters"].split("  ") if i.strip() != ""]

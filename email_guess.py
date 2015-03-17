@@ -75,13 +75,22 @@ class EmailGuess:
                 job.save()
         print len(q.jobs)
 
+    def new_sources(self, domain, api_key, name=""):
+        # TODO - First search jigsaw
+        # If that fails search everything else
+        email_pattern = Sources()._jigsaw_search(domain)
+        if email_pattern != {}:
+            ''' Webhook() '''
+        else:
+            q.enqueue(EmailGuess.search_sources, domain, api_key, name)
+
     def search_sources(self, domain, api_key, name=""):
         job_1 = q.enqueue(Sources()._whois_search, domain)
         job_2 = q.enqueue(Sources()._google_span_search, domain)
         job_3 = q.enqueue(Sources()._press_search, domain, api_key)
         job_4 = q.enqueue(Sources()._zoominfo_search, domain)
-        job_5 = q.enqueue(Sources()._jigsaw_search, domain)
-        job_5 = [job_1, job_2, job_3, job_4, job_5]
+        #job_5 = q.enqueue(Sources()._jigsaw_search, domain)
+        job_5 = [job_1, job_2, job_3, job_4]
         if name != "":
             job_5 = q.enqueue(Sources()._mx_server_check, name, domain)
             job_6 = q.enqueue(Sources()._linkedin_login_search, name, domain)
