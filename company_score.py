@@ -53,10 +53,12 @@ class CompanyScore:
             except: "lol"
 
 
-        try:
-          if 'industry' in final.keys(): final['industry'] = final['industry'][0]
-        except:
-          ""
+        if 'industry' in final.keys(): 
+          try:
+              final['industry'] = final['industry'][0]
+          except:
+              final["industry"] = ""
+
         try:
           final['industry_keywords'] = list(set(crawls.industry.dropna().sum()))
         except:
