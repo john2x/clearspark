@@ -229,7 +229,7 @@ class Companies:
             #Webhook()._post(api_key, company[0], 'company_info')
             Webhook()._update_company_info(company[0])
             return company[0]
-        elif company_crawl:
+        elif len(company_crawl) < 5:
             api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
             q.enqueue(CompanyScore()._company_info, company_name, api_key)
             return {'Scoring has started.': True}
