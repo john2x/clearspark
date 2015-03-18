@@ -10,6 +10,7 @@ import companies
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from companies import Companies
+from queue import RQueue
 
 from rq import Queue
 from worker import conn
@@ -107,10 +108,8 @@ class CompanyScore:
             job.save()
             '''
             for domain in crawls.domain.dropna().drop_duplicates():
-                ''' '''
-                #job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
-                #job.meta["{0}_{1}".format(company_name, api_key)] = True
-                #job.save()
+                job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
+                RQueue()._meta("{0}_{1}".format(company_name, api_key))
         return final
 
     def _prettify_fields(self, final):

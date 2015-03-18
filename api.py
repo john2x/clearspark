@@ -110,6 +110,21 @@ def mx_search():
     q.enqueue(Sources()._mx_server_check, name, domain)
     return {'started': True}
 
+@app.route('/v1/bulk/email_pattern/research', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _email_pattern_research():
+    companies = Parse().get("Company", {"order":"-createdAd", "limit":1000}) 
+    for company in companies.json()["results"]:
+        if "domain" in company.keys():
+            domain = company["domain"]
+            api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+            #name = request.args['name'] if "name" in request.args.keys() else ""
+            name = ""
+            q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
+    return {"research":"started"}
+            
+
+
 @app.route('/v1/email_pattern/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def email_pattern_research():
