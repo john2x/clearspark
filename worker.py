@@ -5,6 +5,7 @@ import urlparse
 import getopt
 import sys
 from multiprocessing import Process
+import bugsnag
 
 # Preload heavy libraries
 from bs4 import BeautifulSoup
@@ -29,7 +30,10 @@ conn = redis.from_url(redis_url)
 
 def work():
   with Connection(conn):
-    Worker(map(Queue, listen)).work()
+    Worker(map(Queue, listen), exc_handler=my_handler).work()
+
+def my_handler(job, exc_type, exc_value, traceback):
+    bugsnag.notify(exc_type, exc_value, traceback)
 
 if __name__ == '__main__':
   processes = [Process(target=work) for x in range(concurrency)]

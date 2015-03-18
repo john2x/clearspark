@@ -67,7 +67,7 @@ class Webhook:
 
         print data["company_name"]
         company_name = data["company_name"].replace(' ','-')
-        _pusher['customero'].trigger(company_name, {'company': data})
+        #_pusher['customero'].trigger(company_name, {'company': data})
 
         print "__STARTED", len(companies)
         for company in companies:
@@ -102,11 +102,6 @@ class Webhook:
         company = Parse().create('Company', data).json()
         _company = Parse()._pointer('Company', company['objectId'])
         classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
-        p = pusher.Pusher(
-          app_id='70217',
-          key='1a68a96c8fde938fa75a',
-          secret='e60c9259d0618b479ec2'
-        )
         for _class in classes:
             objects = Parse().get(_class, qry).json()['results']
             for obj in objects:
@@ -122,7 +117,7 @@ class Webhook:
         pattern = {'email_pattern': data['company_email_pattern']}
         if data['company_email_pattern'] == []: 
             pattern['email_guess'] = []
-        _pusher['customero'].trigger(data["domain"], pattern)
+        #_pusher['customero'].trigger(data["domain"], pattern)
         for company in companies:
             #print data
             data = {'email_pattern':data['company_email_pattern'], 
