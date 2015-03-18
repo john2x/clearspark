@@ -51,10 +51,15 @@ class Webhook:
         company_name = self.remove_accents(data['company_name'])
         qry = {'where':json.dumps({'company_name':data['company_name']})}
         qry_1 ={'where':json.dumps({'company_name': company_name})}
-        company = Parse().get('Company', qry_1).json()['results']
-        companies = company + Parse().get('Company', qry).json()['results']
+        qry = {"where":json.dumps({"$or":[{"company_name":data["company_name"], "company_name": company_name}]})}
+        company = Parse().get('Company', qry).json()
+        while "results" not in company.keys():
+            time.sleep(0.5)
+            company = Parse().get('Company', qry).json()
 
+        companies = company['results']
         data = self._unparsify_data(data)
+
         if companies == []:
             company = Parse().create('Company', data).json()
             print company
