@@ -20,6 +20,7 @@ PyYAML==3.11
 Scrapy==0.22.2
 Twisted==12.2.0
 Unidecode==0.04.17
+WebOb==1.4
 Werkzeug==0.9.6
 Zillabyte==0.9.7
 address==0.1.1
@@ -29,6 +30,8 @@ arrow==0.4.4
 backports.ssl-match-hostname==3.4.0.2
 bdist-mpkg==0.4.4
 beautifulsoup4==4.3.2
+blessings==1.6
+blinker==1.3
 bonjour-py==0.3
 boto==2.36.0
 botocore==0.80.0
@@ -41,6 +44,7 @@ derpconf==0.7.2
 dnspython==1.12.0
 docopt==0.6.1
 elasticsearch==1.2.0
+execnet==1.3.0
 extras==0.0.3
 fake-useragent==0.0.5
 feedparser==5.1.3
@@ -55,7 +59,7 @@ httplib2==0.9
 inbox==0.1.3
 ipython==1.2.1
 itsdangerous==0.24
-jellyfish==0.3.2
+jellyfish==0.2.1
 jieba==0.35
 jmespath==0.5.0
 kappa==0.1.0
@@ -67,11 +71,13 @@ mechanize==0.2.5
 mock==1.0.1
 modulegraph==0.10.1
 moment==0.2.2
+mrjob==0.4.2
 nameparser==0.3.3
 ndg-httpsclient==0.3.2
 newspaper==0.0.7
 nltk==3.0.0
 nose==1.3.4
+nose-progressive==1.5.1
 numexpr==2.4
 numpy==1.6.2
 oauth2==1.5.211
@@ -79,6 +85,7 @@ oauthlib==0.6.1
 pandas==0.13.1
 parse-rest==0.2.20141004
 pusher==0.8
+py==1.4.26
 py2app==0.7.1
 pyOpenSSL==0.13
 pyasn1==0.1.7
@@ -123,6 +130,8 @@ pyobjc-framework-XgridFoundation==2.3.2a0
 pyparsing==2.0.3
 pystache==0.5.4
 pyteaser==1.0
+pytest==2.6.4
+pytest-xdist==1.11
 python-dateutil==2.4.0
 python-instagram==1.1.3
 python-linkedin==4.0
@@ -136,11 +145,13 @@ pyzmq==14.1.1
 queuelib==1.1.1
 rapportive==0.1.0
 rauth==0.7.0
+raven==5.2.0
 redis==2.10.1
 requests==2.3.0
 requests-oauthlib==0.4.0
 rq==0.4.6
 rq-dashboard==0.3.4
+sauceclient==0.1.0
 scipy==0.11.0
 selenium==2.41.0
 simplejson==3.5.2
@@ -159,6 +170,7 @@ tornado==3.2
 tzlocal==1.1.1
 unittest2==0.8.0
 urllib3==1.9.1
+us==0.9.0
 validate-email==1.2
 vboxapi==1.0
 virtualenv==1.11.6
