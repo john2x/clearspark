@@ -25,9 +25,12 @@ class CompanyScore:
         qry['order'] = '-createdAt'
         crawls = Parse().get('CompanyInfoCrawl', qry).json()['results']
 
-        if not crawls: return company_name
+        if not crawls: 
+            # start crawls
+            return company_name
         crawls = self._source_score(pd.DataFrame(crawls))
         #crawls = crawls[crawls.api_key == api_key]
+        print crawls
         crawls['name_score'] = [fuzz.token_sort_ratio(row['name'], row.company_name) 
                                 for index, row in crawls.iterrows()]
         crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
