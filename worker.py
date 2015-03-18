@@ -13,6 +13,7 @@ import pandas as pd
 import requests
 import bugsnag
 from bugsnag.flask import handle_exceptions
+
 bugsnag.configure(
   api_key = "2556d33391f9accc8ea79325cd78ab62",
 )

@@ -47,6 +47,7 @@ class Webhook:
         return data
 
     def _update_company_info(self, data, api_key="", name=""):
+        print "DATA"
         print data 
         company_name = self.remove_accents(data['company_name'])
         qry = {'where':json.dumps({'company_name':data['company_name']})}
