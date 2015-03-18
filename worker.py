@@ -41,7 +41,8 @@ def work():
 def my_handler(job, exc_type, exc_value, traceback):
   bugsnag.notify(traceback, meta_data={"type":exc_type, 
                                        "value":exc_value, 
-                                       "source": "clearspark-api"})
+                                       "source": "clearspark-api",
+                                       "job":job})
 
 if __name__ == '__main__':
   processes = [Process(target=work) for x in range(concurrency)]
