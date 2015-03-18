@@ -39,7 +39,7 @@ def work():
     Worker(map(Queue, listen), exc_handler=my_handler).work()
 
 def my_handler(job, exc_type, exc_value, traceback):
-    bugsnag.notify(traceback)
+  bugsnag.notify(traceback, meta_data={"type":exc_type, "value":exc_value})
 
 if __name__ == '__main__':
   processes = [Process(target=work) for x in range(concurrency)]
