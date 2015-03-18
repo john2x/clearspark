@@ -223,7 +223,7 @@ class Companies:
         qry = {'where':json.dumps({'company_name':company_name})}
         company = Parse().get('Company', qry).json()['results']
         company_crawl = Parse().get('CompanyInfoCrawl', qry).json()['results']
-        company = []
+        company = False
         # check if company info crawl
         print company
         if company:
@@ -237,6 +237,7 @@ class Companies:
                 return {'Scoring has started.': True}
             '''
         else:
+            print "STARTING RESEARCH"
             q.enqueue(Companies()._research, company_name, api_key)
             return {'Research has started.': True}
 
