@@ -111,6 +111,7 @@ class CompanyScore:
                 #job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
                 #job.meta["{0}_{1}".format(company_name, api_key)] = True
                 #job.save()
+        return final
 
     def _prettify_fields(self, final):
         if "domain" in final.keys():
