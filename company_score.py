@@ -78,11 +78,12 @@ class CompanyScore:
         del final["name_score"]
         print json.dumps(final)
         self._add_to_clearspark_db('Company', 'company_name', company_name, final)
+
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
         # clean data - ie titleify fields, and lowercase domain
         # TODO - start a domain search with the deduced domain and the company_name
         print "RQUEUE CHECK"
-        if "domain" in final["domain"]:
+        if "domain" in final.keys():
             domain = final["domain"]
 
         if len(RQueue()._results("{0}_{1}".format(company_name, api_key))) == 1:

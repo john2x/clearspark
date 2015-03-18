@@ -222,11 +222,17 @@ class Companies:
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
         company = Parse().get('Company', qry).json()['results']
+        company_crawl = Parse().get('CompanyInfoCrawl', qry).json()['results']
+        # check if company info crawl
         print company
         if company:
             #Webhook()._post(api_key, company[0], 'company_info')
             Webhook()._update_company_info(company[0])
             return company[0]
+        elif company_crawl:
+            api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+            q.enqueue(CompanyScore()._company_info, company_name, api_key)
+            return {'Scoring has started.': True}
         else:
             q.enqueue(Companies()._research, company_name, api_key)
             return {'Research has started.': True}
