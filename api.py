@@ -44,7 +44,6 @@ bugsnag.configure(
 )
 
 handle_exceptions(app)
-bugsnag.notify(Exception("Test Test Error"))
   
 @app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

@@ -95,7 +95,8 @@ class CompanyScore:
 
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-            Webhook()._update_company_info(final)
+            if "company_name" in final.keys():
+                Webhook()._update_company_info(final)
             '''
             job = q.enqueue(EmailGuess().search_sources, final["domain"],api_key,"")
             job.meta["{0}_{1}".format(company_name, api_key)] = True
