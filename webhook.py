@@ -63,6 +63,10 @@ class Webhook:
 
         if companies == []:
             company = Parse().create('Company', data).json()
+            while "objectId" not in company.keys():
+                time.sleep(0.5)
+                company = Parse().create('Company', data).json()
+                print "retrying", company
             print company
             companies = [Parse()._pointer('Company',company['objectId'])]
 
