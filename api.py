@@ -31,12 +31,20 @@ import unicodedata
 import os
 from company_db import *
 from jigsaw import Jigsaw
+import bugsnag
+from bugsnag.flask import handle_exceptions
 
 from rq import Queue
 from worker import conn
 q = Queue(connection=conn)
 
 app = FlaskAPI(__name__)
+bugsnag.configure(
+  api_key = "2556d33391f9accc8ea79325cd78ab62",
+)
+
+handle_exceptions(app)
+bugsnag.notify(Exception("Test Test Error"))
   
 @app.route('/v1/jigsaw_search', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
