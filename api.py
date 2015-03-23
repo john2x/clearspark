@@ -122,8 +122,6 @@ def _email_pattern_research():
             name = ""
             q.enqueue(EmailGuess().search_sources, domain, name, api_key, timeout=6000)
     return {"research":"started"}
-            
-
 
 @app.route('/v1/email_pattern/research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')

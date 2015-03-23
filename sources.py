@@ -28,11 +28,13 @@ class Sources:
       first = Google().ec2_search(qry_1)
       second = Google().ec2_search(qry_2)
 
-      q.enqueue(Sources()._google_cache_search, domain, first.link)
-      q.enqueue(Sources()._google_cache_search, domain, second.link)
+      if first:
+          first = first[first.link_span.str.contains('@')]
+          q.enqueue(Sources()._google_cache_search, domain, first.link)
+      if second:
+          second = second[second.link_span.str.contains('@')]
+          q.enqueue(Sources()._google_cache_search, domain, second.link)
 
-      first = first[first.link_span.str.contains('@')]
-      second = second[second.link_span.str.contains('@')]
       emails = [[email for email in span.split() if "@" in email] 
                 for span in first.append(second).link_span]
       emails = pd.Series(emails).sum()
@@ -86,8 +88,9 @@ class Sources:
 
     def _whois_search(self, domain):
         # TODO - fix this
-        results = pythonwhois.get_whois(domain)
-        try: emails = pythonwhois.get_whois(domain)
+        try: 
+            results = pythonwhois.get_whois(domain)
+            emails = pythonwhois.get_whois(domain)
         except: return pd.DataFrame()
         emails = filter(None, results['contacts'].values())
         emails = pd.DataFrame(emails)

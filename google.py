@@ -101,7 +101,8 @@ class Google:
             #print lead
             link_text = lead.find('h3').text
             link = lead.find('a')['href'].split('=')[1].split('&')[0]
-            link_span = lead.find(attrs={'class':'st'}).text
+            link_span = lead.find(attrs={'class':'st'})
+            link_span = link_span.text if link_span else ""
             url = lead.find('cite')
             url = url.text if url else ""
             title = lead.find('div',{'class':'slp'})
