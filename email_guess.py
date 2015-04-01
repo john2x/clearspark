@@ -12,7 +12,7 @@ from press_sources import PRNewsWire
 from press_sources import BusinessWire
 from sources import Sources
 from queue import RQueue
-from score import Score
+#from score import Score
 import time
 #from email_guess_helper import EmailGuessHelper
 
@@ -84,12 +84,23 @@ class EmailGuess:
             ''' Webhook() '''
         else:
             q.enqueue(EmailGuess.search_sources, domain, api_key, name)
+            
+    def _find_if_object_exists(self, class_name, column, value, data):
+        qry = json.dumps({column: value})
+        obj = Parse().get(class_name, {'where': qry}).json()['results']
+        print obj
+        if obj: 
+            print "NEW UPDATE OLD", class_name+'/'+obj[0]['objectId']
+            print Parse().update(class_name+'/'+obj[0]['objectId'], data).json()
+        else: 
+            print "NEW CREATE NEW"
+            print Parse().create(class_name, data).json()
 
     def search_sources(self, domain, api_key, name=""):
         pattern = Toofr.get(domain)
         if pattern: 
-            ptn = {"domain":domain, [{"source":"toofr", "pattern":pattern}] }
-            Score._find_if_object_exists('EmailPattern','domain', domain, ptn)
+            ptn = {"domain":domain, "company_email_pattern":[{"source":"toofr", "pattern":pattern}] }
+            self._find_if_object_exists('EmailPattern','domain', domain, ptn)
             Webhook()._update_company_email_pattern(ptn)
             return pattern
 
