@@ -12,6 +12,7 @@ from press_sources import PRNewsWire
 from press_sources import BusinessWire
 from sources import Sources
 from queue import RQueue
+from score import Score
 import time
 #from email_guess_helper import EmailGuessHelper
 
@@ -87,13 +88,13 @@ class EmailGuess:
     def search_sources(self, domain, api_key, name=""):
         pattern = Toofr.get(domain)
         if pattern: 
-            # TODO persist
-            # TODO webhook
+            ptn = {"domain":domain, [{"source":"toofr", "pattern":pattern}] }
+            Score._find_if_object_exists('EmailPattern','domain', domain, ptn)
+            Webhook()._update_company_email_pattern(ptn)
             return pattern
 
         # syncronous jigsaw search
         # job_5 = q.enqueue(Sources()._jigsaw_search, domain)
-
         job_1 = q.enqueue(Sources()._whois_search, domain)
         job_2 = q.enqueue(Sources()._google_span_search, domain)
         job_3 = q.enqueue(Sources()._press_search, domain, api_key)
