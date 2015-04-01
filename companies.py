@@ -301,6 +301,29 @@ class Companies:
         #q.enqueue(Companies()._traffic_analysis, domain)
         #q.enqueue(Companies()._whois_info, domain)
 
+    def _daily_secondary_research(self, name, domain, api_key=""):
+        # Secondary Research - sometimes require location or domain
+        if name == "": name = domain
+        x = 6000
+        # TODO - general pages on their site
+        # TODO - blog posts
+        j0 = q.enqueue(Companies()._company_blog, domain, api_key, name, timeout=x)
+        j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name, timeout=x)
+        j3 = q.enqueue(Companies()._press_releases, domain, api_key, name, timeout=x)
+        j4 = q.enqueue(Companies()._news, domain, api_key, name, timeout=x)
+        j5 = q.enqueue(Companies()._hiring, domain, api_key, name, timeout=x)
+        # TODO - tweets
+        # TODO - facebook post
+        # TODO - linkedin posts
+        jobs = [j0,j1,j2,j3,j4,j5,j6,j7]
+        for job in jobs:
+            RQueue()._meta(job, "{0}_{1}".format(name, api_key))
+
+        #TODO - mixrank ads research
+        #q.enqueue(Crunchbase()._fundings, domain)
+        #q.enqueue(Companies()._traffic_analysis, domain)
+        #q.enqueue(Companies()._whois_info, domain)
+
     ''' In Use Methods '''
     def _email_pattern(self, domain):
         ''' ClearSpark '''

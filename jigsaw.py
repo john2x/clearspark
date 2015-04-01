@@ -84,6 +84,7 @@ class Jigsaw:
         url = "https://connect.data.com/contact/"
         url = url + "options?bulkUpload=true&bulkOnly=true"
         browser.visit(url)
+        # TODO - for all files in tmp upload
         browser.attach_file("file","/tmp/emp.csv")
         return False
 
@@ -132,6 +133,7 @@ class Jigsaw:
                                'Address Line1','City','Company','Country',
                                'Phone','Postal Code','State']]
         employees = employees.drop_duplicates()
+        # TODO - break up into csvs with no more than 30 employees
         employees.to_csv("/tmp/emp.csv",index=False,encoding="utf-8")
 
 
