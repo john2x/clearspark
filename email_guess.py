@@ -12,6 +12,7 @@ from press_sources import PRNewsWire
 from press_sources import BusinessWire
 from sources import Sources
 from queue import RQueue
+from toofri import Toofr
 #from score import Score
 import time
 #from email_guess_helper import EmailGuessHelper
@@ -97,7 +98,7 @@ class EmailGuess:
             print Parse().create(class_name, data).json()
 
     def search_sources(self, domain, api_key, name=""):
-        pattern = Toofr.get(domain)
+        pattern = Toofr().get(domain)
         if pattern: 
             ptn = {"domain":domain, "company_email_pattern":[{"source":"toofr", "pattern":pattern}] }
             self._find_if_object_exists('EmailPattern','domain', domain, ptn)
