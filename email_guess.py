@@ -12,7 +12,7 @@ from press_sources import PRNewsWire
 from press_sources import BusinessWire
 from sources import Sources
 from queue import RQueue
-from toofri import Toofr
+from toofr import Toofr
 #from score import Score
 import time
 #from email_guess_helper import EmailGuessHelper
