@@ -94,12 +94,14 @@ class CompanyScore:
         if "domain" in final.keys():
             domain = final["domain"]
 
+        '''
         if len(RQueue()._results("{0}_{1}".format(company_name, api_key))) == 1:
             q.enqueue(Companies()._domain_research, domain, api_key, company_name)
             q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
+        '''
 
         if RQueue()._has_completed("{0}_{1}".format(company_name, api_key)):
-            q.enqueue(Companies()._domain_research, domain, api_key, company_name)
+            #q.enqueue(Companies()._domain_research, domain, api_key, company_name)
             q.enqueue(Companies()._secondary_research, company_name, domain, api_key)
 
             print "WEBHOOK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
