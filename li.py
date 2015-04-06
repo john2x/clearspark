@@ -212,13 +212,19 @@ class Linkedin:
             # new code not in other methods in different file
             company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
             company_info['employee_count'] = int(c.find('a',{'class':'employee-count'}).text.replace(',',''))
+            for i in BeautifulSoup(r.text).find_all("h3"):
+                if i.find("a"):
+                    url = i.find("a")["href"]
+                    url = url.split("?")[-1]
+                    args = dict([i.split("=") for i in url.split("&")])
+                    url = "http://linkedin.com/company/{0}".format(args["f_CC"])
+            company_info["linkedin_url"] = url
 
             if 'headquarters' in company_info.columns:
                 company_info['address'] = company_info['headquarters']
                 company_info.drop('headquarters', axis=1, inplace=True)
             if 'industry' in company_info.columns:
                 company_info['industry'] = [[company_info['industry'].ix[0]] for i in range(company_info.shape[0])]
-
 
             website = company_info['website'].ix[0]
             domain = "{}.{}".format(tldextract.extract(website).domain, 
