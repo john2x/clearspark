@@ -54,6 +54,7 @@ class Twitter:
 
     def _company_profile(self, name, api_key=""):
         df = Google().search('site:twitter.com {0}'.format(name))
+        if df.empty: return df
         url = df.link.tolist()[0]
         html = requests.get(url).text
         val = self._html_to_dict(html)
@@ -131,6 +132,7 @@ class Facebook:
 
     def _company_profile(self, name, api_key=""):
         df = Google().search('site:facebook.com {0}'.format(name))
+        if df.empty: return df
         url = df.link.tolist()[0]
         html = Google().cache(url)
         #browser = Browser('phantomjs')

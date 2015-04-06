@@ -28,10 +28,10 @@ class Sources:
       first = Google().ec2_search(qry_1)
       second = Google().ec2_search(qry_2)
 
-      if first:
+      if not first.empty:
           first = first[first.link_span.str.contains('@')]
           q.enqueue(Sources()._google_cache_search, domain, first.link)
-      if second:
+      if not second.empty:
           second = second[second.link_span.str.contains('@')]
           q.enqueue(Sources()._google_cache_search, domain, second.link)
 
