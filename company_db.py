@@ -199,7 +199,7 @@ class Forbes:
         info['domain'] = "{}.{}".format(tldextract.extract(info['website']).domain, tldextract.extract(info['website']).tld)
         if 'ceo' in info.keys(): del info['ceo']
         if 'founders' in info.keys(): del info['founders']
-        del info['country']
+        if "country" in info.keys(): del info['country']
         info['address'] = info['headquarters']
         del info['headquarters']
         return info
