@@ -222,7 +222,7 @@ class Companies:
         _report = Parse()._pointer("SignalReport", _report)
         qry={"where":json.dumps({"report": _report})}
         qry["limit"] = 1000
-        signals = Prospecter().get("CompanySignal", qry)
+        signals = Prospecter().get("CompanySignal", qry).json()["results"]
         api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
         for company in signals:
             company_name = company["company_name"]
