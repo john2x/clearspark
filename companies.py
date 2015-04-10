@@ -4,7 +4,7 @@ import urllib
 from webhook import Webhook
 import pandas as pd
 import tldextract
-from parse import Parse
+from parse import Parse, Prospecter
 from google import Google
 from li import Linkedin
 import json
@@ -218,6 +218,15 @@ class Companies:
     def _angellist_profile(self, company_name):
         ''' Angellist Profile '''
 
+    def _research_report(self, _report):
+        _report = Parse()._pointer("SignalReport", _report)
+        qry={"where":json.dumps({"report": _report})}
+        qry["limit"] = 1000
+        signals = Prospecter().get("CompanySignal", qry)
+        api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+        for company in signals:
+            company_name = company["company_name"]
+            q.enqueue(Companies()._research, company_name, api_key)
 
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}

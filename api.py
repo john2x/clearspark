@@ -281,6 +281,12 @@ def domain_research():
     q.enqueue(Companies()._domain_research, domain, "", name)
     return {"test": "lol"}
 
+@app.route('/v1/research_signal_report', methods=['GET'])
+def research_report():
+    report = request.args["report"]
+    q.enqueue(Companies()._research_report, report)
+    return {"test": "lol"}
+
 @app.route('/v1/glassdoor', methods=['GET'])
 def glassdoor():
     name = request.args["name"]
