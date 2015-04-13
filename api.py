@@ -255,6 +255,8 @@ def check_if_email_pattern_exists(args):
 def secondary_research():
     name = "Coast Inc"
     domain = "onecoast.com"
+    name = request.args["company_name"]
+    domain = request.args["domain"]
     q.enqueue(Companies()._secondary_research, name, domain, timeout=600)
     return {'started':True}
 
@@ -292,6 +294,26 @@ def glassdoor():
     name = request.args["name"]
     q.enqueue(GlassDoor()._reviews, name)
     return {"test": "lol"}
+
+@app.route('/v1/company_webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _company_webhook():
+    domain, company_name = request.data["domain"], request.data["company_name"]
+    q.enqueue(Companies()._secondary_research, company_name, domain)
+    return {'started':True}
+
+@app.route('/v1/company_signal_webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _company_signal_webhook():
+    q.enqueue(Companies()._research, request.data["company_name"])
+    return {'started':True}
+
+@app.route('/v1/company_prospect_webhook', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _company_prospect_webhook():
+    q.enqueue(Companies()._research, request.data["company_name"])
+    return {'started':True}
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=4000)

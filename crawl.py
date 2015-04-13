@@ -14,6 +14,7 @@ class CompanyInfoCrawl:
         data['api_key'] = api_key
         print source
         crawl = Parse().create('CompanyInfoCrawl', data).json()
+        # if error
         print crawl
         return crawl
 
