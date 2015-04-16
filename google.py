@@ -31,13 +31,7 @@ class Google:
             print page
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://www.google.com/search?'+ args
-            '''
-            cloak = "https://crawlera.p.mashape.com/fetch"
-            headers = {"X-Mashape-Key":
-                "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
-            r = requests.get(cloak, params={'url':url}, headers=headers)
-            '''
-            r = requests.get(url)
+            r = Crawlera()._get(url)
             res = res.append(self._results_to_html_df(r.text))
             # filter only linkedin_url
         return res
@@ -64,13 +58,7 @@ class Google:
             print page
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://news.google.com/'+ args
-            '''
-            cloak = "https://crawlera.p.mashape.com/fetch"
-            headers = {"X-Mashape-Key": 
-                       "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
-            r = requests.get(cloak, params={'url':url}, headers=headers)
-            '''
-            r = requests.get(url)
+            r = Crawlera()._get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res
 
@@ -82,11 +70,7 @@ class Google:
 
     def cache(self, url):
         url = url.replace('&', '%26')
-        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
-        cloak = "https://crawlera.p.mashape.com/fetch"
-        headers = {"X-Mashape-Key": "mEol4XmA3QmshtYIjvaaqvts9kyOp1DwvVvjsnoN02b6eKv98h"}
-        r = requests.get(cloak, params={'url':url}, headers=headers)
-        #r = requests.get(url)
+        r = Crawlera()._get(url)
         return r.text
 
     def search(self, qry, pages=1, period=""):
@@ -99,12 +83,6 @@ class Google:
               args["tbs"] = "qdr:{0},sbd:1".format(period)
             args = urllib.urlencode(args)
             url = 'https://www.google.com/search?'+ args
-
-            '''
-            cloak = "https://crawlera.p.mashape.com/fetch"
-            headers = {"X-Mashape-Key": "mEol4XmA3QmshtYIjvaaqvts9kyOp1DwvVvjsnoN02b6eKv98h"}
-            r = requests.get(cloak, params={'url':url}, headers=headers)
-            '''
             r = Crawlera()._get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res

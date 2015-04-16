@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 from google import Google
+from google import Crawlera
 import tldextract
 from crawl import *
 import urllib 
@@ -79,7 +80,11 @@ class GlassDoor:
         else:
           logo = ""
         #website = r.find('span',{'class':'hideHH'}).text
-        info = r.find('div',{'id':'EmpBasicInfo'}).find_all('div',{'class':'empInfo'})
+        info = r.find('div',{'id':'EmpBasicInfo'})
+        if info:
+            info = info.find_all('div',{'class':'empInfo'})
+        else:
+            return {}
         info = dict([[i.find('strong').text.lower().strip(), i.find('span').text.strip()] for i in info])
         info['name'] = r.find('div',{'class':'header'}).find('h1').text
         info['description'] = r.find('p',{'id':'EmpDescription'})
@@ -128,7 +133,7 @@ class BusinessWeek:
         CompanyInfoCrawl()._persist(val, "businessweek", api_key)
 
     def _html_to_dict(self, url):
-        co = BeautifulSoup(requests.get(url).text)
+        co = BeautifulSoup(Crawlera._get(url).text)
         name = co.find('span', {'itemprop':'name'})
         description = co.find('p', {'itemprop':'description'})
         address = co.find('div', {'itemprop':'address'})
@@ -173,7 +178,7 @@ class Forbes:
             break
 
     def _html_to_dict(self, url):
-        bs = BeautifulSoup(requests.get(url).text)
+        bs = BeautifulSoup(Crawlera()._get(url).text)
         info = bs.find('div',{'class':'ataglanz'})
         if info:
           info = info.text.split('\n')
@@ -288,8 +293,9 @@ class Hoovers:
             CompanyInfoCrawl()._persist(val, "hoovers", api_key)
             break
 
-    def _html_to_dict(self, url):
-        bs = BeautifulSoup(requests.get(url).text)
+    def _html_to_dict(self, _url):
+        url = _url
+        bs = BeautifulSoup(Crawlera()._get(url).text)
         name = bs.find('h1',{'itemprop':'name'})
         name = name.text.split('Company ')[0] if name else ""
         telephone = bs.find('span',{'itemprop':'telephone'})
@@ -299,11 +305,12 @@ class Hoovers:
         except:
           address = ""
         url = bs.find('p',{'itemprop':'address'})
-        url = url.find('a').text if url else ""
+        url = url.find('a') if url else ""
+        url = url.text if url else ""
         cols = ["name","phone","address","website"]
         vals = [name, telephone, address, url]
         info = dict(zip(cols , vals))
-        info['handle'] = url
+        info['handle'] = _url
         if "website" in info.keys():
           tld = tldextract.extract(info["website"])
           info['domain'] = "{}.{}".format(tld.domain, tld.tld)
@@ -340,7 +347,7 @@ class Yelp:
         return ''.join(i for i in text if ord(i)<128)
 
     def _html_to_dict(self, url):
-        r = requests.get(url).text
+        r = Crawlera()._get(url).text
         company_name = BeautifulSoup(r).find('h1', {'class':'biz-page-title'})
         industry = BeautifulSoup(r).find('span', {'class':'category-str-list'})
         address = BeautifulSoup(r).find('address', {'itemprop':'address'})
@@ -386,7 +393,8 @@ class YellowPages:
             break
 
     def _html_to_dict(self, url):
-        r = requests.get(url).text
+        #r = requests.get(url).text
+        r = Crawlera()._get(url).text
         print url
         try:
           company_name = BeautifulSoup(r).find('h1',{'itemprop':'name'}).find('strong').text
@@ -448,7 +456,7 @@ class Indeed:
               CompanyInfoCrawl()._persist(val, "indeed", api_key)
 
   def _html_to_dict(self, url):
-    r = requests.get(url).text
+    r = Crawlera()._get(url).text
     try:
       name = BeautifulSoup(r).find('h1',{'id':'company_name'}).text
     except:
