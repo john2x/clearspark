@@ -255,7 +255,7 @@ def check_if_email_pattern_exists(args):
 def secondary_research():
     name = "Coast Inc"
     domain = "onecoast.com"
-    print "ARGS", requests.args
+    #print "ARGS", requests.args
     print "DATA", request.data
     name = request.args["company_name"]
     domain = request.args["domain"]
