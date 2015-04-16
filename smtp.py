@@ -1,6 +1,6 @@
 import smtplib
-import dns as dns
-from dns import resolver
+#import dns as dns
+#from dns import resolver
 
 class SMTP:
     def _mx_servers(self, domain):

@@ -27,7 +27,10 @@ class Toofr():
         }
         r = requests.get('http://toofr.com/api/get', params=toofr_data)
         # match pattern with facebook
-        return self._ptns()[r.json()["response"]["description"]]
+        try:
+          return self._ptns()[r.json()["response"]["description"]]
+        except:
+          return None
 
     def _ptns(self):
         return { 'f.last': '{{first_initial}}{{last_name}}',
