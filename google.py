@@ -6,9 +6,11 @@ from requests.auth import HTTPProxyAuth
 
 class Crawlera:
     def get(self, url):
-        cloak = "https://crawlera.p.mashape.com/fetch"
-        headers = {"X-Mashape-Key": "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
-        r = requests.get(cloak, params={'url':url}, headers=headers)
+        #cloak = "https://crawlera.p.mashape.com/fetch"
+        un, pw = "customero", "iUyET3ErxR"
+        cloak = "http://{0}:{1}@paygo.crawlera.com/fetch".format(un, pw)
+        #headers = {"X-Mashape-Key": "pdL7tBtCRXmshjM0GeRxnbyhpWzNp13kguyjsnxPTjSv8foPKA"}
+        r = requests.get(cloak, params={'url':url})
         return r
 
     def _get(self, url):
@@ -31,7 +33,7 @@ class Google:
             print page
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://www.google.com/search?'+ args
-            r = Crawlera()._get(url)
+            r = Crawlera().get(url)
             res = res.append(self._results_to_html_df(r.text))
             # filter only linkedin_url
         return res
@@ -58,7 +60,7 @@ class Google:
             print page
             args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
             url = 'https://news.google.com/'+ args
-            r = Crawlera()._get(url)
+            r = Crawlera().get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res
 
@@ -70,7 +72,7 @@ class Google:
 
     def cache(self, url):
         url = url.replace('&', '%26')
-        r = Crawlera()._get(url)
+        r = Crawlera().get(url)
         return r.text
 
     def search(self, qry, pages=1, period=""):
@@ -83,7 +85,8 @@ class Google:
               args["tbs"] = "qdr:{0},sbd:1".format(period)
             args = urllib.urlencode(args)
             url = 'https://www.google.com/search?'+ args
-            r = Crawlera()._get(url)
+            print url
+            r = Crawlera().get(url)
             res = res.append(self._results_html_to_df(r.text))
         return res
 

@@ -133,7 +133,7 @@ class BusinessWeek:
         CompanyInfoCrawl()._persist(val, "businessweek", api_key)
 
     def _html_to_dict(self, url):
-        co = BeautifulSoup(Crawlera._get(url).text)
+        co = BeautifulSoup(Crawlera().get(url).text)
         name = co.find('span', {'itemprop':'name'})
         description = co.find('p', {'itemprop':'description'})
         address = co.find('div', {'itemprop':'address'})
@@ -178,7 +178,7 @@ class Forbes:
             break
 
     def _html_to_dict(self, url):
-        bs = BeautifulSoup(Crawlera()._get(url).text)
+        bs = BeautifulSoup(Crawlera().get(url).text)
         info = bs.find('div',{'class':'ataglanz'})
         if info:
           info = info.text.split('\n')
@@ -295,7 +295,7 @@ class Hoovers:
 
     def _html_to_dict(self, _url):
         url = _url
-        bs = BeautifulSoup(Crawlera()._get(url).text)
+        bs = BeautifulSoup(Crawlera().get(url).text)
         name = bs.find('h1',{'itemprop':'name'})
         name = name.text.split('Company ')[0] if name else ""
         telephone = bs.find('span',{'itemprop':'telephone'})
@@ -347,7 +347,7 @@ class Yelp:
         return ''.join(i for i in text if ord(i)<128)
 
     def _html_to_dict(self, url):
-        r = Crawlera()._get(url).text
+        r = Crawlera().get(url).text
         company_name = BeautifulSoup(r).find('h1', {'class':'biz-page-title'})
         industry = BeautifulSoup(r).find('span', {'class':'category-str-list'})
         address = BeautifulSoup(r).find('address', {'itemprop':'address'})
@@ -394,12 +394,13 @@ class YellowPages:
 
     def _html_to_dict(self, url):
         #r = requests.get(url).text
-        r = Crawlera()._get(url).text
+        r = Crawlera().get(url).text
         print url
         try:
-          company_name = BeautifulSoup(r).find('h1',{'itemprop':'name'}).find('strong').text
+            company_name = BeautifulSoup(r).find('h1',{'itemprop':'name'})
+            company_name = company_name.find('strong').text
         except:
-          return {}
+            return {"handle": url}
         address = BeautifulSoup(r).find('h1',{'itemprop':'name'}).find('span').text
         city = BeautifulSoup(r).find('span',{'itemprop':'addressLocality'}).text
         state = BeautifulSoup(r).find('span',{'itemprop':'addressRegion'}).text
@@ -427,14 +428,18 @@ class Indeed:
   def _company_profile(self, name, api_key=""):
       df = Google().search('site:indeed.com/cmp {0}'.format(name))
       if df.empty: 
-          return CompanyInfoCrawl()._persist({'company_name': name}, "indeed", api_key)
+          return CompanyInfoCrawl()._persist({'company_name': name}, 
+                                             "indeed", api_key)
       df['_name'] = [i.split("Careers and Employment")[0].strip() 
                      for i in df.link_text]
       df["score"] = [fuzz.ratio(b, name) for b in df._name]
       df = df[df.score > 70]
       df = df.reset_index().drop('index',1)
       df = df.sort('score',ascending=False)
-      url = df.ix[0].link
+      if df.empty: 
+        return CompanyInfoCrawl()._persist({'company_name': name},"indeed",api_key)
+      else:
+        url = df.ix[0].link
       val = self._html_to_dict(url)
       print "name"
       val["handle"] = url
@@ -456,7 +461,7 @@ class Indeed:
               CompanyInfoCrawl()._persist(val, "indeed", api_key)
 
   def _html_to_dict(self, url):
-    r = Crawlera()._get(url).text
+    r = Crawlera().get(url).text
     try:
       name = BeautifulSoup(r).find('h1',{'id':'company_name'}).text
     except:

@@ -102,10 +102,14 @@ class Linkedin:
 
     def _company_profile(self, company_name, api_key):
         qry = company_name+' site:linkedin.com/company'
+        print qry
         google_results = Google().search(qry)
-        if google_results.empty: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'linkedin', api_key)
+        print google_results
+        if google_results.empty: 
+          return CompanyInfoCrawl()._persist({'company_name':company_name}, 'linkedin', api_key)
         url = google_results.ix[0].url
         html = Google().cache(url)
+        print url
         info = self._company_cache_html_to_df(html)
         if type(info) is str: return CompanyInfoCrawl()._persist({'company_name':company_name}, 'linkedin', api_key)
         info = json.loads(info.ix[0].to_json())
@@ -197,7 +201,8 @@ class Linkedin:
     def _company_cache_html_to_df(self, html):
         company_info = pd.DataFrame()
         c = BeautifulSoup(html)
-        try:
+        #print c.find('dd',{'class','basic-info-about'}).text
+        if True:
             cols = [i.find('h4').text
                     for i in c.find('dd',{'class','basic-info-about'}).findAll('li')]
             vals = [i.find('p').text.strip()
@@ -212,7 +217,7 @@ class Linkedin:
             # new code not in other methods in different file
             company_info['name'] = c.find('h1',{'class':'name'}).text.strip()
             company_info['employee_count'] = int(c.find('a',{'class':'employee-count'}).text.replace(',',''))
-            for i in BeautifulSoup(r.text).find_all("h3"):
+            for i in c.find_all("h3"):
                 if i.find("a"):
                     url = i.find("a")["href"]
                     url = url.split("?")[-1]
@@ -237,6 +242,8 @@ class Linkedin:
             if 'company_size' in company_info.columns:
                 company_info.drop('company_size', axis=1, inplace=True)
             return company_info
+        '''
         except Exception,e:
             print str(e)
             return "not found"
+        '''
