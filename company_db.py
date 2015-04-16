@@ -246,7 +246,7 @@ class Crunchbase:
         vals = [label.text for label in info.find_all('dd')]
         cols = [label.text[:-1].lower() for label in info.find_all('dt')]
         info = dict(zip(cols, vals))
-        info['logo'] = cb.find('img')['src']
+        info['logo'] = "http://crunchbase.com"+cb.find('img')['src']
         info['name'] = cb.find('h1').text
         info['handle'] = url
         return info

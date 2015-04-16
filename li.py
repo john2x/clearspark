@@ -222,7 +222,10 @@ class Linkedin:
                     url = i.find("a")["href"]
                     url = url.split("?")[-1]
                     args = dict([i.split("=") for i in url.split("&")])
-                    url = "http://linkedin.com/company/{0}".format(args["f_CC"])
+                    if "f_CC" in args.keys():
+                      url = "http://linkedin.com/company/{0}".format(args["f_CC"])
+                    else:
+                      url = "not found"
             company_info["linkedin_url"] = url
 
             if 'headquarters' in company_info.columns:

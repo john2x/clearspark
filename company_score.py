@@ -74,6 +74,11 @@ class CompanyScore:
             final['handles'] = final['handles'].drop_duplicates().to_dict('r')
         except:
             "lol"
+        try:
+            final['logos'] = crawls[['source','logos']].dropna()
+            final['logos'] = final['logos'].drop_duplicates().to_dict('r')
+        except:
+            "lol"
           
         try:
             final['phones'] = crawls[['source','phone']].dropna()
