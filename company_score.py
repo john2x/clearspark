@@ -9,7 +9,7 @@ from parse import Parse
 import companies
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
-from companies import Companies
+#from companies import Companies
 from queue import RQueue
 
 from rq import Queue
@@ -30,10 +30,12 @@ class CompanyScore:
             # start crawls
             return company_name
         crawls = self._source_score(pd.DataFrame(crawls))
+        crawls = self._logo_score(crawls)
         #crawls = crawls[crawls.api_key == api_key]
         crawls['name_score'] = [fuzz.token_sort_ratio(row['name'], row.company_name) 
                                 for index, row in crawls.iterrows()]
         crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
+        logo = crawls.sort("logo_score").logo.tolist()[0]
         #crawls = crawls[["press", 'source_score', 'source', 'createdAt', 'domain']]
         final = {}
         #print crawls.press.dropna()
@@ -74,17 +76,13 @@ class CompanyScore:
             final['handles'] = final['handles'].drop_duplicates().to_dict('r')
         except:
             "lol"
-        try:
-            final['logos'] = crawls[['source','logos']].dropna()
-            final['logos'] = final['logos'].drop_duplicates().to_dict('r')
-        except:
-            "lol"
+
+        tmp = crawls[['source','logo']].dropna()
+        final["logo"] = logo
+        final['logos'] = tmp.drop_duplicates().to_dict('r')
           
-        try:
-            final['phones'] = crawls[['source','phone']].dropna()
-            final['phones'] = final['phones'].drop_duplicates().to_dict('r')
-        except:
-            "lmao"
+        tmp = crawls[['source','phone']].dropna()
+        final['phones'] = tmp.drop_duplicates().to_dict('r')
         # TODO - if company_name exists update
         # TODO - find if domain exists under different company_name then update 
         final = self._prettify_fields(final)
@@ -171,4 +169,18 @@ class CompanyScore:
         df.ix[df.source == "hoovers", 'source_score']      = 6
         df.ix[df.source == "crunchbase", 'source_score']   = 7
         df.ix[df.source == "glassdoor", 'source_score']    = 8
+        return df
+
+    def _logo_score(self, df):
+        df.ix[df.source == "linkedin", 'logo_score']     = 10
+        df.ix[df.source == "zoominfo", 'logo_score']     = 5
+        df.ix[df.source == "yelp", 'logo_score']         = 1
+        df.ix[df.source == "yellowpages", 'logo_score']  = 2
+        df.ix[df.source == "facebook", 'logo_score']     = 8
+        df.ix[df.source == "twitter", 'logo_score']      = 7
+        df.ix[df.source == "businessweek", 'logo_score'] = 3
+        df.ix[df.source == "forbes", 'logo_score']       = 4
+        df.ix[df.source == "hoovers", 'logo_score']      = 0
+        df.ix[df.source == "crunchbase", 'logo_score']   = 6
+        df.ix[df.source == "glassdoor", 'logo_score']    = 9
         return df

@@ -28,6 +28,7 @@ from crawl import *
 from rq import Queue
 from worker import conn
 from jigsaw import *
+from company_score import *
 
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
@@ -228,6 +229,17 @@ class Companies:
         for company in signals:
             company_name = company["company_name"]
             q.enqueue(Companies()._research, company_name, api_key)
+
+    def _score_report(self, _report):
+        _report = Parse()._pointer("SignalReport", _report)
+        qry={"where":json.dumps({"report": _report})}
+        qry["limit"] = 1000
+        # TODO - where companies are null / undefined
+        signals = Prospecter().get("CompanySignal", qry).json()["results"]
+        api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+        for company in signals:
+            company_name = company["company_name"]
+            q.enqueue(CompanyScore()._company_info, company_name)
 
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
