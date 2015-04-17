@@ -172,15 +172,15 @@ class CompanyScore:
         return df
 
     def _logo_score(self, df):
-        df.ix[df.source == "linkedin", 'logo_score']     = 10
+        df.ix[df.source == "linkedin", 'logo_score']     = 8
         df.ix[df.source == "zoominfo", 'logo_score']     = 5
         df.ix[df.source == "yelp", 'logo_score']         = 1
         df.ix[df.source == "yellowpages", 'logo_score']  = 2
-        df.ix[df.source == "facebook", 'logo_score']     = 8
-        df.ix[df.source == "twitter", 'logo_score']      = 7
+        df.ix[df.source == "facebook", 'logo_score']     = 9
+        df.ix[df.source == "twitter", 'logo_score']      = 10
         df.ix[df.source == "businessweek", 'logo_score'] = 3
         df.ix[df.source == "forbes", 'logo_score']       = 4
         df.ix[df.source == "hoovers", 'logo_score']      = 0
         df.ix[df.source == "crunchbase", 'logo_score']   = 6
-        df.ix[df.source == "glassdoor", 'logo_score']    = 9
+        df.ix[df.source == "glassdoor", 'logo_score']    = 7
         return df
