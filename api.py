@@ -257,8 +257,8 @@ def secondary_research():
     domain = "onecoast.com"
     #print "ARGS", requests.args
     print "DATA", request.data
-    name = request.args["company_name"]
-    domain = request.args["domain"]
+    name = request.data["company_name"]
+    domain = request.data["domain"]
     q.enqueue(Companies()._secondary_research, name, domain, timeout=600)
     return {'started':True}
 

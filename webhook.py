@@ -78,6 +78,7 @@ class Webhook:
         print "__STARTED", len(companies)
         for company in companies:
             print "UPDATING COMPANY"
+            #TODO batch_df update
             print Parse().update('Company/'+company['objectId'], data).json()
             _company = Parse()._pointer('Company', company['objectId'])
             classes = ['Prospect','CompanyProspect','PeopleSignal','CompanySignal']
@@ -104,6 +105,7 @@ class Webhook:
 
         return "updated"
 
+        # TODO BATCHIFY
         print "CREATING COMPANY"
         company = Parse().create('Company', data).json()
         _company = Parse()._pointer('Company', company['objectId'])
