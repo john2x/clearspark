@@ -35,7 +35,8 @@ class CompanyScore:
         crawls['name_score'] = [fuzz.token_sort_ratio(row['name'], row.company_name) 
                                 for index, row in crawls.iterrows()]
         crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
-        logo = crawls.sort("logo_score").dropna().logo.tolist()[0]
+        logo = crawls.sort("logo_score").dropna().logo.tolist()
+        logo = logo[0] if logo else ""
         #crawls = crawls[["press", 'source_score', 'source', 'createdAt', 'domain']]
         final = {}
         #print crawls.press.dropna()
