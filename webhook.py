@@ -121,7 +121,11 @@ class Webhook:
     def _update_company_email_pattern(self, data):
         if not data: return 0
         qry = {'where':json.dumps({'domain': data['domain']})}
-        companies = Parse().get('Company', qry).json()['results']
+        companies = Parse().get('Company', qry).json()
+        while "error" in companies.keys():
+            time.sleep(3)
+            companies = Parse().get('Company', qry).json()
+        companies = companies['results']
         pattern = {'email_pattern': data['company_email_pattern']}
         if data['company_email_pattern'] == []: 
             pattern['email_guess'] = []

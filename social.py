@@ -1,4 +1,5 @@
 from splinter import Browser
+import pandas as pd
 from parse import Parse
 from google import Google
 import json
