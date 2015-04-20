@@ -1,4 +1,7 @@
 from flask.ext.api import FlaskAPI
+from li import Linkedin
+from social import *
+from zoominfo import Zoominfo
 import pusher
 from flask import request
 import requests
@@ -321,6 +324,39 @@ def _company_signal_webhook():
 def _company_prospect_webhook():
     q.enqueue(Companies()._research, request.data["company_name"])
     return {'started':True}
+
+@app.route('/v1/company_name_source', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _company_name_source():
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    name = request.args["company_name"]
+
+    if "facebook" in request.args["source"]:
+      j9 = q.enqueue(Facebook()._company_profile, name, api_key,timeout=6000)
+    elif "twitter" in request.args["source"]:
+      j10 = q.enqueue(Twitter()._company_profile, name, api_key,timeout=6000)
+    elif "indeed" in request.args["source"]:
+      j11 = q.enqueue(Indeed()._company_profile, name, api_key,timeout=6000)
+    elif "businessweek" in request.args["source"]:
+      j0 =q.enqueue(BusinessWeek()._company_profile, name, api_key,timeout=6000)
+    elif "zoominfo" in request.args["source"]:
+      j1 = q.enqueue(Zoominfo()._company_profile, name, api_key,timeout=6000)
+    elif "linkedin" in request.args["source"]:
+      j2 = q.enqueue(Linkedin()._company_profile, name, api_key,timeout=6000)
+    elif "yellowpages" in request.args["source"]:
+      j3 = q.enqueue(YellowPages()._company_profile, name, api_key,timeout=6000)
+    elif "yelp" in request.args["source"]:
+      j4= q.enqueue(Yelp()._company_profile, name, api_key,timeout=6000)
+    elif "forbes" in request.args["source"]:
+      j5 = q.enqueue(Forbes()._company_profile, name, api_key,timeout=6000)
+    elif "glassdoor" in request.args["source"]:
+      j6 = q.enqueue(GlassDoor()._company_profile, name, api_key,timeout=6000)
+    elif "hoovers" in request.args["source"]:
+      j7 = q.enqueue(Hoovers()._company_profile, name, api_key,timeout=6000)
+    elif "crunchbase" in request.args["source"]:
+      j8 = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
+    return {'started':True}
+
 
 
 if __name__ == "__main__":

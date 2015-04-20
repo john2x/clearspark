@@ -139,6 +139,7 @@ class Facebook:
         #browser = Browser('phantomjs')
         #browser.visit(url)
         val = self._html_to_dict(html)
+        print val
         val["company_name"] = name
         CompanyInfoCrawl()._persist(val, "facebook", api_key)
 

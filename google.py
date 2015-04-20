@@ -72,6 +72,7 @@ class Google:
 
     def cache(self, url):
         url = url.replace('&', '%26')
+        url = 'http://webcache.googleusercontent.com/search?q=cache:'+url
         r = Crawlera().get(url)
         return r.text
 
@@ -85,9 +86,9 @@ class Google:
               args["tbs"] = "qdr:{0},sbd:1".format(period)
             args = urllib.urlencode(args)
             url = 'https://www.google.com/search?'+ args
-            print url
             r = Crawlera().get(url)
             res = res.append(self._results_html_to_df(r.text))
+            print res
         return res
 
     def _results_html_to_df(self, search_result_html):
