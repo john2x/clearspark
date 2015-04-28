@@ -28,6 +28,13 @@ class Linkedin:
         for link in df.link:
             q.enqueue(Linkedin()._signal, link)
 
+    def _domain_search(self, domain, api_key="",  name=""):
+        df = Google().search("site:linkedin.com/company {0}".format(domain))
+        if df.empty: return 
+        #for link in df.link:
+        link = df.link.tolist()[0]
+        q.enqueue(Linkedin()._signal, link, api_key)
+
     def _pulse_posts():
         ''' '''
 

@@ -325,6 +325,15 @@ def _company_prospect_webhook():
     q.enqueue(Companies()._research, request.data["company_name"])
     return {'started':True}
 
+@app.route('/v1/daily_news', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _daily_news():
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    q.enqueue(Companies()._daily_secondary_research, 
+              request.args["company_name"],
+              request.args["domain"], api_key)
+    return {'started':True}
+
 @app.route('/v1/company_name_source', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def _company_name_source():
