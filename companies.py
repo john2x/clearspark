@@ -314,7 +314,7 @@ class Companies:
         qry = {'where':json.dumps({'company_name':company_name})}
         company = Parse().get('Company', qry).json()['results']
         company_crawl = Parse().get('CompanyInfoCrawl', qry).json()['results']
-        company = False
+        #company = False
         # check if company info crawl
         print company
         if company:
