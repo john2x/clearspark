@@ -78,7 +78,7 @@ class CompanyExtraInfoCrawl:
                   "company_name":data["company_name"],
                   "domain":data["domain"]} for i in res1]
         _data = pd.DataFrame(_data)
-        _data["timestamp"] = timestamps
+        _data["timestamp"] = [int(i) for i in timestamps]
 
         print Prospecter()._batch_df_create("CompanyEvent", _data)
         print Parse()._batch_df_create("CompanyEvent", _data)
