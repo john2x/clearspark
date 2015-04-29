@@ -293,11 +293,22 @@ class Companies:
             q.enqueue(CompanyScore()._company_info, company_name)
 
     def _bulk_upload(self, data, user):
-      data, user = json.loads(data), json.loads(user)
-      _data = pd.DataFrame(data)[["company_name"]]
-      _data["user"], _data["user_company"] = user["user"], user["user_company"]
-      Prospecter()._batch_df_create("CompanyProspect", _data)
-      for i in data: q.enqueue(Companies()._bulk, i["company_name"])
+        print user
+        data, user = json.loads(data), json.loads(user)
+        _data = pd.DataFrame(data)[["company_name"]]
+        _user = Parse()._pointer("_User", user["objectId"])
+        _data["user"] = [_user for i in _data.index]
+        _data["user_company"] = [user["user_company"] for i in _data.index]
+        _data["user_company"]
+        _list = {"user":_user, "user_company":user["user_company"], 
+                 "list_type":"upload",
+                 "name":"Upload - "+arrow.utcnow().format("DD-MM-YYYY")}
+        _list = Prospecter().create("CompanyProspectList", _list).json()
+        print _list
+        _list = Parse()._pointer("CompanyProspectList", _list["objectId"])
+        _data["lists"] =  [[_list] for i in _data.index]
+        Prospecter()._batch_df_create("CompanyProspect", _data)
+        for i in data: q.enqueue(Companies()._bulk, i["company_name"])
 
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
