@@ -62,7 +62,7 @@ class CompanyExtraInfoCrawl:
         #TODO - batch create data
 
         print _source
-        print data.keys()
+        #print data.keys()
         _data = pd.DataFrame(data['data'])
         if "company_name" in data.keys():
           _data["company_name"] = data["company_name"]
@@ -73,12 +73,13 @@ class CompanyExtraInfoCrawl:
         print res1, res2
         data["source"],data["_source"]=source, _source
         timestamps = _data.timestamp.tolist()
+        #TODO - make sure only success events are recorded
         _data = [{"event":[Parse()._pointer(_source, i["success"]["objectId"])],
                   "company_name":data["company_name"],
                   "domain":data["domain"]} for i in res1]
         _data = pd.DataFrame(_data)
         _data["timestamp"] = timestamps
-        #TODO - maybe add pointer?
+
         print Prospecter()._batch_df_create("CompanyEvent", _data)
         print Parse()._batch_df_create("CompanyEvent", _data)
 
