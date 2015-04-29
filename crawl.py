@@ -64,19 +64,26 @@ class CompanyExtraInfoCrawl:
         print _source
         #print data.keys()
         _data = pd.DataFrame(data['data'])
+        if _data.empty: return 
         if "company_name" in data.keys():
           _data["company_name"] = data["company_name"]
         _data["api_key"] = api_key
         if "domain" in data.keys(): _data["domain"] = data["domain"]
         res1=Prospecter()._batch_df_create(_source, _data)
         res2=Parse()._batch_df_create(_source, _data)
-        print res1, res2
+        #print res1, res2
         data["source"],data["_source"]=source, _source
         timestamps = _data.timestamp.tolist()
         #TODO - make sure only success events are recorded
-        _data = [{"event":[Parse()._pointer(_source, i["success"]["objectId"])],
-                  "company_name":data["company_name"],
-                  "domain":data["domain"]} for i in res1]
+        try:
+            _data = [{"event":[Parse()._pointer(_source, i["success"]["objectId"])],
+                      "company_name":data["company_name"],
+                      "domain":data["domain"]} for i in res1]
+        except Exception as e:
+            print "THE DATA YO"
+            print e
+            #print data
+            print data.keys()
         _data = pd.DataFrame(_data)
         _data["timestamp"] = [int(i) for i in timestamps]
 

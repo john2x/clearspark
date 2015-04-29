@@ -152,8 +152,7 @@ class Companies:
         #print browser.find_by_css('td > a') 
         if browser.find_by_css('td > a') == []: 
             pages = pages.to_dict('r')
-            pages = {'data':pages, 'company_name':company_name}
-            pages["domain"] = domain
+            pages = {'data':pages, 'company_name':company_name,"domain":domain}
             CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
 
         while "Next" in browser.find_by_css('td > a')[-1].text:
@@ -172,7 +171,7 @@ class Companies:
         print pages.columns
 
         pages = pages.to_dict('r')
-        pages = {'data':pages, 'company_name':company_name}
+        pages = {'data':pages, 'company_name':company_name,"domain":domain}
         CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
 
     def _related(self, domain, api_key="", name=""):
