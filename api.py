@@ -392,7 +392,13 @@ def _company_name_source():
       j8 = q.enqueue(Crunchbase()._company_profile, name, api_key,timeout=6000)
     return {'started':True}
 
-
+@app.route("/v1/company_bulk_upload", methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _company_bulk_upload():
+    #TODO - three fields, company_name, website, domain
+    # - really only need 1 
+    print request.args
+    return {"started":True}
 
 if __name__ == "__main__":
     app.run(debug=True, port=4000)
