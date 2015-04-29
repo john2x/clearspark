@@ -292,6 +292,13 @@ class Companies:
             company_name = company["company_name"]
             q.enqueue(CompanyScore()._company_info, company_name)
 
+    def _bulk_upload(self, data, user):
+      data, user = json.loads(data), json.loads(user)
+      _data = pd.DataFrame(data)[["company_name"]]
+      _data["user"], _data["user_company"] = user["user"], user["user_company"]
+      Prospecter()._batch_df_create("CompanyProspect", _data)
+      for i in data: q.enqueue(Companies()._bulk, i["company_name"])
+
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
         company = Parse().get('Company', qry).json()['results']

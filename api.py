@@ -1,5 +1,6 @@
 from flask.ext.api import FlaskAPI
 from li import Linkedin
+import json
 from social import *
 from zoominfo import Zoominfo
 import pusher
@@ -397,7 +398,9 @@ def _company_name_source():
 def _company_bulk_upload():
     #TODO - three fields, company_name, website, domain
     # - really only need 1 
-    print request.args
+    data = request.args["data"]
+    user = request.args["user"]
+    q.enqueue(Companies()._bulk_upload, data, user)
     return {"started":True}
 
 if __name__ == "__main__":
