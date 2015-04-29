@@ -32,14 +32,15 @@ class Helper:
         return 0
 
   def _check_for_humanize(self, _date):
-    if "day" in _date:
+    try:
       num = int(_date.split()[0])
+    except:
+      return None
+    if "day" in _date:
       return arrow.utcnow().replace(days=num*-1).timestamp
     elif "minute" in _date:
-      num = int(_date.split()[0])
       return arrow.utcnow().replace(minutes=num*-1).timestamp
     elif "hour" in _date:
-      num = int(_date.split()[0])
       return arrow.utcnow().replace(hours=num*-1).timestamp
     else:
       return None
