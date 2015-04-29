@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import urllib
+from fuzzywuzzy import fuzz
 from webhook import Webhook
 import pandas as pd
 import tldextract
@@ -29,6 +30,8 @@ from rq import Queue
 from worker import conn
 from jigsaw import *
 from company_score import *
+import calendar
+import arrow
 
 q = Queue(connection=conn)
 logging.basicConfig(level=logging.INFO)
@@ -51,6 +54,26 @@ class Companies:
         df = df.reset_index().drop('index',1)
         df = df.drop('title', 1)
         url = df.sort('count').url.ix[0]
+        df["timestamp"] = [i.split("...")[0].strip() for i in df.link_span]
+        months = list(calendar.month_abbr)
+        timestamps = []
+        for _date in df.timestamp:
+            try:
+                num = months.index(_date.split(" ")[0])
+            except:
+                timestamps.append(0)
+                continue
+            _date = str(num)+" "+" ".join(_date.split(" ")[1:])
+            try:
+              timestamps.append(arrow.get(_date, "M D, YYYY").timestamp)
+            except:
+                if "day" in i:
+                  num = int(i.split())
+                  timestamps.append(arrow.utcnow().replace(days=num*-1).timestamp)
+                else:
+                  timestamps.append(0)
+        df["timestamp"] = timestamps
+
         data = {'data': df.to_dict('r'), 'blog_url':url}
         data["domain"] = domain
         data["api_key"] = api_key
@@ -59,7 +82,7 @@ class Companies:
 
     def _hiring(self, domain, api_key="", company_name=""):
         # paginate
-        jobs = "http://www.indeed.com/jobs?q={0}".format(company_name)
+        jobs = "http://www.indeed.com/jobs?q={0}&sort=date".format(company_name)
         browser = Browser('phantomjs')
         browser.visit(jobs)
         pages = [browser.html]
@@ -67,8 +90,22 @@ class Companies:
             browser.find_by_css('.np')[-1].click()
             time.sleep(1)
             pages.append(browser.html)
+        data = Indeed()._search_results_html_to_df(pages)
+        #TODO - add timestamp
+        data["name_score"]=[fuzz.ratio(company_name, i) for i in data.company_name]
+        data = data[data.name_score > 70]
+        date, timestamps = arrow.utcnow(), []
+        for i in data.date:
+            num = int(i.split(" ")[0].replace("+",""))
+            if "hour" in i:
+                timestamps.append(date.replace(hours=num*-1).timestamp)
+            elif "minute" in i:
+                timestamps.append(date.replace(minutes=num*-1).timestamp)
+            elif "day" in i:
+                timestamps.append(date.replace(days=num*-1).timestamp)
+        data["timestamp"] = timestamps
         jobs = {"company_name":company_name}
-        jobs["data"] = Indeed()._search_results_html_to_df(pages).to_dict('r')
+        jobs["data"] = data.to_dict("r")
         jobs["domain"] = domain
         jobs["api_key"] = api_key
         CompanyExtraInfoCrawl()._persist(jobs, "hiring", api_key)
@@ -85,13 +122,18 @@ class Companies:
         p = p.drop_duplicates()
         p['date'] = [span.split('Business Wire')[-1].split('...')[0].strip() for span in p.link_span]
         p['description'] = ["".join(span.split('...')[1:]).strip() for span in p.link_span]
+        p['date'] = [span.split('...')[0].strip() for span in p.link_span]
+        p["timestamp"] = [Helper()._str_to_timestamp(i) for i in p.date]
         p['title'] = p['link_text']
+
         p = p.drop('link_text',1)
         p = p.drop('url',1)
         p = p.drop('link_span',1)
+        #for i in p.timestamp: print i
+
         press = {'data':p.to_dict('records'), 'company_name':company_name}
         press["domain"] = domain
-        CompanyExtraInfoCrawl()._persist(press, "press", api_key)
+        #CompanyExtraInfoCrawl()._persist(press, "press", api_key)
 
     def _news(self, domain, api_key="", company_name=""):
         # TODO - include general info links
@@ -100,26 +142,36 @@ class Companies:
         browser.find_by_name('q').first.fill(company_name)
         browser.find_by_name('btnG').first.click()
         browser.find_link_by_text('News').first.click()
+        url = browser.evaluate_script("document.URL")
+        url = url+"&tbs=qdr:m,sbd:1"+"&num=100&filter=0&start=0"
+        browser.visit(url)
         pages = pd.DataFrame()
         df = Google()._results_html_to_df(browser.html)
+
         pages = pages.append(df)
-        print browser.find_by_css('td > a') 
+        #print browser.find_by_css('td > a') 
         if browser.find_by_css('td > a') == []: 
             pages = pages.to_dict('r')
             pages = {'data':pages, 'company_name':company_name}
             pages["domain"] = domain
             CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
+
         while "Next" in browser.find_by_css('td > a')[-1].text:
             browser.find_by_css('td > a')[-1].click()
             df = Google()._results_html_to_df(browser.html)
             pages = pages.append(df)
+
         pages = pages[~pages.title.str.contains("press release")]
         pages = pages[pages.link_span.str.contains('(?i){0}'.format(company_name))]
         pages.columns = ['link','description','title','info','']
         pages['date'] = [i.split('-')[-1] for i in pages['info']]
+        pages["timestamp"] = [Helper()._str__to_timestamp(i) for i in pages.date]
         pages['news_source'] = [i.split('-')[0] for i in pages['info']]
-        pages = pages.to_dict('r')
         pages = pages.drop_duplicates()
+        del pages[""]
+        print pages.columns
+
+        pages = pages.to_dict('r')
         pages = {'data':pages, 'company_name':company_name}
         CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
 
@@ -127,7 +179,7 @@ class Companies:
         companies = Google().search("related:{0}".format(domain), 10)
         companies = companies.drop_duplicates()
         companies.columns = ['link','description','title','lol','lmao']
-        data = {'data':companies.to_dict('r'), "domain": domain, "company_name":name}
+        data = {'data':companies.to_dict('r'),"domain":domain,"company_name":name}
         data["api_key"] = api_key
         CompanyExtraInfoCrawl()._persist(data, "similar", api_key)
 
@@ -329,17 +381,16 @@ class Companies:
         x = 6000
         j0 = q.enqueue(Companies()._company_blog, domain, api_key, name, timeout=x)
         j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name, timeout=x)
-        j3 = q.enqueue(Companies()._press_releases, domain, api_key, name, timeout=x)
+        j3 = q.enqueue(Companies()._press_releases,domain, api_key, name, timeout=x)
         j4 = q.enqueue(Companies()._news, domain, api_key, name, timeout=x)
         j5 = q.enqueue(Companies()._hiring, domain, api_key, name, timeout=x)
-        j6 = q.enqueue(Twitter()._domain_search, domain, api_key, name, timeout=x)
-        j7 = q.enqueue(Facebook()._domain_search, domain, api_key, name, timeout=x)
-        j8 = q.enqueue(Linkedin()._domain_search, domain, api_key, name, timeout=x)
+        j6 = q.enqueue(Twitter()._daily_news, domain, api_key, name, timeout=x)
+        j7 = q.enqueue(Facebook()._daily_news, domain, api_key, name, timeout=x)
+        j8 = q.enqueue(Linkedin()._daily_news, domain, api_key, name, timeout=x)
 
         # TODO - general pages on their site
         jobs = [j0,j2,j3,j4,j5,j6,j7,j8]
-        for job in jobs:
-            RQueue()._meta(job, "{0}_{1}".format(name, api_key))
+        for job in jobs: RQueue()._meta(job, "{0}_{1}".format(name, api_key))
 
         #TODO - mixrank ads research
         #q.enqueue(Crunchbase()._fundings, domain)

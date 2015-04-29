@@ -334,6 +334,32 @@ def _daily_news():
               request.args["domain"], api_key)
     return {'started':True}
 
+@app.route('/v1/daily_news_source', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _daily_news_source():
+    api_key = "9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8"
+    name, domain = request.args["company_name"], request.args["domain"]
+
+    x = 6000
+    if "blog" == request.args["source"]:
+      j0 = q.enqueue(Companies()._company_blog, domain, api_key, name, timeout=x)
+    elif "glassdoor" == request.args["source"]:
+      j2 = q.enqueue(GlassDoor()._reviews, domain, api_key, name, timeout=x)
+    elif "press" == request.args["source"]:
+      j3 = q.enqueue(Companies()._press_releases, domain, api_key, name, timeout=x)
+    elif "news" == request.args["source"]:
+      j4 = q.enqueue(Companies()._news, domain, api_key, name, timeout=x)
+    elif "hiring" == request.args["source"]:
+      j5 = q.enqueue(Companies()._hiring, domain, api_key, name, timeout=x)
+    elif "twitter" == request.args["source"]:
+      j6 = q.enqueue(Twitter()._daily_news, domain, api_key, name, timeout=x)
+    elif "facebook" == request.args["source"]:
+      j7 = q.enqueue(Facebook()._daily_news, domain, api_key, name, timeout=x)
+    elif "linkedin" == request.args["source"]:
+      j8 = q.enqueue(Linkedin()._daily_news, domain, api_key, name, timeout=x)
+
+    return {'started':True}
+
 @app.route('/v1/company_name_source', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
 def _company_name_source():

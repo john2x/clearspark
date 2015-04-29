@@ -3,9 +3,10 @@ import pandas as pd
 from parse import Parse
 from google import Google
 import json
+import urllib
 import requests
 from bs4 import BeautifulSoup
-from crawl import CompanyInfoCrawl
+from crawl import CompanyInfoCrawl, CompanyExtraInfoCrawl
 import tldextract
 
 class Twitter:
@@ -22,24 +23,37 @@ class Twitter:
         for link in df.link:
             q.enqueue(Twitter()._signal, link)
 
+    def _daily_news(self, domain, api_key="", name=""):
+        df = Google().search('site:twitter.com {0}'.format(domain))
+        link = df.link.tolist()[0]
+        html = Google().cache(link)
+        tweets = self._tweets(html, api_key)
+        data = {"data":tweets, "company_name":name, "domain":domain}
+        CompanyExtraInfoCrawl()._persist(data, "tweets")
+
     def _tweets(self, html, api_key):
         #html = Google().cache("https://twitter.com/guidespark")
         tw = BeautifulSoup(html)
         tweets = []
         for tweet in tw.find_all("div",{"class":"ProfileTweet"}):
+            timestamp = tweet.find("span", {"class":"js-short-timestamp"})["data-time"]
             text = tweet.find("p",{"class":"ProfileTweet-text"}).text
-            hashtags = [hashtag["href"] for hashtag in tweet.find_all("a",{"class":"twitter-hashtag"})]
-            mentions = ["twitter.com"+reply["href"] 
-                        for reply in tweet.find_all("a",{"class":"twitter-atreply"})]
-            links = [link["href"] 
-                    for link in tweet.find_all("a",{"class":"twitter-timeline-link"})]
-            photos = [img["src"]
-                      for img in tweet.find_all("img",{"class":"TwitterPhoto-mediaSource"})]
+            _hashtags = tweet.find_all("a",{"class":"twitter-hashtag"})
+            hashtags = [hashtag["href"] for hashtag in _hashtags]
+            _mentions = tweet.find_all("a",{"class":"twitter-atreply"})
+            mentions = ["twitter.com"+reply["href"] for reply in _mentions]
+            _links = tweet.find_all("a",{"class":"twitter-timeline-link"})
+            links = [link["href"] for link in _links]
+
+            _imgs = tweet.find_all("img",{"class":"TwitterPhoto-mediaSource"})
+            photos = [img["src"] for img in _imgs]
+
             tweet = {"text":text,"hashtags":hashtags,"mentions":mentions,
-                     "links":links, "photos":photos}
+                     "links":links, "photos":photos, "timestamp":timestamp}
+            #TODO - add timestamp
             tweets.append(tweet)
-            CompanyExtraInfoCrawl()._persist(tweet, "tweets")
-        tweets = pd.DataFrame(tweets)
+        #tweets = pd.DataFrame(tweets)
+        return tweets
       
     def _domain_search(self, domain, api_key="", name=""):
         df = Google().search('site:twitter.com {0}'.format(domain))
@@ -97,25 +111,31 @@ class Facebook:
 
         posts = []
         for post in fb.find_all("div",{"class":"userContentWrapper"}):
-            utime = post.find("abbr",{"class":"livetimestamp"})["data-utime"]
+            #utime = post.find("abbr",{"class":"livetimestamp"})
+            utime = post.find("abbr")
+            utime = utime["data-utime"] if utime else ""
             post_text = post.find("div",{"class":"userContent"}).text
+            _post = {"timestamp":utime, "post_text":post_text}
             if post.find('div',{'class':'_3ekx'}):
-                try:
-                    link_url = post.find('div',{'class':'_3ekx'}).find('a')["href"]
-                    link_url = urllib.unquote(link_url.split("l.php?u=")[-1])
-                    link_img = post.find('img',{"class":"scaledImageFitWidth"})["src"]
-                    link_title = post.find('div',{'class':'mbs'}).text
-                    link_summary = post.find('div',{'class':'_6m7'}).text
-                except:
-                    print post_text
-                    break
-            post = {"utime":utime, "post_text":post_text, "link_url":link_url,
-                    "link_img":link_img, "link_title":link_title, 
-                    "link_summary":link_summary}
-            #TODO - company_name, domain
-            posts.append(post)
+              link_url = post.find('div',{'class':'_3ekx'}).find('a')["href"]
+              link_url = urllib.unquote(link_url.split("l.php?u=")[-1])
+              link_img = post.find('img',{"class":"scaledImageFitWidth"})["src"]
+              link_title = post.find('div',{'class':'mbs'}).text
+              link_summary = post.find('div',{'class':'_6m7'}).text
+              _post["link_url"], _post["link_img"] = link_url, link_img, 
+              _post["link_title"] = link_title
+              _post["link_summary"] = link_summary
+            posts.append(_post)
         return posts
-        posts = pd.DataFrame(posts)      
+
+    def _daily_news(self, domain, api_key="", name=""):
+        df = Google().search('site:facebook.com {0}'.format(domain))
+        link = df.link.tolist()[0]
+        html = Google().cache(link)
+        posts = Facebook()._posts(html)
+        posts = pd.DataFrame(posts).fillna("")
+        data = {"data":posts.to_dict("r"), "domain":domain, "company_name":name}
+        CompanyExtraInfoCrawl()._persist(data, "facebook_posts", api_key)
 
     def _domain_search(self, domain, api_key="", name=""):
         df = Google().search('site:facebook.com {0}'.format(domain))

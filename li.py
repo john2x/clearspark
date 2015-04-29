@@ -13,44 +13,57 @@ from google import Google
 from bs4 import BeautifulSoup
 import string
 from crawl import *
+from company_db import *
 
 class Linkedin:
     def _signal(self, link, api_key=""):
         html = Google().cache(link)
-        info = self._html_to_dict(html)
+        #info = self._html_to_dict(html)
         posts = self._company_posts(html)
+        '''
         CompanyInfoCrawl()._persist(info, "linkedin", api_key)
         for post in posts:
           CompanyExtraInfoCrawl()._persist(post, "linkedin_posts", api_key)
+        '''
 
     def _recent(self):
         df = Google().search("site:linkedin.com/company", period="h")
         for link in df.link:
             q.enqueue(Linkedin()._signal, link)
 
-    def _domain_search(self, domain, api_key="",  name=""):
+    def _daily_news(self, domain, api_key="",  name=""):
         df = Google().search("site:linkedin.com/company {0}".format(domain))
         if df.empty: return 
         #for link in df.link:
         link = df.link.tolist()[0]
-        q.enqueue(Linkedin()._signal, link, api_key)
+        print link
+        html = Google().cache(link)
+        posts = self._company_posts(html)
+        #Linkedin()._signal(link, api_key)
+        data = {"data":posts, "company_name":name, "domain":domain}
+        CompanyExtraInfoCrawl()._persist(data, "linkedin_posts", api_key)
 
     def _pulse_posts():
         ''' '''
 
-    def _company_posts(self, url, api_key=""):
-        #url = "https://linkedin.com/company/guidespark"
-        html = Google().cache(url)
+    def _company_posts(self, html, api_key=""):
         li = BeautifulSoup(html)
-
         posts = []
         for post in li.find_all("li",{"class":"feed-item"}):
-            img = post.find("img")["src"]
+            img = post.find("img")
+            img = img["src"] if img else ""
+            date = post.find("a", {"class":"nus-timestamp"}).text
+            timestamp = Helper()._str_to_timestamp(date)
             post = post.find("span",{"class":"commentary"})
-            link = [i.text for i in post.find_all("a")]
-            data = {"img":img, "post":post.text, "link":link}
+            try:
+                link = [i.text for i in post.find_all("a")]
+            except:
+                continue
+            data = {"img":img, "post":post.text, "link":link, "date":date, 
+                    "timestamp":timestamp}
+            #TODO - add timestamp
             posts.append(data)
-            CompanyExtraInfoCrawl()._persist(posts, "linkedin_posts", api_key)
+        return posts
 
     def _parse_google_span_for_title_and_company(self, link_span):
         ''' Parse Google Search Linkedin Text For Current Position '''

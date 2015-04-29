@@ -5,9 +5,61 @@ from google import Crawlera
 import tldextract
 from crawl import *
 import urllib 
+import calendar
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import pandas as pd
+import calendar
+import sys
+import arrow
+
+class Helper:
+  def _str_to_timestamp(self, _date):
+    months = list(calendar.month_abbr)
+    date = self._check_for_humanize(_date)
+    if date: return date
+    try:
+        num = months.index(_date.split(" ")[0])
+    except Exception as e:
+        #print "first", _date, e
+        return 0
+    _date = str(num)+" "+" ".join(_date.split(" ")[1:])
+
+    try:
+        return arrow.get(_date, "M D, YYYY").timestamp
+    except Exception as e:
+        #print "second", _date, e
+        return 0
+
+  def _check_for_humanize(self, _date):
+    if "day" in _date:
+      num = int(_date.split()[0])
+      return arrow.utcnow().replace(days=num*-1).timestamp
+    elif "minute" in _date:
+      num = int(_date.split()[0])
+      return arrow.utcnow().replace(minutes=num*-1).timestamp
+    elif "hour" in _date:
+      num = int(_date.split()[0])
+      return arrow.utcnow().replace(hours=num*-1).timestamp
+    else:
+      return None
+
+  def _str__to_timestamp(self, _date):
+    _date = _date.strip()
+    months = list(calendar.month_abbr)
+    print _date
+    date = self._check_for_humanize(_date)
+    if date: return date
+    _date_arr = _date.split(" ")
+    _date_arr[1] = str(months.index(_date_arr[1].replace(",","")))
+    _date = " ".join(_date_arr)
+    try:
+      return arrow.get(_date, "D M, YYYY").timestamp
+    except:
+      try:
+        return arrow.get(_date, "D M YYYY").timestamp
+      except:
+        return 0
 
 class GlassDoor:
     def _signal(self, link, api_key=""):
@@ -64,8 +116,9 @@ class GlassDoor:
             vals = [pros, cons, extra, summary, date]
             cols = ["pros", "cons", "extra", "summary", "date"]
             vals = [val.text.strip() for val in vals]
-            reviews = reviews.append(dict(zip(cols, vals)),ignore_index=True) 
-        print reviews
+            data = dict(zip(cols, vals))
+            data["timestamp"] = Helper()._str_to_timestamp(data["date"])
+            reviews = reviews.append(data,ignore_index=True) 
         data = {'data': reviews.to_dict('r'), 'company_name':name}
         data['api_key'] = api_key
         data['domain'] = domain

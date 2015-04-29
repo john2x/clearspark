@@ -54,16 +54,6 @@ class Google:
             res = res.append(self._results_html_to_df(r.text))
         return res
 
-    def news_search(self, qry, pages=1):
-        res = pd.DataFrame()
-        for page in range(pages):
-            print page
-            args = urllib.urlencode({'q':qry,'start':page*100,'num':100})
-            url = 'https://news.google.com/'+ args
-            r = Crawlera().get(url)
-            res = res.append(self._results_html_to_df(r.text))
-        return res
-
     def _results_to_linkedin_df(self, html):
         ''' '''
     
@@ -76,10 +66,21 @@ class Google:
         r = Crawlera().get(url)
         return r.text
 
-    def search(self, qry, pages=1, period=""):
+    def news_search(self, qry, pages=1):
         res = pd.DataFrame()
         for page in range(pages):
             print page
+            args = urllib.urlencode({'q':qry,'start':page*100,
+                    'num':100,'tbm':"nws"})
+            #url = 'https://news.google.com/'+ args
+            url = 'https://www.google.com/search?'+ args
+            r = Crawlera().get(url)
+            res = res.append(self._results_html_to_df(r.text))
+        return res
+
+    def search(self, qry, pages=1, period=""):
+        res = pd.DataFrame()
+        for page in range(pages):
             qry = self._remove_non_ascii(qry)
             args = {'q':qry,'start':page*100,'num':100,"filter":0}
             if period != "":
@@ -88,7 +89,6 @@ class Google:
             url = 'https://www.google.com/search?'+ args
             r = Crawlera().get(url)
             res = res.append(self._results_html_to_df(r.text))
-            print res
         return res
 
     def _results_html_to_df(self, search_result_html):

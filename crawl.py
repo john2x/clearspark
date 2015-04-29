@@ -45,27 +45,41 @@ class CompanyEmailPatternCrawl:
 
 class CompanyExtraInfoCrawl:
     def _persist(self, data, source, api_key=""):
-        if source == "blog_data": source = "CompanyBlogPost"
-        elif source == "builtwith": source = "CompanyTechnology"
-        elif source ==  "press": source = "CompanyPressRelease"
-        elif source ==  "glassdoor_reviews": source = "CompanyGlassdoorReview"
-        elif source ==  "employees": source = "CompanyEmployee"
-        elif source ==  "similar": source = "CompanySimilar"
-        elif source ==  "hiring": source = "CompanyHiring"
-        elif source ==  "general_news": source = "CompanyNews"
-        elif source ==  "linkedin_posts": source = "CompanyLinkedinPost"
-        elif source ==  "facebook_posts": source = "CompanyFacebookPost"
-        elif source ==  "tweets": source = "CompanyTweet"
-        #TODO news
+        if source == "blog_data": _source = "CompanyBlogPost"
+        elif source == "builtwith": _source = "CompanyTechnology"
+        elif source ==  "press": _source = "CompanyPressRelease"
+        elif source ==  "glassdoor_reviews": _source = "CompanyGlassdoorReview"
+        elif source ==  "employees": _source = "CompanyEmployee"
+        elif source ==  "similar": _source = "CompanySimilar"
+        elif source ==  "hiring": _source = "CompanyHiring"
+        elif source ==  "general_news": _source = "CompanyNews"
+        elif source ==  "linkedin_posts": _source = "CompanyLinkedinPost"
+        elif source ==  "facebook_posts": _source = "CompanyFacebookPost"
+        elif source ==  "tweets": _source = "CompanyTweet"
+        #TODO - News
         #TODO - CompanySocialMedia - Linkedin Posts, Tweets, Facebook Posts
         #TODO - prevent duplicates
         #TODO - batch create data
-        print source
+
+        print _source
+        print data.keys()
         _data = pd.DataFrame(data['data'])
         if "company_name" in data.keys():
           _data["company_name"] = data["company_name"]
         _data["api_key"] = api_key
-        if "domain" in data.keys():
-          _data["domain"] = data["domain"]
-        print Prospecter()._batch_df_create(source, _data)
-        print Parse()._batch_df_create(source, _data)
+        if "domain" in data.keys(): _data["domain"] = data["domain"]
+        res1=Prospecter()._batch_df_create(_source, _data)
+        res2=Parse()._batch_df_create(_source, _data)
+        print res1, res2
+        data["source"],data["_source"]=source, _source
+        timestamps = _data.timestamp.tolist()
+        _data = [{"event":[Parse()._pointer(_source, i["success"]["objectId"])],
+                  "company_name":data["company_name"],
+                  "domain":data["domain"]} for i in res1]
+        _data = pd.DataFrame(_data)
+        _data["timestamp"] = timestamps
+        #TODO - maybe add pointer?
+        print Prospecter()._batch_df_create("CompanyEvent", _data)
+        print Parse()._batch_df_create("CompanyEvent", _data)
+
+
