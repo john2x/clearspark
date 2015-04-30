@@ -35,9 +35,11 @@ class CompanyScore:
         crawls['name_score'] = [fuzz.token_sort_ratio(row['name'], row.company_name) 
                                 for index, row in crawls.iterrows()]
         crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
-        logo = crawls.sort("logo_score").dropna()
-        logo = logo[logo.logo != ""].logo.tolist()
-        logo = logo[0] if logo else ""
+        logo = crawls.sort("logo_score",ascending=False)
+
+        logo=logo[(logo.logo != "") & (logo.logo.notnull())][["source","logo"]]
+        logo = logo.to_dict("r")[0]["logo"] if logo.to_dict("r") else ""
+        
         #crawls = crawls[["press", 'source_score', 'source', 'createdAt', 'domain']]
         final = {}
         #print crawls.press.dropna()
@@ -79,12 +81,11 @@ class CompanyScore:
         except:
             "lol"
 
-        try:
-            tmp = crawls[['source','logo']].dropna()
-            final["logo"] = logo
-            final['logos'] = tmp.drop_duplicates().to_dict('r')
-        except:
-            """ """
+        tmp = crawls[['source','logo']].dropna()
+        #print tmp
+        #print "THE LOGO", logo
+        final["logo"] = logo
+        final['logos'] = tmp.drop_duplicates().to_dict('r')
           
         try:
             tmp = crawls[['source','phone']].dropna()
@@ -94,14 +95,14 @@ class CompanyScore:
         # TODO - if company_name exists update
         # TODO - find if domain exists under different company_name then update 
         final = self._prettify_fields(final)
-        if "name_score" in final.keys: del final["name_score"]
-        print json.dumps(final)
+        if "name_score" in final.keys(): del final["name_score"]
+        #print json.dumps(final)
         self._add_to_clearspark_db('Company', 'company_name', company_name, final)
 
         # TODO - find main domain from domain -> ie canon.ca should be canon.com
         # clean data - ie titleify fields, and lowercase domain
         # TODO - start a domain search with the deduced domain and the company_name
-        print "RQUEUE CHECK"
+        #print "RQUEUE CHECK"
         if "domain" in final.keys():
             domain = final["domain"]
 
@@ -122,10 +123,10 @@ class CompanyScore:
             job = q.enqueue(EmailGuess().search_sources, final["domain"],api_key,"")
             job.meta["{0}_{1}".format(company_name, api_key)] = True
             job.save()
-            '''
             for domain in crawls.domain.dropna().drop_duplicates():
                 job = q.enqueue(EmailGuess().search_sources, domain, api_key, "")
                 RQueue()._meta(job, "{0}_{1}".format(company_name, api_key))
+            '''
         return final
 
     def _prettify_fields(self, final):
