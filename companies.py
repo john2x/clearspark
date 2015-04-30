@@ -50,6 +50,7 @@ class Companies:
         #TODO get blog url
         df = Google().search('inurl:blog site:{0}'.format(domain), 1)
         print df
+        if df.empty: return
         df["count"] = [len(url) for url in df.link]
         df = df.reset_index().drop('index',1)
         df = df.drop('title', 1)
@@ -155,10 +156,12 @@ class Companies:
             pages = {'data':pages, 'company_name':company_name,"domain":domain}
             CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
 
-        while "Next" in browser.find_by_css('td > a')[-1].text:
-            browser.find_by_css('td > a')[-1].click()
-            df = Google()._results_html_to_df(browser.html)
-            pages = pages.append(df)
+        _next = browser.find_by_css('td > a')[-1]
+        if _next:
+            while "Next" in _next.text:
+                browser.find_by_css('td > a')[-1].click()
+                df = Google()._results_html_to_df(browser.html)
+                pages = pages.append(df)
 
         pages = pages[~pages.title.str.contains("press release")]
         pages = pages[pages.link_span.str.contains('(?i){0}'.format(company_name))]

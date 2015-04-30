@@ -102,6 +102,7 @@ class GlassDoor:
 
     def _reviews(self, domain, api_key="", name=""):
         df = Google().search('site:glassdoor.com/reviews {0}'.format(name))
+        if df.empty: return
         url = df.ix[0].link
         r = BeautifulSoup(Google().cache(url))
         rating = r.find('div',{'class':'ratingNum'})
