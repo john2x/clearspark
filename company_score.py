@@ -37,8 +37,9 @@ class CompanyScore:
         crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
         logo = crawls.sort("logo_score",ascending=False)
 
-        logo=logo[(logo.logo != "") & (logo.logo.notnull())][["source","logo"]]
-        logo = logo.to_dict("r")[0]["logo"] if logo.to_dict("r") else ""
+        #logo=logo[(logo.logo != "") & (logo.logo.notnull())][["source","logo"]]
+        logo=logo[(logo.logo != "") & (logo.logo.notnull())].logo.tolist()
+        logo = logo[0] if logo else ""
         
         #crawls = crawls[["press", 'source_score', 'source', 'createdAt', 'domain']]
         final = {}
