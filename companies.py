@@ -308,13 +308,19 @@ class Companies:
         _list = Parse()._pointer("CompanyProspectList", _list["objectId"])
         _data["lists"] =  [[_list] for i in _data.index]
         Prospecter()._batch_df_create("CompanyProspect", _data)
-        for i in data: q.enqueue(Companies()._bulk, i["company_name"])
+        for i in data: 
+            #q.enqueue(Companies()._bulk, i["company_name"])
+            r=requests.get("https://clear-spark.herokuapp.com/v1/companies/research",
+                           params={"bulk":"bulk",
+                 "api_key":"9a31a1defcdc87a618e12970435fd44741d7b88794f7396cbec486b8",
+                                   "company_name":i["company_name"]})
+            print r.text
 
     def _bulk(self, company_name, api_key=""):
         qry = {'where':json.dumps({'company_name':company_name})}
         company = Parse().get('Company', qry).json()['results']
         company_crawl = Parse().get('CompanyInfoCrawl', qry).json()['results']
-        #company = False
+        company = False
         # check if company info crawl
         print company
         if company:

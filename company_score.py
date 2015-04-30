@@ -35,7 +35,8 @@ class CompanyScore:
         crawls['name_score'] = [fuzz.token_sort_ratio(row['name'], row.company_name) 
                                 for index, row in crawls.iterrows()]
         crawls = crawls[crawls.name_score > 70].append(crawls[crawls.name.isnull()])
-        logo = crawls.sort("logo_score").dropna().logo.tolist()
+        logo = crawls.sort("logo_score").dropna()
+        logo = logo[logo.logo != ""].logo.tolist()
         logo = logo[0] if logo else ""
         #crawls = crawls[["press", 'source_score', 'source', 'createdAt', 'domain']]
         final = {}
@@ -78,12 +79,18 @@ class CompanyScore:
         except:
             "lol"
 
-        tmp = crawls[['source','logo']].dropna()
-        final["logo"] = logo
-        final['logos'] = tmp.drop_duplicates().to_dict('r')
+        try:
+            tmp = crawls[['source','logo']].dropna()
+            final["logo"] = logo
+            final['logos'] = tmp.drop_duplicates().to_dict('r')
+        except:
+            """ """
           
-        tmp = crawls[['source','phone']].dropna()
-        final['phones'] = tmp.drop_duplicates().to_dict('r')
+        try:
+            tmp = crawls[['source','phone']].dropna()
+            final['phones'] = tmp.drop_duplicates().to_dict('r')
+        except:
+            """ """
         # TODO - if company_name exists update
         # TODO - find if domain exists under different company_name then update 
         final = self._prettify_fields(final)
