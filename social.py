@@ -117,8 +117,10 @@ class Facebook:
             post_text = post.find("div",{"class":"userContent"}).text
             _post = {"timestamp":utime, "post_text":post_text}
             if post.find('div',{'class':'_3ekx'}):
-              link_url = post.find('div',{'class':'_3ekx'}).find('a')["href"]
-              link_url = urllib.unquote(link_url.split("l.php?u=")[-1])
+              link_url = post.find('div',{'class':'_3ekx'}).find('a')
+              if link_url:
+                  link_url = link_url["href"]
+                  link_url = urllib.unquote(link_url.split("l.php?u=")[-1])
               link_img = post.find('img',{"class":"scaledImageFitWidth"})["src"]
               link_title = post.find('div',{'class':'mbs'}).text
               link_summary = post.find('div',{'class':'_6m7'}).text
