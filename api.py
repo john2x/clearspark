@@ -261,9 +261,15 @@ def secondary_research():
     domain = "onecoast.com"
     #print "ARGS", requests.args
     print "DATA", request.data
-    name = request.data["company_name"]
-    domain = request.data["domain"]
+    name, domain = request.data["company_name"], request.data["domain"]
     q.enqueue(Companies()._secondary_research, name, domain, timeout=600)
+    return {'started':True}
+
+@app.route('/v1/test/daily_research', methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def secondary_research():
+    name, domain = request.args["company_name"], request.args["domain"]
+    q.enqueue(Companies()._daily_secondary_research, name, domain, timeout=6000)
     return {'started':True}
 
 @app.route('/hirefire/a6b3b40a4717a3c2e023751cb0f295a82529b2a5/info', methods=['GET','OPTIONS','POST'])
