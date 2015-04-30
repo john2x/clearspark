@@ -267,7 +267,7 @@ def secondary_research():
 
 @app.route('/v1/test/daily_research', methods=['GET','OPTIONS','POST'])
 @crossdomain(origin='*')
-def secondary_research():
+def test_daily_research():
     name, domain = request.args["company_name"], request.args["domain"]
     q.enqueue(Companies()._daily_secondary_research, name, domain, timeout=6000)
     return {'started':True}
