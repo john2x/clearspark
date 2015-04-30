@@ -94,7 +94,7 @@ class CompanyScore:
         # TODO - if company_name exists update
         # TODO - find if domain exists under different company_name then update 
         final = self._prettify_fields(final)
-        del final["name_score"]
+        if "name_score" in final.keys: del final["name_score"]
         print json.dumps(final)
         self._add_to_clearspark_db('Company', 'company_name', company_name, final)
 
