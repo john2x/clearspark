@@ -156,14 +156,17 @@ class Companies:
             pages = {'data':pages, 'company_name':company_name,"domain":domain}
             CompanyExtraInfoCrawl()._persist(pages, "general_news", api_key)
 
-        _next = browser.find_by_css('td > a')[-1]
+        try:
+          _next = browser.find_by_css('td > a')[-1].text
+        except:
+          _next = None
         if _next:
-            while "Next" in _next.text:
+            while "Next" in _next:
                 browser.find_by_css('td > a')[-1].click()
                 df = Google()._results_html_to_df(browser.html)
                 pages = pages.append(df)
 
-        pages = pages[~pages.title.str.contains("press release")]
+        #pages = pages[~pages.title.str.contains("press release")]
         pages = pages[pages.link_span.str.contains('(?i){0}'.format(company_name))]
         pages.columns = ['link','description','title','info','']
         pages['date'] = [i.split('-')[-1] for i in pages['info']]
