@@ -468,6 +468,8 @@ class Companies:
         result = Parse().update('CompanyProspect/'+objectId, profile, True)
         return profile
 
+#TODO - get article timestamp with newspaper module
+
 class CompanyTrends:
     def linkedin_followers():
         ''' '''

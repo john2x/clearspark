@@ -1,5 +1,6 @@
 from flask.ext.api import FlaskAPI
 from li import Linkedin
+from integrations import Integrations
 import json
 from social import *
 from zoominfo import Zoominfo
@@ -408,6 +409,26 @@ def _company_bulk_upload():
     data = request.args["data"]
     user = request.args["user"]
     q.enqueue(Companies()._bulk_upload, data, user)
+    return {"started":True}
+
+@app.route("/v1/integration", methods=['GET','OPTIONS','POST'])
+@crossdomain(origin='*')
+def _add_integration():
+    #TODO - three fields, company_name, website, domain
+    # - really only need 1 
+    token = request.args["token"]
+    user = request.args["user"]
+    user_company = request.args["user_company"]
+
+    print request.args
+    print token, user, user_company, request.args["source"]
+    if "google" in request.args["source"]:
+      q.enqueue(Integrations()._google_contact_import, token, user, user_company)
+    elif "salesforce" in request.args["source"]:
+      print "SALESFORCE"
+      instance_url = request.args["instance_url"]
+      q.enqueue(Integrations()._salesforce_import, token, instance_url, 
+                user, user_company)
     return {"started":True}
 
 if __name__ == "__main__":

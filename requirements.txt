@@ -1,4 +1,6 @@
 Flask==0.10.1
+gdata==2.0.18
+simple-salesforce==0.67.0
 blinker==1.3
 bugsnag==2.3.0
 stripe==1.19.1
